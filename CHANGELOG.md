@@ -4,6 +4,14 @@ Format loosely follows [Keep a Changelog](https://keepachangelog.com/). Dates ar
 
 ## Unreleased — `migration/nextjs-supabase`
 
+### Added — Public Services/Products pages, Products/Projects management
+
+- Public `/services` and `/products` pages — title, short/full description, optional icon/image, sorted by display order then title/name. Published-only via RLS, reusing the exact same `list()` call the admin tables use (`listServicesForPublic`/`listProductsForPublic`), not a duplicate query. Metadata title/description/canonical on both.
+- Products management (`/admin/products`, `/admin/products/new`, `/admin/products/[id]/edit`) and Projects management (`/admin/projects`, `/admin/projects/new`, `/admin/projects/[id]/edit`) — same shape as Services (`docs/decision-log.md` ADR-012/013): list/create/edit/publish/unpublish, no delete, draft/published only.
+- Migration `20260722000001` — additive `summary`/`sort_order`/`image_url` on `products`, `summary`/`sort_order`/`completion_date`/`cover_image_url` on `projects`. No RLS changes.
+- `PublishStatusBadge`/`PublishStatusButton` generalized from the services-only status components to serve all three content types.
+- Fixed a pre-existing dead nav link: "Solar Solutions" now points at `/services` (was `/solar-solutions`, a route that was never built).
+
 ### Added — Services management
 
 - Services list (`/admin/services`) — service name, status, last updated; Create/Edit/Publish/Unpublish actions, no delete yet.

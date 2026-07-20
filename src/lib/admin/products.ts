@@ -1,94 +1,95 @@
-import { serviceInputSchema } from "@/lib/validation/service";
+import { productInputSchema } from "@/lib/validation/product";
 
 import type { DataResult } from "./data-result";
 import { slugify, slugifyWithSuffix } from "./slug";
-import type { RawServiceRow, ServiceStatus, ServicesDataSource } from "./services-data-source";
+import type { ProductsDataSource, ProductStatus, RawProductRow } from "./products-data-source";
 
 export type { DataResult } from "./data-result";
-export type { ServiceStatus } from "./services-data-source";
+export type { ProductStatus } from "./products-data-source";
 
-export const SERVICE_STATUSES: ServiceStatus[] = ["draft", "published"];
+export const PRODUCT_STATUSES: ProductStatus[] = ["draft", "published"];
 
-export type ServiceListItem = {
+export type ProductListItem = {
   id: string;
   title: string;
-  status: ServiceStatus;
+  status: ProductStatus;
   updatedAt: string;
 };
 
-export type ServiceDetail = ServiceListItem & {
+export type ProductDetail = ProductListItem & {
   slug: string;
   summary: string;
-  body: string;
-  icon: string | null;
+  description: string;
+  image: string | null;
   sortOrder: number;
 };
 
-export function mapServiceListItem(row: RawServiceRow): ServiceListItem {
+export function mapProductListItem(row: RawProductRow): ProductListItem {
   return {
     id: row.id,
-    title: row.title,
+    title: row.name,
     status: row.status,
     updatedAt: row.updated_at,
   };
 }
 
-export function mapServiceDetail(row: RawServiceRow): ServiceDetail {
+export function mapProductDetail(row: RawProductRow): ProductDetail {
   return {
-    ...mapServiceListItem(row),
+    ...mapProductListItem(row),
     slug: row.slug,
     summary: row.summary ?? "",
-    body: row.body ?? "",
-    icon: row.icon,
+    description: row.description ?? "",
+    image: row.image_url,
     sortOrder: row.sort_order,
   };
 }
 
-export async function listServices(
-  ds: ServicesDataSource | null,
-): Promise<DataResult<ServiceListItem[]>> {
+export async function listProducts(
+  ds: ProductsDataSource | null,
+): Promise<DataResult<ProductListItem[]>> {
   if (!ds) return { status: "unavailable" };
   try {
     const { data, error } = await ds.list();
     if (error || !data) return { status: "unavailable" };
-    return { status: "ok", data: data.map(mapServiceListItem) };
+    return { status: "ok", data: data.map(mapProductListItem) };
   } catch (error) {
-    console.error("[admin] failed to list services", error);
+    console.error("[admin] failed to list products", error);
     return { status: "unavailable" };
   }
 }
 
 /**
- * Same underlying `ds.list()` call as `listServices` (RLS already scopes
+ * Same underlying `ds.list()` call as `listProducts` (RLS already scopes
  * it to published-only for an anonymous caller) — just mapped to the
- * fuller detail shape the public page needs. Not a duplicate query — see
- * docs/decision-log.md ADR-013.
+ * fuller detail shape the public page needs instead of the admin table's
+ * slim list-item shape. Not a duplicate query — see docs/decision-log.md
+ * ADR-013.
  */
-export async function listServicesForPublic(
-  ds: ServicesDataSource | null,
-): Promise<DataResult<ServiceDetail[]>> {
+export async function listProductsForPublic(
+  ds: ProductsDataSource | null,
+): Promise<DataResult<ProductDetail[]>> {
   if (!ds) return { status: "unavailable" };
   try {
     const { data, error } = await ds.list();
     if (error || !data) return { status: "unavailable" };
-    return { status: "ok", data: data.map(mapServiceDetail) };
+    return { status: "ok", data: data.map(mapProductDetail) };
   } catch (error) {
-    console.error("[admin] failed to list services for public page", error);
+    console.error("[admin] failed to list products for public page", error);
     return { status: "unavailable" };
   }
 }
 
-export async function getService(
-  ds: ServicesDataSource | null,
+export async function getProduct(
+  ds: ProductsDataSource | null,
   id: string,
-): Promise<DataResult<ServiceDetail | null>> {
+): Promise<DataResult<ProductDetail | null>> {
   if (!ds) return { status: "unavailable" };
   try {
     const { data, error } = await ds.getById(id);
     if (error) return { status: "unavailable" };
-    return { status: "ok", data: data ? mapServiceDetail(data) : null };
+    return { status: "ok", data: data ? mapProductDetail(data) : null };
   } catch (error) {
-    console.error("[admin] failed to load service", error);
+    console.error("[admin] failed to load product", error);
     return { status: "unavailable" };
   }
 }
@@ -100,11 +101,11 @@ export type MutationResult =
 
 const UNIQUE_VIOLATION = "23505";
 
-export async function createService(
-  ds: ServicesDataSource | null,
+export async function createProduct(
+  ds: ProductsDataSource | null,
   raw: unknown,
 ): Promise<MutationResult> {
-  const parsed = serviceInputSchema.safeParse(raw);
+  const parsed = productInputSchema.safeParse(raw);
   if (!parsed.success) {
     return { status: "invalid", fieldErrors: parsed.error.flatten().fieldErrors };
   }
@@ -113,10 +114,10 @@ export async function createService(
   const values = parsed.data;
   const row = {
     slug: slugify(values.title),
-    title: values.title,
+    name: values.title,
     summary: values.summary,
-    body: values.body,
-    icon: values.icon ?? null,
+    description: values.description,
+    image_url: values.image ?? null,
     sort_order: values.sortOrder ?? 0,
   };
 
@@ -124,29 +125,24 @@ export async function createService(
     let { data, error } = await ds.create(row);
 
     if (error?.code === UNIQUE_VIOLATION) {
-      // Slug collision (another service already has this title's slug) —
-      // one retry with a short unique suffix rather than looping lookups.
       ({ data, error } = await ds.create({ ...row, slug: slugifyWithSuffix(values.title) }));
     }
 
     if (error || !data) return { status: "unavailable" };
     return { status: "ok", id: data.id };
   } catch (error) {
-    console.error("[admin] failed to create service", error);
+    console.error("[admin] failed to create product", error);
     return { status: "unavailable" };
   }
 }
 
-/**
- * Editing never changes the slug once a service exists — keeps any
- * future public URL for it stable even if the title is edited later.
- */
-export async function updateService(
-  ds: ServicesDataSource | null,
+/** Editing never changes the slug once a product exists — see services.ts for the same rule. */
+export async function updateProduct(
+  ds: ProductsDataSource | null,
   id: string,
   raw: unknown,
 ): Promise<MutationResult> {
-  const parsed = serviceInputSchema.safeParse(raw);
+  const parsed = productInputSchema.safeParse(raw);
   if (!parsed.success) {
     return { status: "invalid", fieldErrors: parsed.error.flatten().fieldErrors };
   }
@@ -155,34 +151,34 @@ export async function updateService(
   const values = parsed.data;
   try {
     const { data, error } = await ds.update(id, {
-      title: values.title,
+      name: values.title,
       summary: values.summary,
-      body: values.body,
-      icon: values.icon ?? null,
+      description: values.description,
+      image_url: values.image ?? null,
       sort_order: values.sortOrder ?? 0,
     });
 
     if (error || !data) return { status: "unavailable" };
     return { status: "ok", id: data.id };
   } catch (error) {
-    console.error("[admin] failed to update service", error);
+    console.error("[admin] failed to update product", error);
     return { status: "unavailable" };
   }
 }
 
-export function isValidServiceStatus(value: string): value is ServiceStatus {
-  return (SERVICE_STATUSES as string[]).includes(value);
+export function isValidProductStatus(value: string): value is ProductStatus {
+  return (PRODUCT_STATUSES as string[]).includes(value);
 }
 
 export type StatusMutationResult =
   { status: "ok" } | { status: "invalid" } | { status: "unavailable" };
 
-export async function setServiceStatus(
-  ds: ServicesDataSource | null,
+export async function setProductStatus(
+  ds: ProductsDataSource | null,
   id: string,
   status: string,
 ): Promise<StatusMutationResult> {
-  if (!isValidServiceStatus(status)) return { status: "invalid" };
+  if (!isValidProductStatus(status)) return { status: "invalid" };
   if (!id || !ds) return { status: "unavailable" };
 
   try {
@@ -190,7 +186,7 @@ export async function setServiceStatus(
     if (error) return { status: "unavailable" };
     return { status: "ok" };
   } catch (error) {
-    console.error("[admin] failed to update service status", error);
+    console.error("[admin] failed to update product status", error);
     return { status: "unavailable" };
   }
 }

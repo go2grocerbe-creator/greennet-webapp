@@ -4,6 +4,7 @@ import {
   createService,
   getService,
   listServices,
+  listServicesForPublic,
   setServiceStatus,
   updateService,
 } from "@/lib/admin/services";
@@ -56,6 +57,28 @@ describe("listServices / getService", () => {
         { id: "svc-1", title: "Solar Installation", status: "draft", updatedAt: rawRow.updated_at },
       ],
     });
+  });
+});
+
+describe("listServicesForPublic", () => {
+  it("returns unavailable when the data source is null", async () => {
+    expect(await listServicesForPublic(null)).toEqual({ status: "unavailable" });
+  });
+
+  it("maps to the full detail shape and reuses the same list() call, not a second query", async () => {
+    const ds = createDataSource();
+    const result = await listServicesForPublic(ds);
+    expect(result.status).toBe("ok");
+    if (result.status === "ok") {
+      expect(result.data[0]).toEqual(
+        expect.objectContaining({
+          id: "svc-1",
+          summary: "Short description",
+          body: "Full description",
+        }),
+      );
+    }
+    expect(ds.list).toHaveBeenCalledTimes(1);
   });
 });
 

@@ -57,6 +57,9 @@ Extends Supabase's built-in `auth.users`; one row per authenticated admin/editor
 | `spec_sheet_media_id`                                  | uuid, FK → `media.id`, nullable | Optional downloadable spec sheet                                                                            |
 | `status`                                               | enum(`draft`, `published`)      |                                                                                                             |
 | `created_by`, `updated_by`, `created_at`, `updated_at` | as above                        |                                                                                                             |
+| `summary`                                              | text, nullable                  | "Short description" — added in migration `20260722000001` (docs/decision-log.md ADR-013)                    |
+| `sort_order`                                           | integer, default 0              | "Display order" — added in migration `20260722000001`                                                       |
+| `image_url`                                            | text, nullable                  | Optional product image, staff-supplied URL — added in migration `20260722000001`                            |
 
 No `price` field in Phase 1 core schema — pricing display is an unconfirmed, distinct question (see requirements register §5) and automated pricing is explicitly out of scope. If simple static price display is later confirmed, add a nullable `display_price` field rather than building pricing logic.
 
@@ -74,6 +77,10 @@ No `price` field in Phase 1 core schema — pricing display is an unconfirmed, d
 | `featured`                                             | boolean, default false                          | Confirmed requirement                                                                                                                                                         |
 | `status`                                               | enum(`draft`, `published`)                      | Confirmed requirement — critical here, since no real project photos exist yet (see content register); everything stays `draft` until real, rights-cleared content is supplied |
 | `created_by`, `updated_by`, `created_at`, `updated_at` | as above                                        |                                                                                                                                                                               |
+| `summary`                                              | text, nullable                                  | "Short description" (distinct from `equipment_summary`) — added in migration `20260722000001`                                                                                 |
+| `sort_order`                                           | integer, default 0                              | "Display order" — added in migration `20260722000001`                                                                                                                         |
+| `completion_date`                                      | date, nullable                                  | Added in migration `20260722000001`                                                                                                                                           |
+| `cover_image_url`                                      | text, nullable                                  | Optional cover image, staff-supplied URL — added in migration `20260722000001`                                                                                                |
 
 ## `project_media` (join table)
 

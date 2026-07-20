@@ -1,22 +1,22 @@
 import Link from "next/link";
 
 import { formatDateTime } from "@/lib/admin/format";
-import { setServiceStatusAction } from "@/lib/admin/service-actions";
-import type { DataResult, ServiceListItem } from "@/lib/admin/services";
+import { setProjectStatusAction } from "@/lib/admin/project-actions";
+import type { DataResult, ProjectListItem } from "@/lib/admin/projects";
 
 import { DataUnavailableNotice, EmptyNotice } from "./data-state-notice";
 import { PublishStatusBadge } from "./publish-status-badge";
 import { PublishStatusButton } from "./publish-status-button";
 
-export function ServicesTable({ result }: { result: DataResult<ServiceListItem[]> }) {
+export function ProjectsTable({ result }: { result: DataResult<ProjectListItem[]> }) {
   if (result.status === "unavailable") {
     return (
-      <DataUnavailableNotice message="Service data is unavailable right now. This usually means Supabase isn't configured in this environment yet — see docs/architecture.md." />
+      <DataUnavailableNotice message="Project data is unavailable right now. This usually means Supabase isn't configured in this environment yet — see docs/architecture.md." />
     );
   }
 
   if (result.data.length === 0) {
-    return <EmptyNotice message="No services yet. Create the first one to get started." />;
+    return <EmptyNotice message="No projects yet. Create the first one to get started." />;
   }
 
   return (
@@ -25,7 +25,7 @@ export function ServicesTable({ result }: { result: DataResult<ServiceListItem[]
         <thead className="bg-muted/50">
           <tr>
             <th scope="col" className="px-4 py-3 font-medium">
-              Service name
+              Project name
             </th>
             <th scope="col" className="px-4 py-3 font-medium">
               Status
@@ -39,26 +39,26 @@ export function ServicesTable({ result }: { result: DataResult<ServiceListItem[]
           </tr>
         </thead>
         <tbody>
-          {result.data.map((service) => (
-            <tr key={service.id} className="border-border border-t">
-              <td className="px-4 py-3">{service.title}</td>
+          {result.data.map((project) => (
+            <tr key={project.id} className="border-border border-t">
+              <td className="px-4 py-3">{project.title}</td>
               <td className="px-4 py-3">
-                <PublishStatusBadge status={service.status} />
+                <PublishStatusBadge status={project.status} />
               </td>
-              <td className="px-4 py-3">{formatDateTime(service.updatedAt)}</td>
+              <td className="px-4 py-3">{formatDateTime(project.updatedAt)}</td>
               <td className="px-4 py-3">
                 <div className="flex items-center justify-end gap-3">
                   <Link
-                    href={`/admin/services/${service.id}/edit`}
+                    href={`/admin/projects/${project.id}/edit`}
                     className="focus-visible:ring-ring rounded underline underline-offset-2 outline-none focus-visible:ring-2"
                   >
                     Edit
                   </Link>
                   <PublishStatusButton
-                    id={service.id}
-                    currentStatus={service.status}
-                    action={setServiceStatusAction}
-                    testId={`service-status-toggle-${service.id}`}
+                    id={project.id}
+                    currentStatus={project.status}
+                    action={setProjectStatusAction}
+                    testId={`project-status-toggle-${project.id}`}
                   />
                 </div>
               </td>

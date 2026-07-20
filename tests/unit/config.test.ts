@@ -5,14 +5,7 @@ import { siteConfig } from "@/lib/config";
 describe("siteConfig", () => {
   it("exposes the confirmed Phase 1 nav routes", () => {
     const hrefs = siteConfig.nav.map((item) => item.href);
-    expect(hrefs).toEqual([
-      "/",
-      "/about",
-      "/solar-solutions",
-      "/products",
-      "/projects",
-      "/contact",
-    ]);
+    expect(hrefs).toEqual(["/", "/about", "/services", "/products", "/projects", "/contact"]);
   });
 
   it("carries only client-confirmed contact facts", () => {

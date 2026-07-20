@@ -3,21 +3,34 @@
 import { useActionState } from "react";
 
 import { Button } from "@/components/ui/button";
-import { setServiceStatusAction, type UpdateStatusState } from "@/lib/admin/service-actions";
-import type { ServiceStatus } from "@/lib/admin/services";
 
-type ServiceStatusButtonProps = {
+import type { PublishStatus } from "./publish-status-badge";
+
+export type UpdateStatusState = { error?: string } | undefined;
+
+type PublishStatusButtonProps = {
   id: string;
-  currentStatus: ServiceStatus;
+  currentStatus: PublishStatus;
+  action: (state: UpdateStatusState, formData: FormData) => Promise<UpdateStatusState>;
+  testId?: string;
 };
 
-/** Single-purpose publish/unpublish toggle — only draft/published exist, no scheduling. */
-export function ServiceStatusButton({ id, currentStatus }: ServiceStatusButtonProps) {
+/**
+ * Single-purpose publish/unpublish toggle, shared by services/products/
+ * projects (see PublishStatusBadge). Not a select — there are only two
+ * states and no scheduling, so a toggle is the honest control.
+ */
+export function PublishStatusButton({
+  id,
+  currentStatus,
+  action,
+  testId,
+}: PublishStatusButtonProps) {
   const [state, formAction, isPending] = useActionState<UpdateStatusState, FormData>(
-    setServiceStatusAction,
+    action,
     undefined,
   );
-  const nextStatus: ServiceStatus = currentStatus === "published" ? "draft" : "published";
+  const nextStatus: PublishStatus = currentStatus === "published" ? "draft" : "published";
   const label = currentStatus === "published" ? "Unpublish" : "Publish";
 
   return (
@@ -30,7 +43,7 @@ export function ServiceStatusButton({ id, currentStatus }: ServiceStatusButtonPr
         size="sm"
         disabled={isPending}
         aria-busy={isPending}
-        data-testid={`service-status-toggle-${id}`}
+        data-testid={testId ?? `publish-status-toggle-${id}`}
       >
         {isPending ? "Updating…" : label}
       </Button>

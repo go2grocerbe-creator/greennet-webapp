@@ -117,6 +117,23 @@ Format: one entry per architecturally significant decision. Never delete or rewr
 **Rationale:** Delivers exactly the objective (staff can create/edit/publish/unpublish services) by reusing a pattern already proven correct and testable in ADR-011, rather than inventing a generic CMS abstraction ahead of Products/Projects needing the same shape in later milestones.
 **Not built:** delete, scheduling, revisions/version history, rich text, public Services page (data is publish-ready — RLS already filters to `status = 'published'` for anonymous reads — but no public route reads it yet).
 
+## ADR-013 — Public Services/Products pages, Products/Projects management: reuse over duplication
+
+**Date:** 2026-07-22
+**Status:** Confirmed
+**Decision:**
+
+- **One data-source `list()` call serves both the admin table and the public page.** `ServicesDataSource.list()` / `ProductsDataSource.list()` already select every column and order by `sort_order, then title/name` — exactly the order the public pages need. RLS (`*_editor_owner_all` for an authenticated editor/owner vs. `*_public_read_published` for anonymous) is what actually restricts the result set, not the query shape. `listServicesForPublic()` / `listProductsForPublic()` are thin mappers over that same call (raw row → full detail shape) sitting next to `listServices()` / `listProducts()` (raw row → slim list-item shape) in the same file — not a second repository, not a duplicate query, per this milestone's explicit instruction.
+- **Migration `20260722000001`** adds `summary`, `sort_order`, `image_url` to `products` and `summary`, `sort_order`, `completion_date`, `cover_image_url` to `projects` — additive only, no renames or drops. Required because neither table had a short-description-distinct-from-full-description field, a display order, or an image reference; `services` already had everything (ADR-011/012) and needed no migration. No RLS changes — policies are row-level, unaffected by new columns.
+- **`PublishStatusBadge` / `PublishStatusButton`** (`src/components/admin/publish-status-*.tsx`) replace the services-only `ServiceStatusBadge` / `ServiceStatusButton` from ADR-012, generalized to `"draft" | "published"` with an injected server action. Services/Products/Projects all share the exact same two-state model — reusing one component three times is the "reuse existing components" instruction applied literally, not a speculative abstraction. `quote_requests`' new/contacted/closed status keeps its own separate `StatusBadge` (different states, different meaning).
+- **Products/Projects admin (`products.ts`/`products-data-source.ts`/`product-actions.ts`, and the `projects.ts` equivalents) mirror `services.ts` file-for-file.** A generic "content type" abstraction over all three was deliberately not built — the fields genuinely differ (Projects has Location + Completion Date, Products has Image, Services has Icon) and a config-driven generic form/table was judged more complex than three small, obviously-correct files, per this milestone's explicit "no CMS abstractions" instruction.
+- **`siteConfig.nav`'s "Solar Solutions" entry now points at `/services`** (was `/solar-solutions`, a route that was never built — a pre-existing dead link, not something this milestone introduced). The confirmed page name "Solar Solutions" (`docs/requirements-register.md`) is kept as the nav label; only the route it points to changed, to the one this milestone actually built, per the milestone's own explicit repeated instruction to create the page at `/services`.
+- **No public Projects page this round** — not requested in this milestone. `ProjectsDataSource.list()` follows the identical shape to Services/Products so a future `listProjectsForPublic()` is a small addition, not a redesign, when that page is actually needed.
+- **Image/Cover Image fields are plain URL text inputs**, not a Supabase Storage upload flow — no upload UI was requested, and building one would need bucket/RLS wiring not in scope here. Public pages render them with a plain `<img>` (not `next/image`) since these are arbitrary staff-supplied URLs, not Storage-hosted assets — `next/image` would need an open-ended `remotePatterns` allowlist for no real benefit yet.
+
+**Rationale:** Delivers all four milestones' stated objectives while maximizing reuse of the ADR-011/012 pattern and the actual RLS-backed data layer, avoiding both duplicate queries and a premature generic CMS layer.
+**Not built:** public Projects page, image upload/Storage integration, delete, scheduling, revisions on any of the three content types.
+
 ## Superseded decisions
 
 None yet.
