@@ -72,6 +72,21 @@ Format: one entry per architecturally significant decision. Never delete or rewr
 **Rationale:** Executes the confirmed migration sequence (`docs/migration-strategy.md` steps 2–7) up through a working, tested foundation, without deleting the legacy demo or touching `main`. This is scope-bounded to structure/plumbing — no approved marketing copy was written (see placeholder content in `src/app/(marketing)/page.tsx`), and Products/Projects seed data stays empty per the BLOCKED items in `docs/requirements-register.md` §6.
 **Not done in this ADR:** live Supabase project connection, applying migrations anywhere, real content, deployment, cutover. These remain gated on client-confirmed facts and an explicit go-ahead.
 
+## ADR-010 — Quotation enquiry flow: field backbone, insert path, provider abstractions
+
+**Date:** 2026-07-21
+**Status:** Confirmed
+**Decision:**
+
+- `quote_requests` extended (migration `20260721000001`) with `company_name`, `property_type`, `electricity_usage`, `preferred_contact_method`, `project_timeline`, `privacy_consent` (DB-level `check (privacy_consent = true)`). `service_interest` (existing column) is reused for "interested solution," populated only from a small neutral, non-branded set of values — never the unapproved draft `services` names. `phone` stays nullable; `email` stays the only always-required contact channel.
+- The insert path uses the **anon-key Supabase client with no user session**, relying on the existing `quote_requests_public_insert` RLS policy (`with check (true)`) — not the service-role key. This is the "narrowly-scoped RLS-permitted insert path" option from `docs/security-model.md` §"Quotation form submission path" step 3, chosen over service-role to keep the public form's blast radius to exactly what RLS already allows anonymous users to do.
+- Turnstile verification, rate limiting, and email delivery are each an injected interface (`src/lib/turnstile`, `src/lib/rate-limit`, `src/lib/email`) so the core `submitQuoteRequest()` pipeline is unit-testable without network calls and swappable per environment. Turnstile's dev/test bypass activates only when `TURNSTILE_SECRET_KEY` is absent (logged clearly); if the secret is configured, verification is always real — the bypass can never silently mask a misconfigured production secret.
+- Email is best-effort and non-blocking: the database insert is the authoritative business event; notification/acknowledgement emails are attempted afterward via `Promise.allSettled` and their failure is logged but never rolls back or fails the user-facing response — see `docs/security-model.md` §"Quotation form submission path".
+- Rate-limit identifier is a hashed IP (SHA-256, truncated), never the raw address, in line with "no personal data in analytics / logged."
+
+**Rationale:** Matches the confirmed requirement (server-side authoritative validation, Turnstile, rate limiting, secure lead storage) while minimizing new privileged surface area (no service-role key needed for this one insert) and keeping the pipeline testable in isolation.
+**Not resolved here:** the exact quotation form field list remains an ASSUMPTION (requirements register §5) and the neutral `service_interest` values are explicitly placeholders pending client-approved service naming — see `docs/content-register.md`.
+
 ## Superseded decisions
 
 None yet.

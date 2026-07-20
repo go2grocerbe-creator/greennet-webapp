@@ -5,12 +5,16 @@ const publicEnvSchema = z.object({
   NEXT_PUBLIC_SUPABASE_ANON_KEY: z.string().min(1),
   NEXT_PUBLIC_SITE_URL: z.string().url(),
   NEXT_PUBLIC_GA_MEASUREMENT_ID: z.string().min(1).optional(),
+  // Turnstile's site key is not a secret — it must reach the browser to
+  // render the widget. Absent in dev/test, see src/lib/turnstile/verify.ts.
+  NEXT_PUBLIC_TURNSTILE_SITE_KEY: z.string().min(1).optional(),
 });
 
 const serverEnvSchema = publicEnvSchema.extend({
-  SUPABASE_SERVICE_ROLE_KEY: z.string().min(1),
+  SUPABASE_SERVICE_ROLE_KEY: z.string().min(1).optional(),
   RESEND_API_KEY: z.string().min(1).optional(),
-  TURNSTILE_SITE_KEY: z.string().min(1).optional(),
+  EMAIL_FROM_ADDRESS: z.string().email().optional(),
+  QUOTE_NOTIFICATION_EMAIL: z.string().email().optional(),
   TURNSTILE_SECRET_KEY: z.string().min(1).optional(),
   SENTRY_DSN: z.string().url().optional(),
 });
@@ -33,6 +37,7 @@ export function getPublicEnv(): PublicEnv {
       NEXT_PUBLIC_SUPABASE_ANON_KEY: process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY,
       NEXT_PUBLIC_SITE_URL: process.env.NEXT_PUBLIC_SITE_URL,
       NEXT_PUBLIC_GA_MEASUREMENT_ID: process.env.NEXT_PUBLIC_GA_MEASUREMENT_ID,
+      NEXT_PUBLIC_TURNSTILE_SITE_KEY: process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY,
     });
   }
   return cachedPublicEnv;

@@ -6,7 +6,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 Production website for GreenNet Energy Ltd, a solar energy company in Benin City, Nigeria. **Confirmed production stack: Next.js (App Router) + TypeScript + Tailwind CSS + shadcn/ui + Supabase (Postgres, Auth, Storage, RLS) + React Hook Form + Zod + Resend (abstracted) + Cloudflare Turnstile + Vercel + Vitest + Playwright + Sentry + Google Analytics.** This is a client-confirmed architectural decision — see `docs/decision-log.md` ADR-001, not open for renegotiation without a new ADR.
 
-**The application is scaffolded (foundation only) on branch `migration/nextjs-supabase`.** Next.js App Router + TypeScript + Tailwind + shadcn/ui live at the repository root (`src/app`, `src/components`, `src/lib`), with a Supabase migrations/RLS/seed plan under `supabase/`. This is structure and plumbing, not the finished site — no approved marketing copy, no live Supabase project, no deployment. The legacy static demo has moved to `legacy-demo/` (preserved unmodified; also permanently retrievable on branch `legacy/static-demo`) and is reference-only, never the production codebase. `main` stays frozen at the pre-scaffold docs commit until this branch reaches parity and is verified — see `docs/migration-strategy.md` and `docs/decision-log.md` ADR-008/ADR-009. Read `docs/project-brief.md` first for full context before writing any application code.
+**The application is scaffolded (foundation) plus one complete feature, on branch `migration/nextjs-supabase`.** Next.js App Router + TypeScript + Tailwind + shadcn/ui live at the repository root (`src/app`, `src/components`, `src/lib`), with a Supabase migrations/RLS/seed plan under `supabase/`. The Contact / Request a Quotation flow (`/contact`) is fully implemented — form, shared Zod validation, server-side route handler, honeypot + Turnstile + rate-limit checks, Supabase insert via the anon-key client, best-effort notification/acknowledgement emails — see `docs/decision-log.md` ADR-010. Everything else is still structure and plumbing: no approved marketing copy, no live Supabase project, no deployment. The legacy static demo has moved to `legacy-demo/` (preserved unmodified; also permanently retrievable on branch `legacy/static-demo`) and is reference-only, never the production codebase. `main` stays frozen at the pre-scaffold docs commit until this branch reaches parity and is verified — see `docs/migration-strategy.md` and `docs/decision-log.md` ADR-008/ADR-009. Read `docs/project-brief.md` first for full context before writing any application code.
 
 ## Required reading before implementation work
 
@@ -21,6 +21,7 @@ In this order:
 7. `docs/content-register.md` — what existing content/imagery is safe to reuse vs. blocked
 8. `docs/decision-log.md` — ADRs, append-only
 9. `docs/risk-register.md`
+10. `docs/testing-plan.md` — unit/e2e test strategy and what's intentionally not covered
 
 ## Non-negotiable rules
 

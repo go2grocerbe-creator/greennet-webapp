@@ -34,11 +34,16 @@ RLS policies are the enforcement backstop — application-level checks (route gu
 
 ## Quotation form submission path (public-facing, highest-risk surface)
 
-1. Client-side: React Hook Form + Zod validate shape/required fields, Turnstile widget collects a challenge token.
-2. Submission goes to a **server action / route handler**, not a direct client-side Supabase insert — this lets the server independently re-validate with the same Zod schema (never trust client validation alone) and verify the Turnstile token server-side against Cloudflare's siteverify endpoint before any database write.
-3. Only after Turnstile verification succeeds does the handler insert into `quote_requests` using a service-role or narrowly-scoped RLS-permitted insert path.
-4. Rate limiting on the route handler (IP or token-bucket based) as a secondary spam/abuse control alongside Turnstile.
-5. Notification/acknowledgement emails are sent server-side via the abstracted email provider after successful insert — never expose email-provider credentials client-side.
+Implemented (`/contact`, `POST /api/quote-requests`, `src/lib/quote-requests/submit.ts` — see `docs/decision-log.md` ADR-010):
+
+1. Client-side: React Hook Form + `zodResolver(quoteRequestSchema)` validate shape/required fields (usability only); the Turnstile widget (when configured) collects a challenge token; an accessibly-hidden honeypot field is included in the payload.
+2. Submission goes to **`POST /api/quote-requests`**, a route handler — never a direct client-side Supabase insert. The handler parses only the expected fields (`quoteSubmissionSchema.safeParse`, unknown keys stripped, not trusted) and independently re-validates with the same Zod schema server-side.
+3. Honeypot check runs first (cheapest, no external calls): a non-empty honeypot value short-circuits to a spam result before any rate-limit/Turnstile/database work happens.
+4. Rate limiting (`src/lib/rate-limit/`) runs next, keyed on a **hashed** IP (SHA-256, truncated — the raw IP is never logged or stored). Single-instance in-memory implementation for now; not distributed-safe — see `docs/architecture.md` "Rate limiting".
+5. Turnstile verification (`src/lib/turnstile/verify.ts`) runs server-side against Cloudflare's siteverify endpoint. If `TURNSTILE_SECRET_KEY` is unset, an explicit, logged dev/test bypass returns success — this can never happen once the secret is actually configured, so it cannot silently mask a misconfigured production deployment.
+6. Only after all of the above pass does the handler insert into `quote_requests`. This uses the **anon-key Supabase client** (`src/lib/supabase/anon-server-client.ts`), not the service-role key — the existing `quote_requests_public_insert` RLS policy (`with check (true)`) already permits exactly this anonymous insert, so no broader-privileged key is needed for this operation.
+7. Notification (to `QUOTE_NOTIFICATION_EMAIL`, falling back to the confirmed GreenNet contact email) and acknowledgement (to the submitter) emails are sent server-side via the abstracted email provider (`src/lib/email/`) after a successful insert, using `Promise.allSettled` — **the database insert is the authoritative business event; email failure is logged but never rolls back or fails the response**, so a successfully stored lead is never lost to a flaky email provider.
+8. All error responses returned to the browser are generic and typed (`validation` / `rate_limited` / `verification_failed` / `server_error`); no raw database or provider error text, and no stack trace, ever reaches the client.
 
 ## Media upload restrictions
 

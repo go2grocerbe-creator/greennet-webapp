@@ -4,7 +4,7 @@ Next.js (App Router) + TypeScript + Tailwind CSS + shadcn/ui + Supabase producti
 
 ## Status
 
-Foundation only. Structural pages, layouts, auth/middleware scaffolding, typed config, and the Supabase schema/RLS plan exist. No approved marketing copy, no live Supabase project, no deployment yet. See `docs/decision-log.md` for the ADR history and `docs/requirements-register.md` §5–6 for what's still MISSING/BLOCKED.
+Foundation plus one working feature. Structural pages, layouts, auth/middleware scaffolding, typed config, and the Supabase schema/RLS plan exist. The `/contact` page (general contact + quotation request) is fully implemented end to end — form, shared Zod validation, server-side route handler, honeypot + Turnstile + rate-limit checks, Supabase insert, best-effort notification/acknowledgement emails — but still runs against no live Supabase/Resend/Turnstile project (see `.env.example`). No approved marketing copy exists for the rest of the site, no deployment yet. See `docs/decision-log.md` for the ADR history (ADR-010 for the contact flow) and `docs/requirements-register.md` §5–6 for what's still MISSING/BLOCKED.
 
 ## Repository layout
 
@@ -24,7 +24,7 @@ npm install
 npm run dev
 ```
 
-Requires a `.env.local` with Supabase/Resend/Turnstile/Sentry/GA variables once those accounts exist — see `docs/architecture.md` "Environment variables". The app builds and runs without them; only Supabase-backed features (auth, admin, forms) need them at runtime.
+Requires a `.env.local` with Supabase/Resend/Turnstile/Sentry/GA variables once those accounts exist — copy `.env.example` and fill in real values, never commit them. The app builds and runs without them; only Supabase-backed features (auth, admin, the `/contact` form's DB insert) need them at runtime. Without `TURNSTILE_SECRET_KEY`/`RESEND_API_KEY`, the contact form still works locally: Turnstile verification runs an explicit dev bypass (logged) and emails are logged to the console instead of sent — see `docs/security-model.md` and `docs/testing-plan.md`.
 
 ## Scripts
 

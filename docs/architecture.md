@@ -63,21 +63,25 @@ Whether the legacy demo lives as a directory (`legacy-demo/`) versus purely a Gi
 
 ## Integration points (confirmed as points, not necessarily "live" at Phase 1 launch)
 
-| Integration                        | Purpose                                                   | Notes                                                                                                                       |
-| ---------------------------------- | --------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------- |
-| Resend / abstracted email provider | Notification + acknowledgement emails on quotation submit | Interface in `lib/email/` so the provider can be swapped without touching call sites                                        |
-| Cloudflare Turnstile               | Spam protection on the quotation form                     | Server-side token verification required, not just client widget presence                                                    |
-| Sentry                             | Error monitoring                                          | Wire the SDK and DSN env var; alerting/thresholds are a later operational decision                                          |
-| Google Analytics                   | Analytics readiness                                       | Respect any confirmed cookie/privacy requirements (currently MISSING, see requirements register) before enabling by default |
+| Integration                        | Purpose                                                   | Notes                                                                                                                                                                                                   |
+| ---------------------------------- | --------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Resend / abstracted email provider | Notification + acknowledgement emails on quotation submit | Implemented behind `EmailProvider` (`src/lib/email/`) — console dev provider by default, real Resend adapter only when `RESEND_API_KEY` is set. Not exercised with a real key yet.                      |
+| Cloudflare Turnstile               | Spam protection on the quotation form                     | Implemented in `src/lib/turnstile/verify.ts` — real siteverify call when `TURNSTILE_SECRET_KEY` is set, explicit logged dev/test bypass when it isn't. Never fakes success once a secret is configured. |
+| Sentry                             | Error monitoring                                          | Wire the SDK and DSN env var; alerting/thresholds are a later operational decision                                                                                                                      |
+| Google Analytics                   | Analytics readiness                                       | Respect any confirmed cookie/privacy requirements (currently MISSING, see requirements register) before enabling by default                                                                             |
 
-## Environment variables (anticipated, not yet created)
+## Rate limiting
 
-None of these exist yet — no `.env` file should be created until Supabase/Resend/Turnstile/Sentry/GA accounts exist. Anticipated set:
+The quotation form's route handler (`src/app/api/quote-requests/route.ts`) applies an in-memory, per-process `RateLimiter` (`src/lib/rate-limit/memory.ts`) keyed on a hashed IP address (SHA-256, truncated — the raw IP is never logged or stored). This is adequate for a single long-lived server but is **not** safe across multiple serverless invocations or horizontally-scaled instances, since each process holds its own counters. A Redis/Upstash-backed adapter implementing the same `RateLimiter` interface is the documented future swap-in; no new env vars are introduced for it until it's actually built.
+
+## Environment variables
+
+None of these have real values in this repository — copy `.env.example` to `.env.local` once the corresponding accounts exist; see `docs/security-model.md`.
 
 - `NEXT_PUBLIC_SUPABASE_URL`, `NEXT_PUBLIC_SUPABASE_ANON_KEY`
-- `SUPABASE_SERVICE_ROLE_KEY` (server-only, never exposed client-side)
-- `RESEND_API_KEY` (or equivalent for the abstracted provider)
-- `TURNSTILE_SITE_KEY`, `TURNSTILE_SECRET_KEY`
+- `SUPABASE_SERVICE_ROLE_KEY` (server-only, never exposed client-side; not required by the quotation flow — see ADR-010)
+- `RESEND_API_KEY`, `EMAIL_FROM_ADDRESS`, `QUOTE_NOTIFICATION_EMAIL` (email — see "Integration points" above)
+- `NEXT_PUBLIC_TURNSTILE_SITE_KEY` (public — needed client-side to render the widget), `TURNSTILE_SECRET_KEY` (server-only)
 - `SENTRY_DSN`
 - `NEXT_PUBLIC_GA_MEASUREMENT_ID`
 - `NEXT_PUBLIC_SITE_URL`

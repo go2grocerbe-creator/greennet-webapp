@@ -99,20 +99,26 @@ Separate join table rather than an array column, so each image's provenance/righ
 
 ## `quote_requests`
 
-| Column               | Type                               | Notes                                     |
-| -------------------- | ---------------------------------- | ----------------------------------------- |
-| `id`                 | uuid, PK                           |                                           |
-| `name`               | text                               |                                           |
-| `email`              | text                               |                                           |
-| `phone`              | text, nullable                     |                                           |
-| `service_interest`   | text/enum, nullable                | References `services.slug` conceptually   |
-| `location`           | text, nullable                     |                                           |
-| `message`            | text                               |                                           |
-| `status`             | enum(`new`, `contacted`, `closed`) | Lead-handling workflow state              |
-| `turnstile_verified` | boolean                            | Recorded outcome of spam-protection check |
-| `created_at`         | timestamptz                        |                                           |
+| Column                     | Type                                                                     | Notes                                                                                                                                                         |
+| -------------------------- | ------------------------------------------------------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `id`                       | uuid, PK                                                                 | Also serves as the quotation reference (first 8 chars, uppercased, shown to the user and in emails)                                                           |
+| `name`                     | text, not null                                                           | "Full name"                                                                                                                                                   |
+| `email`                    | text, not null                                                           | Always required — the one channel guaranteed reachable regardless of `preferred_contact_method`                                                               |
+| `phone`                    | text, nullable                                                           | Optional at the schema/validation layer — not everyone prefers phone contact                                                                                  |
+| `company_name`             | text, nullable                                                           | Added in migration `20260721000001`                                                                                                                           |
+| `location`                 | text, nullable                                                           |                                                                                                                                                               |
+| `property_type`            | enum(`residential`, `commercial`, `industrial`)                          | Reuses `public.project_type` — added in migration `20260721000001`                                                                                            |
+| `service_interest`         | text, nullable                                                           | Holds "interested solution" — a small set of neutral, non-branded category values, not the unapproved draft `services` names. See `docs/content-register.md`. |
+| `electricity_usage`        | text, nullable                                                           | Free text (unit/currency unconfirmed — see requirements register §5). Added in migration `20260721000001`                                                     |
+| `preferred_contact_method` | enum(`phone`, `email`, `whatsapp`)                                       | Added in migration `20260721000001`                                                                                                                           |
+| `project_timeline`         | enum(`immediately`, `within_3_months`, `within_6_months`, `researching`) | Added in migration `20260721000001`                                                                                                                           |
+| `message`                  | text, not null                                                           |                                                                                                                                                               |
+| `privacy_consent`          | boolean, not null, `check (privacy_consent = true)`                      | Must be explicitly true to insert at all — added in migration `20260721000001`                                                                                |
+| `status`                   | enum(`new`, `contacted`, `closed`)                                       | Lead-handling workflow state                                                                                                                                  |
+| `turnstile_verified`       | boolean                                                                  | Recorded outcome of spam-protection check                                                                                                                     |
+| `created_at`               | timestamptz                                                              |                                                                                                                                                               |
 
-**Exact field list is an ASSUMPTION** pending the MISSING answer to "what information is required before GreenNet can prepare a useful quotation" (requirements register §5). Confirm before final form/schema lock.
+**Exact field list is still an ASSUMPTION** pending the MISSING answer to "what information is required before GreenNet can prepare a useful quotation" (requirements register §5) — this is the working backbone implemented in the Contact/Quotation milestone (see `docs/decision-log.md` ADR-010), not a client-confirmed final list. No honeypot value is persisted — it's checked and discarded before any database write, see `docs/security-model.md`.
 
 ## `site_settings`
 
