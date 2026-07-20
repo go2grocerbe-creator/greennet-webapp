@@ -18,12 +18,23 @@ Both suites run in `npm run check` and in CI (`.github/workflows/ci.yml`) withou
 
 The Playwright config always runs the app as a production build (`NODE_ENV=production`). The server-side Turnstile bypass (`src/lib/turnstile/verify.ts`) only activates when `TURNSTILE_SECRET_KEY` is unset — which is the case in this environment — so a real end-to-end request would still succeed today, but it would also require a reachable Supabase project to complete the insert, which this milestone explicitly does not connect. Rather than couple the UI test suite to that infrastructure (or skip these scenarios entirely), `tests/e2e/contact.spec.ts` intercepts `**/api/quote-requests` with `page.route()` for the success/duplicate/server-error scenarios, so those tests verify the **client's** handling of each response shape — loading state, success message, duplicate-submission prevention, generic error copy — independent of whatever the real backend is doing. The scenarios that don't need a fake response (page load, keyboard navigation, empty-form validation, invalid-email feedback, mobile layout) hit the real client-side Zod validation with no network involved at all.
 
+## Why the admin dashboard is tested at the data-layer and component level, not via authenticated Playwright
+
+`/admin/*` (dashboard home, quotations list, quotation detail, status update) is gated by a real Supabase Auth session — see `src/middleware.ts` and `src/app/(admin)/admin/layout.tsx`. There is no live Supabase project in this environment, so Playwright can't obtain a real session cookie and can't exercise these pages as an authenticated user. Faking a session cookie is not an option — it would require the project's JWT signing secret, which doesn't exist here and shouldn't be hardcoded even if it did.
+
+Coverage is split instead:
+
+- **`src/lib/admin/quotations.ts`** (pure mapping + list/get/summary/update-status logic) is unit-tested against an injected fake `QuotationsDataSource` (`tests/unit/quotations-logic.test.ts`, `tests/unit/quotations-mapping.test.ts`) — same dependency-injection pattern as `submitQuoteRequest` and `authenticate`. This is where "does the empty-state logic work", "does a query error map to unavailable, not a crash", and "is the status update rejected for an invalid value" are actually proven.
+- **Presentational components** (`QuotationsTable`, `QuotationSummaryCards`) are tested with React Testing Library against literal `DataResult` values (`tests/unit/quotations-table.test.tsx`, `tests/unit/quotation-summary-cards.test.tsx`) — this proves the unavailable/empty/data-with-real-numbers rendering branches without needing a browser or a session.
+- **Playwright** (`tests/e2e/admin-dashboard.spec.ts`) covers only what's honestly testable without credentials: every `/admin/*` route redirects an unauthenticated visitor to `/login`. That's a real, security-relevant property (proves the auth gate covers every new route), not a placeholder test.
+
 ## Known gaps (intentional, not oversights)
 
 - No test exercises a live Supabase insert, a real Turnstile verification, or a real Resend send — none of those accounts exist yet, and connecting them is explicitly out of scope for this milestone (see `docs/decision-log.md` ADR-010).
 - No test covers the in-memory rate limiter's actual 5-requests/10-minutes threshold end-to-end; `createInMemoryRateLimiter` itself is simple enough that unit-testing `submitQuoteRequest`'s handling of an `{ allowed: false }` result (already covered) is the meaningful boundary to test — the limiter's own counting logic is straightforward and low-risk.
 - No visual regression / screenshot testing is set up. The mobile-viewport Playwright test checks for horizontal overflow, not pixel-level layout.
-- Admin dashboard, services/products/projects CMS, and media upload flows have no tests yet — they aren't built (see `docs/architecture.md` "Proposed repository structure").
+- No test exercises a real authenticated admin session (login → dashboard → update a quotation's status) end to end — see the section above. Everything reachable without live Supabase is covered instead.
+- Services/products/projects CMS and media upload flows have no tests yet — they aren't built (see `docs/architecture.md` "Proposed repository structure").
 
 ## Adding tests for new features
 

@@ -87,6 +87,21 @@ Format: one entry per architecturally significant decision. Never delete or rewr
 **Rationale:** Matches the confirmed requirement (server-side authoritative validation, Turnstile, rate limiting, secure lead storage) while minimizing new privileged surface area (no service-role key needed for this one insert) and keeping the pipeline testable in isolation.
 **Not resolved here:** the exact quotation form field list remains an ASSUMPTION (requirements register §5) and the neutral `service_interest` values are explicitly placeholders pending client-approved service naming — see `docs/content-register.md`.
 
+## ADR-011 — Admin dashboard: data-source adapter pattern, tri-state reads, full nav with placeholder pages
+
+**Date:** 2026-07-21
+**Status:** Confirmed
+**Decision:**
+
+- Admin data reads/writes (`quote_requests`) go through a small purpose-built `QuotationsDataSource` interface (`src/lib/admin/quotations-data-source.ts`) — `list()`, `getById()`, `countByStatus()`, `updateStatus()` — rather than typing business logic directly against the raw Supabase client. The one function that touches the real client (`createSupabaseQuotationsDataSource`) is intentionally small and isolated; everything else (`src/lib/admin/quotations.ts`) depends only on the flat interface. This is a direct fix for the `TS2589: Type instantiation is excessively deep` error hit in ADR-010's `authenticate()` — casting around it there was a workaround; wrapping the client in a narrow adapter here avoids the problem at the source and is more testable besides.
+- All admin reads use the **session-bound client** (`src/lib/supabase/server.ts`), never the service-role key — RLS (`quote_requests_editor_read`, `quote_requests_editor_update_status`) is what actually authorizes access, per `docs/security-model.md`.
+- Every admin data read returns a `DataResult<T> = {status:"ok", data:T} | {status:"unavailable"}`. "Unavailable" covers both "Supabase isn't configured" (data source is `null`) and "the query itself errored" identically — the UI shows one friendly notice either way, never a fake number or a fabricated empty table. A query that succeeds with zero rows is a distinct, genuine `{status:"ok", data:[]}` / `{total:0,...}` — visibly different from "unavailable" in the UI copy.
+- The admin sidebar lists the full planned IA (Dashboard, Quotations, Services, Products, Projects, Site settings) now, with Services/Products/Projects/Site settings as real placeholder pages (static "not built yet" content) rather than disabled/dead links — each becomes a working page in its own future milestone without any nav restructuring.
+- Quotations list is capped at 200 rows, no pagination yet (see `docs/technical-debt.md`) — acceptable at current expected volume, revisit if needed.
+
+**Rationale:** Matches the confirmed objective (staff can log in, view/read/update quotation status, nothing more) while keeping the data layer testable without a live Supabase project — same dependency-injection discipline as ADR-010, refined to avoid its TypeScript rough edge.
+**Not built:** pagination, notes/assignment/internal comments/email-sending on quotations (explicitly out of scope), any functionality behind the Services/Products/Projects/Site settings placeholders.
+
 ## Superseded decisions
 
 None yet.

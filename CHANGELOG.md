@@ -4,6 +4,17 @@ Format loosely follows [Keep a Changelog](https://keepachangelog.com/). Dates ar
 
 ## Unreleased — `migration/nextjs-supabase`
 
+### Added — Admin authentication and dashboard
+
+- Admin sign-in at `/login` — Supabase Auth email/password only (no registration/OAuth/magic-link/reset), owner/editor only (a Supabase account with no `profiles` row is rejected and signed back out) — `src/lib/auth/{authenticate,session,actions}.ts`, `src/components/auth/login-form.tsx`.
+- `/admin/*` protected at both middleware (session presence) and layout (session + role) — both fail closed (redirect to `/login`) if Supabase isn't reachable, rather than crashing.
+- Admin dashboard shell: responsive sidebar + topbar (current page title, signed-in identity, logout), mobile drawer navigation — `src/components/admin/{admin-shell,sidebar,topbar,mobile-nav-drawer,nav-list}.tsx`.
+- Dashboard home (`/admin`) — quotation summary cards (total/new/contacted/closed), real zero counts shown as zero, never faked when the database is unreachable.
+- Quotations list (`/admin/quotations`) — accessible table (name/email/phone/interested solution/submitted/status), view-only action, capped at 200 rows (see `docs/technical-debt.md`).
+- Quotation detail (`/admin/quotations/[id]`) — contact info, project info, message, and a status-only update form (new/contacted/closed) via a server action, RLS-authorized through the session-bound client (no service-role key).
+- Placeholder pages for Services/Products/Projects/Site settings — real routes, no functionality yet, so the nav is complete without dead links.
+- `src/lib/admin/quotations-data-source.ts` + `src/lib/admin/quotations.ts` — small adapter over Supabase plus pure mapping/aggregation logic, unit-testable without a live project — see `docs/decision-log.md` ADR-011.
+
 ### Added — Contact / Quotation enquiry flow
 
 - Public `/contact` page supporting both general contact and quotation requests (single form, no separate calculator/pricing flow) — `src/app/(marketing)/contact/page.tsx`, `src/components/contact/quote-form.tsx`.
