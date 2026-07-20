@@ -13,7 +13,9 @@ function interestedSolutionLabel(value: string | null): string {
 
 export function QuotationsTable({ result }: { result: DataResult<QuotationListItem[]> }) {
   if (result.status === "unavailable") {
-    return <DataUnavailableNotice />;
+    return (
+      <DataUnavailableNotice message="Quotation data is unavailable right now. This usually means Supabase isn't configured in this environment yet — see docs/architecture.md." />
+    );
   }
 
   if (result.data.length === 0) {

@@ -1,4 +1,7 @@
+import type { DataResult } from "./data-result";
 import type { QuotationsDataSource, RawQuotationRow } from "./quotations-data-source";
+
+export type { DataResult } from "./data-result";
 
 export type QuotationStatus = "new" | "contacted" | "closed";
 export const QUOTATION_STATUSES: QuotationStatus[] = ["new", "contacted", "closed"];
@@ -29,14 +32,6 @@ export type QuotationSummary = {
   contacted: number;
   closed: number;
 };
-
-/**
- * Tri-state result shared by every admin data read: "ok" with real data,
- * or "unavailable" — covers both "Supabase isn't configured" and "the
- * query failed" the same way, since the UI treats both identically (a
- * friendly notice, never a fake number) — see docs/decision-log.md.
- */
-export type DataResult<T> = { status: "ok"; data: T } | { status: "unavailable" };
 
 export function mapQuotationListItem(row: RawQuotationRow): QuotationListItem {
   return {

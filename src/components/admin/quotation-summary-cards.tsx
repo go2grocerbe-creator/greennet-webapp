@@ -4,7 +4,9 @@ import { DataUnavailableNotice } from "./data-state-notice";
 
 export function QuotationSummaryCards({ result }: { result: DataResult<QuotationSummary> }) {
   if (result.status === "unavailable") {
-    return <DataUnavailableNotice />;
+    return (
+      <DataUnavailableNotice message="Quotation data is unavailable right now. This usually means Supabase isn't configured in this environment yet — see docs/architecture.md." />
+    );
   }
 
   const cards = [

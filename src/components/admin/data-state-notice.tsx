@@ -4,8 +4,14 @@ type NoticeProps = {
   className?: string;
 };
 
+const DEFAULT_UNAVAILABLE_MESSAGE =
+  "Data is unavailable right now. This usually means Supabase isn't configured in this environment yet — see docs/architecture.md.";
+
 /** Shown when Supabase isn't configured or a query failed — never a fake number/row. */
-export function DataUnavailableNotice({ className }: NoticeProps) {
+export function DataUnavailableNotice({
+  className,
+  message = DEFAULT_UNAVAILABLE_MESSAGE,
+}: NoticeProps & { message?: string }) {
   return (
     <div
       role="status"
@@ -14,8 +20,7 @@ export function DataUnavailableNotice({ className }: NoticeProps) {
         className,
       )}
     >
-      Quotation data is unavailable right now. This usually means Supabase isn&apos;t configured in
-      this environment yet — see docs/architecture.md.
+      {message}
     </div>
   );
 }

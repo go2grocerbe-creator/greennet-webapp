@@ -4,6 +4,14 @@ Format loosely follows [Keep a Changelog](https://keepachangelog.com/). Dates ar
 
 ## Unreleased — `migration/nextjs-supabase`
 
+### Added — Services management
+
+- Services list (`/admin/services`) — service name, status, last updated; Create/Edit/Publish/Unpublish actions, no delete yet.
+- Create (`/admin/services/new`) and edit (`/admin/services/[id]/edit`) forms — Title, Short Description, Full Description required; Icon, Display Order optional. Shared Zod schema (`src/lib/validation/service.ts`), server-side validation authoritative.
+- Publish/unpublish as a single-purpose toggle per row (`src/components/admin/service-status-button.tsx`) — draft/published only, no scheduling.
+- Reuses the existing `services` table as-is — no migration. `src/lib/admin/{services,services-data-source,service-actions,slug}.ts` follow the same adapter + pure-logic + fail-closed pattern as quotations (`docs/decision-log.md` ADR-012). `DataResult<T>` extracted to a shared module.
+- Data is publish-ready for a future public Services page: RLS already restricts anonymous reads to `status = 'published'`. The public page itself is not built yet.
+
 ### Added — Admin authentication and dashboard
 
 - Admin sign-in at `/login` — Supabase Auth email/password only (no registration/OAuth/magic-link/reset), owner/editor only (a Supabase account with no `profiles` row is rejected and signed back out) — `src/lib/auth/{authenticate,session,actions}.ts`, `src/components/auth/login-form.tsx`.

@@ -28,6 +28,8 @@ Coverage is split instead:
 - **Presentational components** (`QuotationsTable`, `QuotationSummaryCards`) are tested with React Testing Library against literal `DataResult` values (`tests/unit/quotations-table.test.tsx`, `tests/unit/quotation-summary-cards.test.tsx`) — this proves the unavailable/empty/data-with-real-numbers rendering branches without needing a browser or a session.
 - **Playwright** (`tests/e2e/admin-dashboard.spec.ts`) covers only what's honestly testable without credentials: every `/admin/*` route redirects an unauthenticated visitor to `/login`. That's a real, security-relevant property (proves the auth gate covers every new route), not a placeholder test.
 
+Services management (`tests/unit/services-logic.test.ts`, `tests/unit/services-table.test.tsx`, `tests/unit/service-schema.test.ts`, `tests/unit/slug.test.ts`, `tests/e2e/admin-services.spec.ts`) follows this exact same split, for the same reason — see `docs/decision-log.md` ADR-012.
+
 ## Known gaps (intentional, not oversights)
 
 - No test exercises a live Supabase insert, a real Turnstile verification, or a real Resend send — none of those accounts exist yet, and connecting them is explicitly out of scope for this milestone (see `docs/decision-log.md` ADR-010).

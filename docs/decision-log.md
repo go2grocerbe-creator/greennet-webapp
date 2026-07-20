@@ -102,6 +102,21 @@ Format: one entry per architecturally significant decision. Never delete or rewr
 **Rationale:** Matches the confirmed objective (staff can log in, view/read/update quotation status, nothing more) while keeping the data layer testable without a live Supabase project — same dependency-injection discipline as ADR-010, refined to avoid its TypeScript rough edge.
 **Not built:** pagination, notes/assignment/internal comments/email-sending on quotations (explicitly out of scope), any functionality behind the Services/Products/Projects/Site settings placeholders.
 
+## ADR-012 — Services management: reuse the ADR-011 pattern, no schema change, stable slugs
+
+**Date:** 2026-07-21
+**Status:** Confirmed
+**Decision:**
+
+- Services CRUD follows ADR-011's shape exactly: `ServicesDataSource` adapter (`src/lib/admin/services-data-source.ts`), pure logic + mapping (`src/lib/admin/services.ts`), server actions (`src/lib/admin/service-actions.ts`). `DataResult<T>` was extracted to `src/lib/admin/data-result.ts` so both features share one definition instead of two copies.
+- No migration. The existing `services` table (`docs/data-model.md`) already has every field this milestone needs: `title`, `summary` (Short Description), `body` (Full Description), `icon`, `sort_order` (Display Order), `status` (draft/published only, matching schema — no scheduling/versioning columns exist and none were added).
+- `body` is a `jsonb` column but is treated as plain text end to end (the form is a `<textarea>`, not a rich-text editor) — Postgres/PostgREST accept and return a bare JSON string for a `jsonb` column, so no schema or serialization change was needed. Revisit if/when rich content is actually required.
+- `slug` is generated from the title on create (`src/lib/admin/slug.ts`) and never regenerated on edit, so a future public service URL stays stable even if the title changes later. A unique-constraint collision (Postgres error `23505`) triggers exactly one retry with a short random suffix — not a lookup-then-insert dance — since this is a low-volume, staff-only tool where a second collision in the same request is not worth engineering around.
+- Publish/unpublish is a single-purpose toggle button per row (`ServiceStatusButton`), not a status `<select>` — there are only two states and no scheduling, so a toggle is the simpler, more honest control (`docs/decision-log.md` follows the "don't over-engineer" instruction for this milestone).
+
+**Rationale:** Delivers exactly the objective (staff can create/edit/publish/unpublish services) by reusing a pattern already proven correct and testable in ADR-011, rather than inventing a generic CMS abstraction ahead of Products/Projects needing the same shape in later milestones.
+**Not built:** delete, scheduling, revisions/version history, rich text, public Services page (data is publish-ready — RLS already filters to `status = 'published'` for anonymous reads — but no public route reads it yet).
+
 ## Superseded decisions
 
 None yet.
