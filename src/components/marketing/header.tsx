@@ -27,7 +27,7 @@ export function Header() {
             </Link>
           ))}
         </nav>
-        <Button render={<Link href="/contact" />} size="sm">
+        <Button render={<Link href="/contact" />} nativeButton={false} size="sm">
           Request a Quotation
         </Button>
       </Container>

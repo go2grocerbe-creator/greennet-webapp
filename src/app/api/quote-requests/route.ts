@@ -30,12 +30,22 @@ export async function POST(request: NextRequest) {
 
   const identifier = hashedIdentifier(request);
 
-  const result = await submitQuoteRequest(body, identifier, {
-    verifyTurnstile: verifyTurnstileToken,
-    rateLimiter: quoteRequestRateLimiter,
-    supabase: createAnonServerClient(),
-    emailProvider: getEmailProvider(),
-  });
+  // Wrapped so any setup failure (e.g. Supabase env vars not configured
+  // in this environment) always returns our own generic JSON error
+  // response, never Next's default (non-JSON, potentially detailed)
+  // error page — see docs/security-model.md "no stack traces exposed".
+  let result;
+  try {
+    result = await submitQuoteRequest(body, identifier, {
+      verifyTurnstile: verifyTurnstileToken,
+      rateLimiter: quoteRequestRateLimiter,
+      supabase: createAnonServerClient(),
+      emailProvider: getEmailProvider(),
+    });
+  } catch (error) {
+    console.error("[quote-requests] unhandled error in submission pipeline", error);
+    return NextResponse.json({ ok: false, error: "server_error" }, { status: 500 });
+  }
 
   switch (result.status) {
     case "success":
