@@ -7,134 +7,134 @@ All tables live in Supabase Postgres. Every table below carries RLS policies def
 
 ## Entity summary
 
-| Entity | Purpose |
-|---|---|
-| `profiles` | Extends `auth.users` with role and display info |
-| `services` | Solar Solutions page content |
-| `products` | Products page content |
-| `projects` | Projects page content, including `featured` flag |
+| Entity           | Purpose                                                    |
+| ---------------- | ---------------------------------------------------------- |
+| `profiles`       | Extends `auth.users` with role and display info            |
+| `services`       | Solar Solutions page content                               |
+| `products`       | Products page content                                      |
+| `projects`       | Projects page content, including `featured` flag           |
 | `quote_requests` | Leads submitted via the Contact / Request a Quotation form |
-| `media` | Metadata for Supabase Storage uploads (photos, documents) |
-| `site_settings` | Singleton-style key/value store for global site config |
-| `audit_log` | Append-only record of administrative actions |
+| `media`          | Metadata for Supabase Storage uploads (photos, documents)  |
+| `site_settings`  | Singleton-style key/value store for global site config     |
+| `audit_log`      | Append-only record of administrative actions               |
 
 ## `profiles`
 
 Extends Supabase's built-in `auth.users`; one row per authenticated admin/editor user (public site visitors do not get a profile row — there are no customer accounts, per explicit out-of-scope).
 
-| Column | Type | Notes |
-|---|---|---|
-| `id` | uuid, PK | References `auth.users.id` |
-| `full_name` | text | |
-| `role` | enum(`owner`, `editor`) | Confirmed two-role model, no other tiers |
-| `created_at` | timestamptz | |
+| Column       | Type                    | Notes                                    |
+| ------------ | ----------------------- | ---------------------------------------- |
+| `id`         | uuid, PK                | References `auth.users.id`               |
+| `full_name`  | text                    |                                          |
+| `role`       | enum(`owner`, `editor`) | Confirmed two-role model, no other tiers |
+| `created_at` | timestamptz             |                                          |
 
 ## `services`
 
-| Column | Type | Notes |
-|---|---|---|
-| `id` | uuid, PK | |
-| `slug` | text, unique | |
-| `title` | text | |
-| `summary` | text | |
-| `body` | text/jsonb | Rich content |
-| `icon` | text | Icon identifier, replaces duplicated inline SVGs from the demo |
-| `sort_order` | int | |
-| `status` | enum(`draft`, `published`) | Confirmed requirement |
-| `created_by`, `updated_by` | uuid, FK → `profiles.id` | |
-| `created_at`, `updated_at` | timestamptz | |
+| Column                     | Type                       | Notes                                                          |
+| -------------------------- | -------------------------- | -------------------------------------------------------------- |
+| `id`                       | uuid, PK                   |                                                                |
+| `slug`                     | text, unique               |                                                                |
+| `title`                    | text                       |                                                                |
+| `summary`                  | text                       |                                                                |
+| `body`                     | text/jsonb                 | Rich content                                                   |
+| `icon`                     | text                       | Icon identifier, replaces duplicated inline SVGs from the demo |
+| `sort_order`               | int                        |                                                                |
+| `status`                   | enum(`draft`, `published`) | Confirmed requirement                                          |
+| `created_by`, `updated_by` | uuid, FK → `profiles.id`   |                                                                |
+| `created_at`, `updated_at` | timestamptz                |                                                                |
 
 ## `products`
 
-| Column | Type | Notes |
-|---|---|---|
-| `id` | uuid, PK | |
-| `slug` | text, unique | |
-| `name` | text | |
-| `brand` | text | MISSING confirmed brand list — schema supports it, content is pending (see requirements register §5) |
-| `category` | text or enum | e.g. panels / inverters / batteries / accessories — matches demo services list, pending client confirmation |
-| `description` | text/jsonb | |
-| `spec_sheet_media_id` | uuid, FK → `media.id`, nullable | Optional downloadable spec sheet |
-| `status` | enum(`draft`, `published`) | |
-| `created_by`, `updated_by`, `created_at`, `updated_at` | as above | |
+| Column                                                 | Type                            | Notes                                                                                                       |
+| ------------------------------------------------------ | ------------------------------- | ----------------------------------------------------------------------------------------------------------- |
+| `id`                                                   | uuid, PK                        |                                                                                                             |
+| `slug`                                                 | text, unique                    |                                                                                                             |
+| `name`                                                 | text                            |                                                                                                             |
+| `brand`                                                | text                            | MISSING confirmed brand list — schema supports it, content is pending (see requirements register §5)        |
+| `category`                                             | text or enum                    | e.g. panels / inverters / batteries / accessories — matches demo services list, pending client confirmation |
+| `description`                                          | text/jsonb                      |                                                                                                             |
+| `spec_sheet_media_id`                                  | uuid, FK → `media.id`, nullable | Optional downloadable spec sheet                                                                            |
+| `status`                                               | enum(`draft`, `published`)      |                                                                                                             |
+| `created_by`, `updated_by`, `created_at`, `updated_at` | as above                        |                                                                                                             |
 
 No `price` field in Phase 1 core schema — pricing display is an unconfirmed, distinct question (see requirements register §5) and automated pricing is explicitly out of scope. If simple static price display is later confirmed, add a nullable `display_price` field rather than building pricing logic.
 
 ## `projects`
 
-| Column | Type | Notes |
-|---|---|---|
-| `id` | uuid, PK | |
-| `slug` | text, unique | |
-| `title` | text | |
-| `location` | text, nullable | Per workbook: "projects can be described with location, project type and equipment" |
-| `project_type` | enum(`residential`, `commercial`, `industrial`) | Matches demo categorization |
-| `equipment_summary` | text, nullable | |
-| `description` | text/jsonb | |
-| `featured` | boolean, default false | Confirmed requirement |
-| `status` | enum(`draft`, `published`) | Confirmed requirement — critical here, since no real project photos exist yet (see content register); everything stays `draft` until real, rights-cleared content is supplied |
-| `created_by`, `updated_by`, `created_at`, `updated_at` | as above | |
+| Column                                                 | Type                                            | Notes                                                                                                                                                                         |
+| ------------------------------------------------------ | ----------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `id`                                                   | uuid, PK                                        |                                                                                                                                                                               |
+| `slug`                                                 | text, unique                                    |                                                                                                                                                                               |
+| `title`                                                | text                                            |                                                                                                                                                                               |
+| `location`                                             | text, nullable                                  | Per workbook: "projects can be described with location, project type and equipment"                                                                                           |
+| `project_type`                                         | enum(`residential`, `commercial`, `industrial`) | Matches demo categorization                                                                                                                                                   |
+| `equipment_summary`                                    | text, nullable                                  |                                                                                                                                                                               |
+| `description`                                          | text/jsonb                                      |                                                                                                                                                                               |
+| `featured`                                             | boolean, default false                          | Confirmed requirement                                                                                                                                                         |
+| `status`                                               | enum(`draft`, `published`)                      | Confirmed requirement — critical here, since no real project photos exist yet (see content register); everything stays `draft` until real, rights-cleared content is supplied |
+| `created_by`, `updated_by`, `created_at`, `updated_at` | as above                                        |                                                                                                                                                                               |
 
 ## `project_media` (join table)
 
-| Column | Type | Notes |
-|---|---|---|
-| `project_id` | uuid, FK → `projects.id` | |
-| `media_id` | uuid, FK → `media.id` | |
-| `sort_order` | int | |
+| Column       | Type                     | Notes |
+| ------------ | ------------------------ | ----- |
+| `project_id` | uuid, FK → `projects.id` |       |
+| `media_id`   | uuid, FK → `media.id`    |       |
+| `sort_order` | int                      |       |
 
 Separate join table rather than an array column, so each image's provenance/rights metadata (in `media`) stays independently auditable — directly addressing the stock/AI-image misrepresentation risk flagged in `docs/content-register.md`.
 
 ## `media`
 
-| Column | Type | Notes |
-|---|---|---|
-| `id` | uuid, PK | |
-| `storage_path` | text | Path within Supabase Storage bucket |
-| `alt_text` | text | Accessibility — carries forward the demo's existing a11y discipline |
-| `source_type` | enum(`client_supplied`, `stock_licensed`, `placeholder`) | Explicit provenance tracking, directly enforcing "never represent stock/AI imagery as real GreenNet projects" |
-| `rights_confirmed` | boolean, default false | Must be true before a `media` row can be attached to a `published` project |
-| `uploaded_by` | uuid, FK → `profiles.id` | |
-| `created_at` | timestamptz | |
+| Column             | Type                                                     | Notes                                                                                                         |
+| ------------------ | -------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------- |
+| `id`               | uuid, PK                                                 |                                                                                                               |
+| `storage_path`     | text                                                     | Path within Supabase Storage bucket                                                                           |
+| `alt_text`         | text                                                     | Accessibility — carries forward the demo's existing a11y discipline                                           |
+| `source_type`      | enum(`client_supplied`, `stock_licensed`, `placeholder`) | Explicit provenance tracking, directly enforcing "never represent stock/AI imagery as real GreenNet projects" |
+| `rights_confirmed` | boolean, default false                                   | Must be true before a `media` row can be attached to a `published` project                                    |
+| `uploaded_by`      | uuid, FK → `profiles.id`                                 |                                                                                                               |
+| `created_at`       | timestamptz                                              |                                                                                                               |
 
 ## `quote_requests`
 
-| Column | Type | Notes |
-|---|---|---|
-| `id` | uuid, PK | |
-| `name` | text | |
-| `email` | text | |
-| `phone` | text, nullable | |
-| `service_interest` | text/enum, nullable | References `services.slug` conceptually |
-| `location` | text, nullable | |
-| `message` | text | |
-| `status` | enum(`new`, `contacted`, `closed`) | Lead-handling workflow state |
-| `turnstile_verified` | boolean | Recorded outcome of spam-protection check |
-| `created_at` | timestamptz | |
+| Column               | Type                               | Notes                                     |
+| -------------------- | ---------------------------------- | ----------------------------------------- |
+| `id`                 | uuid, PK                           |                                           |
+| `name`               | text                               |                                           |
+| `email`              | text                               |                                           |
+| `phone`              | text, nullable                     |                                           |
+| `service_interest`   | text/enum, nullable                | References `services.slug` conceptually   |
+| `location`           | text, nullable                     |                                           |
+| `message`            | text                               |                                           |
+| `status`             | enum(`new`, `contacted`, `closed`) | Lead-handling workflow state              |
+| `turnstile_verified` | boolean                            | Recorded outcome of spam-protection check |
+| `created_at`         | timestamptz                        |                                           |
 
 **Exact field list is an ASSUMPTION** pending the MISSING answer to "what information is required before GreenNet can prepare a useful quotation" (requirements register §5). Confirm before final form/schema lock.
 
 ## `site_settings`
 
-| Column | Type | Notes |
-|---|---|---|
-| `key` | text, PK | e.g. `contact_phone`, `contact_email`, `address`, `social_links` |
-| `value` | jsonb | |
-| `updated_by` | uuid, FK → `profiles.id` | |
-| `updated_at` | timestamptz | |
+| Column       | Type                     | Notes                                                            |
+| ------------ | ------------------------ | ---------------------------------------------------------------- |
+| `key`        | text, PK                 | e.g. `contact_phone`, `contact_email`, `address`, `social_links` |
+| `value`      | jsonb                    |                                                                  |
+| `updated_by` | uuid, FK → `profiles.id` |                                                                  |
+| `updated_at` | timestamptz              |                                                                  |
 
 Replaces the demo's hardcoded-in-4-places contact info with a single editable source of truth — directly resolves the duplication problem flagged in `docs/current-demo-audit.md`.
 
 ## `audit_log`
 
-| Column | Type | Notes |
-|---|---|---|
-| `id` | uuid, PK | |
-| `actor_id` | uuid, FK → `profiles.id` | |
-| `action` | text | e.g. `service.publish`, `project.delete`, `settings.update` |
-| `entity_type`, `entity_id` | text, uuid | |
-| `diff` | jsonb, nullable | Before/after snapshot where practical |
-| `created_at` | timestamptz | |
+| Column                     | Type                     | Notes                                                       |
+| -------------------------- | ------------------------ | ----------------------------------------------------------- |
+| `id`                       | uuid, PK                 |                                                             |
+| `actor_id`                 | uuid, FK → `profiles.id` |                                                             |
+| `action`                   | text                     | e.g. `service.publish`, `project.delete`, `settings.update` |
+| `entity_type`, `entity_id` | text, uuid               |                                                             |
+| `diff`                     | jsonb, nullable          | Before/after snapshot where practical                       |
+| `created_at`               | timestamptz              |                                                             |
 
 Append-only — no update/delete policy grants exist for this table (see `docs/security-model.md`).
 

@@ -56,6 +56,22 @@ Format: one entry per architecturally significant decision. Never delete or rewr
 **Rationale:** Phase 1 scope is one application, one Supabase project, no other deployable services — monorepo tooling overhead is unjustified. Recommend branch-only preservation of the legacy demo so its static files can never be accidentally served by the Next.js app.
 **Open question:** whether a co-located `legacy-demo/` directory is wanted for easier side-by-side visual comparison during migration, despite the routing-collision risk. Revisit if the team requests it.
 
+## ADR-008 — Migration branch opened
+
+**Date:** 2026-07-20
+**Status:** Confirmed
+**Decision:** Preservation branch `legacy/static-demo` cut from commit `a0abf1c` (docs commit, includes full planning set). Migration branch `migration/nextjs-supabase` created from the same commit `a0abf1c` and is now the active working branch for all Next.js/Supabase scaffolding, per `docs/migration-strategy.md`.
+**Rationale:** Confirmed sequence — preserve reference point, then branch for scaffolding, before any application code is written. `main` stays frozen at `a0abf1c` until cutover.
+
+## ADR-009 — Foundation scaffold landed on migration branch
+
+**Date:** 2026-07-20
+**Status:** Confirmed
+**Decision:** Next.js App Router + TypeScript + Tailwind CSS + shadcn/ui scaffolded at the repository root on `migration/nextjs-supabase`, built on top of the ADR-008 branch state. Legacy demo moved to `legacy-demo/` (unmodified). Foundation layer built per `docs/architecture.md` §"Proposed repository structure": root layout, `(marketing)`/`(admin)` route groups, not-found/loading/error boundaries, environment validation, Supabase browser/server clients, auth middleware foundation, typed site config, `Container`/`SectionHeading`/`Button` primitives, header/footer placeholders, metadata/sitemap/robots, and GreenNet design tokens migrated into `globals.css` from `legacy-demo/styles.css`. Tooling added: Vitest + React Testing Library, Playwright, Prettier, `npm run check`, GitHub Actions CI. Supabase foundation added under `supabase/`: initial schema + RLS + storage policy migrations, `storage-policy-plan.md`, and `seed.sql` limited to confirmed facts (Tier 1) plus draft-only assumption-grade service names (Tier 2) — no Tier 3 (photography) content, per `docs/migration-strategy.md` "Content migration approach".
+**Validation:** `npm run check` (lint, typecheck, format:check, unit tests, build) and a local Playwright smoke run against the built app both pass. No live Supabase project connected; no secrets committed; legacy demo untouched beyond the move.
+**Rationale:** Executes the confirmed migration sequence (`docs/migration-strategy.md` steps 2–7) up through a working, tested foundation, without deleting the legacy demo or touching `main`. This is scope-bounded to structure/plumbing — no approved marketing copy was written (see placeholder content in `src/app/(marketing)/page.tsx`), and Products/Projects seed data stays empty per the BLOCKED items in `docs/requirements-register.md` §6.
+**Not done in this ADR:** live Supabase project connection, applying migrations anywhere, real content, deployment, cutover. These remain gated on client-confirmed facts and an explicit go-ahead.
+
 ## Superseded decisions
 
 None yet.

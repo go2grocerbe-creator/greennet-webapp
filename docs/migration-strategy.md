@@ -31,7 +31,7 @@ Build the production application alongside the current static demo. Do not destr
 
 ## Repository structure decision
 
-See `docs/architecture.md` §"Proposed repository structure" for the concrete directory layout recommendation. This document only fixes the *process* (branch-first, verify-before-delete); the *structure* is specified there to avoid duplication.
+See `docs/architecture.md` §"Proposed repository structure" for the concrete directory layout recommendation. This document only fixes the _process_ (branch-first, verify-before-delete); the _structure_ is specified there to avoid duplication.
 
 ## Content migration approach
 

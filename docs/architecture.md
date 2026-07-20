@@ -63,12 +63,12 @@ Whether the legacy demo lives as a directory (`legacy-demo/`) versus purely a Gi
 
 ## Integration points (confirmed as points, not necessarily "live" at Phase 1 launch)
 
-| Integration | Purpose | Notes |
-|---|---|---|
-| Resend / abstracted email provider | Notification + acknowledgement emails on quotation submit | Interface in `lib/email/` so the provider can be swapped without touching call sites |
-| Cloudflare Turnstile | Spam protection on the quotation form | Server-side token verification required, not just client widget presence |
-| Sentry | Error monitoring | Wire the SDK and DSN env var; alerting/thresholds are a later operational decision |
-| Google Analytics | Analytics readiness | Respect any confirmed cookie/privacy requirements (currently MISSING, see requirements register) before enabling by default |
+| Integration                        | Purpose                                                   | Notes                                                                                                                       |
+| ---------------------------------- | --------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------- |
+| Resend / abstracted email provider | Notification + acknowledgement emails on quotation submit | Interface in `lib/email/` so the provider can be swapped without touching call sites                                        |
+| Cloudflare Turnstile               | Spam protection on the quotation form                     | Server-side token verification required, not just client widget presence                                                    |
+| Sentry                             | Error monitoring                                          | Wire the SDK and DSN env var; alerting/thresholds are a later operational decision                                          |
+| Google Analytics                   | Analytics readiness                                       | Respect any confirmed cookie/privacy requirements (currently MISSING, see requirements register) before enabling by default |
 
 ## Environment variables (anticipated, not yet created)
 
@@ -91,4 +91,4 @@ Full preview/production deployment runbook is a Phase 1 deliverable, written onc
 
 ## Component reuse strategy
 
-Existing demo interaction patterns (FAQ accordion, scroll-reveal, mobile drawer with focus trap, sticky CTA, nav scroll-spy) are **reimplemented as React components** using the new stack's idioms (e.g. `IntersectionObserver` behavior wrapped in a hook, shadcn/ui `Accordion` in place of the hand-rolled FAQ toggle) rather than copy-pasted as vanilla JS bolted onto React. This preserves the *behavior and accessibility properties* audited in `docs/current-demo-audit.md` without carrying forward imperative DOM code that fights React's rendering model.
+Existing demo interaction patterns (FAQ accordion, scroll-reveal, mobile drawer with focus trap, sticky CTA, nav scroll-spy) are **reimplemented as React components** using the new stack's idioms (e.g. `IntersectionObserver` behavior wrapped in a hook, shadcn/ui `Accordion` in place of the hand-rolled FAQ toggle) rather than copy-pasted as vanilla JS bolted onto React. This preserves the _behavior and accessibility properties_ audited in `docs/current-demo-audit.md` without carrying forward imperative DOM code that fights React's rendering model.

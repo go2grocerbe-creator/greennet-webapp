@@ -18,17 +18,17 @@ Supabase Auth. Admin dashboard routes (`app/(admin)/**`) are gated at the layout
 
 ## Row Level Security — table-by-table boundaries
 
-| Table | Public (anon) | Editor | Owner |
-|---|---|---|---|
-| `services` | SELECT where `status = 'published'` only | full CRUD | full CRUD |
-| `products` | SELECT where `status = 'published'` only | full CRUD | full CRUD |
-| `projects` | SELECT where `status = 'published'` only | full CRUD | full CRUD |
-| `project_media` | SELECT joined only via published project | full CRUD | full CRUD |
-| `media` | no direct access (accessed only via published project/product joins) | full CRUD, INSERT requires `rights_confirmed` workflow | full CRUD |
-| `quote_requests` | INSERT only (via server-validated route, not direct client insert — see below), no SELECT | SELECT, UPDATE `status` | full CRUD |
-| `site_settings` | SELECT for public-safe keys only (e.g. contact info surfaced on the public site) | UPDATE | full CRUD |
-| `profiles` | no access | SELECT own row only | full CRUD |
-| `audit_log` | no access | INSERT (system-triggered), SELECT own actions | full SELECT, no UPDATE/DELETE for anyone (append-only) |
+| Table            | Public (anon)                                                                             | Editor                                                 | Owner                                                  |
+| ---------------- | ----------------------------------------------------------------------------------------- | ------------------------------------------------------ | ------------------------------------------------------ |
+| `services`       | SELECT where `status = 'published'` only                                                  | full CRUD                                              | full CRUD                                              |
+| `products`       | SELECT where `status = 'published'` only                                                  | full CRUD                                              | full CRUD                                              |
+| `projects`       | SELECT where `status = 'published'` only                                                  | full CRUD                                              | full CRUD                                              |
+| `project_media`  | SELECT joined only via published project                                                  | full CRUD                                              | full CRUD                                              |
+| `media`          | no direct access (accessed only via published project/product joins)                      | full CRUD, INSERT requires `rights_confirmed` workflow | full CRUD                                              |
+| `quote_requests` | INSERT only (via server-validated route, not direct client insert — see below), no SELECT | SELECT, UPDATE `status`                                | full CRUD                                              |
+| `site_settings`  | SELECT for public-safe keys only (e.g. contact info surfaced on the public site)          | UPDATE                                                 | full CRUD                                              |
+| `profiles`       | no access                                                                                 | SELECT own row only                                    | full CRUD                                              |
+| `audit_log`      | no access                                                                                 | INSERT (system-triggered), SELECT own actions          | full SELECT, no UPDATE/DELETE for anyone (append-only) |
 
 RLS policies are the enforcement backstop — application-level checks (route guards, server actions) are the first line of defense, but RLS must independently prevent unauthorized access even if application logic has a bug. Neither layer is relied on alone.
 

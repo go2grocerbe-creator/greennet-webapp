@@ -9,17 +9,17 @@ Classification key: CONFIRMED (verified real fact) / RECOMMENDED (safe to keep a
 
 ## Company identity
 
-| Element | Value in demo | Classification | Notes |
-|---|---|---|---|
-| Company name | GreenNet Energy Ltd | CONFIRMED | Consistent across demo and flyer |
-| Director name | Ogbeiwi Osagioduwa | CONFIRMED | Consistent across demo and flyer |
-| Address | No. 12 Imuentinyan Street, Off Arbico Street, Upper Sokponoba, Benin City, Nigeria | CONFIRMED | Consistent across demo and flyer |
-| Phone | +234 906 312 1247 | CONFIRMED | Consistent across demo and flyer |
-| Email | oduwaogbeiwi@gmail.com | CONFIRMED | Consistent across demo and flyer. Note: a personal Gmail address, not a domain-based business address — flag in `docs/requirements-register.md` §5 (Technical access) as a client decision point |
-| Tagline "Powering Homes & Businesses with Clean Solar Energy" | present | CONFIRMED | Matches flyer |
-| Tagline "Harness the Power of the Sun Today" | present | CONFIRMED | Matches flyer |
-| Logo mark (sun + leaf, inline SVG) | present | RECOMMENDED reuse | No vector/source logo file exists beyond the hand-recreated inline SVG and the flattened flyer JPEG. Request official SVG/AI/EPS source before final brand rollout |
-| Brand colors (deep forest #063F2A, primary green #087A42, accent gold #F5C400) | present | CONFIRMED reusable | Matches flyer palette — safe design token to carry forward |
+| Element                                                                        | Value in demo                                                                      | Classification     | Notes                                                                                                                                                                                            |
+| ------------------------------------------------------------------------------ | ---------------------------------------------------------------------------------- | ------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| Company name                                                                   | GreenNet Energy Ltd                                                                | CONFIRMED          | Consistent across demo and flyer                                                                                                                                                                 |
+| Director name                                                                  | Ogbeiwi Osagioduwa                                                                 | CONFIRMED          | Consistent across demo and flyer                                                                                                                                                                 |
+| Address                                                                        | No. 12 Imuentinyan Street, Off Arbico Street, Upper Sokponoba, Benin City, Nigeria | CONFIRMED          | Consistent across demo and flyer                                                                                                                                                                 |
+| Phone                                                                          | +234 906 312 1247                                                                  | CONFIRMED          | Consistent across demo and flyer                                                                                                                                                                 |
+| Email                                                                          | oduwaogbeiwi@gmail.com                                                             | CONFIRMED          | Consistent across demo and flyer. Note: a personal Gmail address, not a domain-based business address — flag in `docs/requirements-register.md` §5 (Technical access) as a client decision point |
+| Tagline "Powering Homes & Businesses with Clean Solar Energy"                  | present                                                                            | CONFIRMED          | Matches flyer                                                                                                                                                                                    |
+| Tagline "Harness the Power of the Sun Today"                                   | present                                                                            | CONFIRMED          | Matches flyer                                                                                                                                                                                    |
+| Logo mark (sun + leaf, inline SVG)                                             | present                                                                            | RECOMMENDED reuse  | No vector/source logo file exists beyond the hand-recreated inline SVG and the flattened flyer JPEG. Request official SVG/AI/EPS source before final brand rollout                               |
+| Brand colors (deep forest #063F2A, primary green #087A42, accent gold #F5C400) | present                                                                            | CONFIRMED reusable | Matches flyer palette — safe design token to carry forward                                                                                                                                       |
 
 ## Services (6 items, demo + flyer match)
 
@@ -45,11 +45,11 @@ Classification: **ASSUMPTION, written by prior implementation, not client-approv
 
 ## Projects / portfolio images
 
-| Element | Value | Classification |
-|---|---|---|
-| 3 project images (Unsplash-hosted) | residential rooftop, commercial building, industrial array | **BLOCKED — must not be reused in production.** These are third-party stock photos, explicitly disclosed in the demo footer as "for visual presentation only." Discovery workbook flags this directly: "Do you have real photographs of completed installations?" — unanswered. Per explicit user instruction, stock/AI imagery must never be represented as real GreenNet projects. |
-| Flyer photos (installer on roof, battery unit, panel array, house at dusk) | present in `Greennet Energy.jpeg` | **BLOCKED — provenance unverified.** No source material confirms these are genuine GreenNet installation photos versus licensed stock/AI-generated marketing imagery. Do not carry into the Projects page without written client confirmation of authenticity and usage rights. |
-| "Why GreenNet" hero image (technician on rooftop) | Unsplash-hosted | **BLOCKED**, same reasoning as above |
+| Element                                                                    | Value                                                      | Classification                                                                                                                                                                                                                                                                                                                                                                       |
+| -------------------------------------------------------------------------- | ---------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| 3 project images (Unsplash-hosted)                                         | residential rooftop, commercial building, industrial array | **BLOCKED — must not be reused in production.** These are third-party stock photos, explicitly disclosed in the demo footer as "for visual presentation only." Discovery workbook flags this directly: "Do you have real photographs of completed installations?" — unanswered. Per explicit user instruction, stock/AI imagery must never be represented as real GreenNet projects. |
+| Flyer photos (installer on roof, battery unit, panel array, house at dusk) | present in `Greennet Energy.jpeg`                          | **BLOCKED — provenance unverified.** No source material confirms these are genuine GreenNet installation photos versus licensed stock/AI-generated marketing imagery. Do not carry into the Projects page without written client confirmation of authenticity and usage rights.                                                                                                      |
+| "Why GreenNet" hero image (technician on rooftop)                          | Unsplash-hosted                                            | **BLOCKED**, same reasoning as above                                                                                                                                                                                                                                                                                                                                                 |
 
 Production requirement: Projects page must launch with either (a) confirmed real project photography with case-study metadata (location, type, equipment — per workbook Q), or (b) clearly-labeled illustrative/placeholder content that does not claim to depict real installations, pending client supply.
 
@@ -70,11 +70,11 @@ Full audit of these is in `docs/current-demo-audit.md`.
 
 ## Summary
 
-| Category | Reuse verdict |
-|---|---|
-| Design tokens, layout, interaction patterns, accessibility work | Preserve and port deliberately |
-| Contact details, company name, director, address | Confirmed factual, reuse directly |
-| Services/process/FAQ copy | Reuse only as an editable draft in the CMS, pending client review — not final copy |
-| "Why choose us" claims | Hold for client legal/factual review before publishing |
-| All photography (stock and flyer) | Do not publish as real project evidence; replace with confirmed real photography or clearly-labeled placeholders |
-| Logo | Request true vector source; current inline SVG is a recreation, not the official asset |
+| Category                                                        | Reuse verdict                                                                                                    |
+| --------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------- |
+| Design tokens, layout, interaction patterns, accessibility work | Preserve and port deliberately                                                                                   |
+| Contact details, company name, director, address                | Confirmed factual, reuse directly                                                                                |
+| Services/process/FAQ copy                                       | Reuse only as an editable draft in the CMS, pending client review — not final copy                               |
+| "Why choose us" claims                                          | Hold for client legal/factual review before publishing                                                           |
+| All photography (stock and flyer)                               | Do not publish as real project evidence; replace with confirmed real photography or clearly-labeled placeholders |
+| Logo                                                            | Request true vector source; current inline SVG is a recreation, not the official asset                           |
