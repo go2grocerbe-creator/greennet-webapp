@@ -1,8 +1,8 @@
 "use client";
 
 import { useEffect } from "react";
+import Link from "next/link";
 
-import { Container } from "@/components/ui/container";
 import { Button } from "@/components/ui/button";
 
 export default function MarketingError({
@@ -13,18 +13,27 @@ export default function MarketingError({
   reset: () => void;
 }) {
   useEffect(() => {
-    // Sentry wiring is an integration point, not yet configured — see
-    // docs/architecture.md "Integration points".
     console.error(error);
   }, [error]);
 
   return (
-    <Container className="flex min-h-[50vh] flex-col items-center justify-center gap-4 py-24 text-center">
-      <h1 className="font-heading text-2xl font-semibold">Something went wrong</h1>
-      <p className="text-muted-foreground max-w-md">
-        An unexpected error occurred loading this page. Try again, or return to the homepage.
-      </p>
-      <Button onClick={reset}>Try again</Button>
-    </Container>
+    <section className="solar-error" aria-labelledby="solar-error-title">
+      <div className="solar-error__sun" aria-hidden="true" />
+      <div>
+        <p>Dusk / interrupted</p>
+        <h1 id="solar-error-title">This scene did not load.</h1>
+        <p>
+          An unexpected error interrupted the page. Try the scene again or return to the homepage.
+        </p>
+        <div>
+          <Button onClick={reset} size="lg">
+            Try again
+          </Button>
+          <Button render={<Link href="/" />} nativeButton={false} size="lg" variant="ghost">
+            Go home
+          </Button>
+        </div>
+      </div>
+    </section>
   );
 }

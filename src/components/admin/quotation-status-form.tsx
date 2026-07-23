@@ -29,7 +29,7 @@ export function QuotationStatusForm({ id, currentStatus }: QuotationStatusFormPr
           id="status"
           name="status"
           defaultValue={currentStatus}
-          className="border-input focus-visible:ring-ring h-8 rounded-lg border bg-transparent px-2.5 py-1 text-sm outline-none focus-visible:ring-2"
+          className="border-input focus-visible:ring-ring h-9 rounded-lg border bg-transparent px-3 py-1 text-sm transition-colors outline-none focus-visible:ring-2"
         >
           {QUOTATION_STATUSES.map((status) => (
             <option key={status} value={status}>

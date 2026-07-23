@@ -20,27 +20,42 @@ export function ServicesTable({ result }: { result: DataResult<ServiceListItem[]
   }
 
   return (
-    <div className="border-border overflow-x-auto rounded-lg border">
+    <div className="border-border bg-card shadow-brand-xs overflow-x-auto rounded-xl border">
       <table className="w-full text-left text-sm">
         <thead className="bg-muted/50">
           <tr>
-            <th scope="col" className="px-4 py-3 font-medium">
+            <th
+              scope="col"
+              className="text-muted-foreground px-4 py-3 text-xs font-semibold tracking-wide uppercase"
+            >
               Service name
             </th>
-            <th scope="col" className="px-4 py-3 font-medium">
+            <th
+              scope="col"
+              className="text-muted-foreground px-4 py-3 text-xs font-semibold tracking-wide uppercase"
+            >
               Status
             </th>
-            <th scope="col" className="px-4 py-3 font-medium">
+            <th
+              scope="col"
+              className="text-muted-foreground px-4 py-3 text-xs font-semibold tracking-wide uppercase"
+            >
               Last updated
             </th>
-            <th scope="col" className="px-4 py-3 font-medium">
+            <th
+              scope="col"
+              className="text-muted-foreground px-4 py-3 text-xs font-semibold tracking-wide uppercase"
+            >
               <span className="sr-only">Actions</span>
             </th>
           </tr>
         </thead>
         <tbody>
           {result.data.map((service) => (
-            <tr key={service.id} className="border-border border-t">
+            <tr
+              key={service.id}
+              className="border-border hover:bg-muted/40 border-t transition-colors"
+            >
               <td className="px-4 py-3">{service.title}</td>
               <td className="px-4 py-3">
                 <PublishStatusBadge status={service.status} />
@@ -50,7 +65,7 @@ export function ServicesTable({ result }: { result: DataResult<ServiceListItem[]
                 <div className="flex items-center justify-end gap-3">
                   <Link
                     href={`/admin/services/${service.id}/edit`}
-                    className="focus-visible:ring-ring rounded underline underline-offset-2 outline-none focus-visible:ring-2"
+                    className="text-brand-primary focus-visible:ring-ring rounded font-medium underline-offset-2 outline-none hover:underline focus-visible:ring-2"
                   >
                     Edit
                   </Link>

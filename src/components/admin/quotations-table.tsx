@@ -23,36 +23,60 @@ export function QuotationsTable({ result }: { result: DataResult<QuotationListIt
   }
 
   return (
-    <div className="border-border overflow-x-auto rounded-lg border">
+    <div className="border-border bg-card shadow-brand-xs overflow-x-auto rounded-xl border">
       <table className="w-full text-left text-sm">
         <thead className="bg-muted/50">
           <tr>
-            <th scope="col" className="px-4 py-3 font-medium">
+            <th
+              scope="col"
+              className="text-muted-foreground px-4 py-3 text-xs font-semibold tracking-wide uppercase"
+            >
               Name
             </th>
-            <th scope="col" className="px-4 py-3 font-medium">
+            <th
+              scope="col"
+              className="text-muted-foreground px-4 py-3 text-xs font-semibold tracking-wide uppercase"
+            >
               Email
             </th>
-            <th scope="col" className="px-4 py-3 font-medium">
+            <th
+              scope="col"
+              className="text-muted-foreground px-4 py-3 text-xs font-semibold tracking-wide uppercase"
+            >
               Phone
             </th>
-            <th scope="col" className="px-4 py-3 font-medium">
+            <th
+              scope="col"
+              className="text-muted-foreground px-4 py-3 text-xs font-semibold tracking-wide uppercase"
+            >
               Interested solution
             </th>
-            <th scope="col" className="px-4 py-3 font-medium">
+            <th
+              scope="col"
+              className="text-muted-foreground px-4 py-3 text-xs font-semibold tracking-wide uppercase"
+            >
               Submitted
             </th>
-            <th scope="col" className="px-4 py-3 font-medium">
+            <th
+              scope="col"
+              className="text-muted-foreground px-4 py-3 text-xs font-semibold tracking-wide uppercase"
+            >
               Status
             </th>
-            <th scope="col" className="px-4 py-3 font-medium">
+            <th
+              scope="col"
+              className="text-muted-foreground px-4 py-3 text-xs font-semibold tracking-wide uppercase"
+            >
               <span className="sr-only">Actions</span>
             </th>
           </tr>
         </thead>
         <tbody>
           {result.data.map((quotation) => (
-            <tr key={quotation.id} className="border-border border-t">
+            <tr
+              key={quotation.id}
+              className="border-border hover:bg-muted/40 border-t transition-colors"
+            >
               <td className="px-4 py-3">{quotation.name}</td>
               <td className="px-4 py-3">{quotation.email}</td>
               <td className="px-4 py-3">{quotation.phone ?? "—"}</td>
@@ -64,7 +88,7 @@ export function QuotationsTable({ result }: { result: DataResult<QuotationListIt
               <td className="px-4 py-3 text-right">
                 <Link
                   href={`/admin/quotations/${quotation.id}`}
-                  className="focus-visible:ring-ring rounded underline underline-offset-2 outline-none focus-visible:ring-2"
+                  className="text-brand-primary focus-visible:ring-ring rounded font-medium underline-offset-2 outline-none hover:underline focus-visible:ring-2"
                 >
                   View
                 </Link>

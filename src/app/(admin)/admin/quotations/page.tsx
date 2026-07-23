@@ -8,7 +8,7 @@ export default async function QuotationsPage() {
 
   return (
     <div className="p-6">
-      <h1 className="text-2xl font-semibold">Quotation requests</h1>
+      <h1 className="font-heading text-2xl font-semibold tracking-tight">Quotation requests</h1>
       <p className="text-muted-foreground mt-1 text-sm">
         Enquiries submitted through the public contact form.
       </p>

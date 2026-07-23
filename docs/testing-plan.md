@@ -47,3 +47,7 @@ Services management (`tests/unit/services-logic.test.ts`, `tests/unit/services-t
 - New Zod schemas: unit-test valid/invalid cases directly against the schema, same pattern as `tests/unit/quote-request-schema.test.ts`.
 - New server-side pipelines with external dependencies: take a `deps` argument like `submitQuoteRequest`, so tests can inject fakes — don't reach for `vi.mock()` module mocking unless dependency injection genuinely isn't practical.
 - New public pages/flows: at minimum, a Playwright test for page load + one keyboard-accessible interaction. Add mocked-network tests only for scenarios where the client's handling of a specific response shape actually matters (success/error UI states), not as a substitute for the unit-level pipeline tests.
+
+## Public solar-story coverage
+
+`tests/e2e/home.spec.ts` now verifies the confirmed homepage tagline, keyboard phase navigation, the Night sun-to-quotation action, reduced-motion static scenes, mobile navigation, hidden unbuilt public routes, 390px horizontal-overflow protection, and the redesigned 404 state. Manual production-browser QA additionally covers pointer dragging, 320px layout behavior, no-JavaScript phase navigation, control dimensions, and console/page errors.

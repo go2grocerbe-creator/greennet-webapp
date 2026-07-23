@@ -134,6 +134,18 @@ Format: one entry per architecturally significant decision. Never delete or rewr
 **Rationale:** Delivers all four milestones' stated objectives while maximizing reuse of the ADR-011/012 pattern and the actual RLS-backed data layer, avoiding both duplicate queries and a premature generic CMS layer.
 **Not built:** public Projects page, image upload/Storage integration, delete, scheduling, revisions on any of the three content types.
 
+## ADR-014 — Public storytelling architecture: one CSS-variable solar environment
+
+**Date:** 2026-07-20
+**Status:** Confirmed
+**Decision:** The public redesign implements “The Sun Is the Interface” as one server-rendered semantic story with a single client controller (`SolarExperience`). Native scrolling is normalized to solar progress and written to CSS custom properties once per animation frame; React state changes only at five named phase boundaries. The visual scene uses layered CSS, SVG, perspective, transforms, masks, and gradients. No WebGL, Three.js, animation framework, or new runtime dependency is introduced. The sun is an operable progress/navigation control (pointer drag on fine pointers; phase links and arrow/Home/End keys for keyboard users) and becomes the final quotation action at Night. Reduced-motion users receive five complete static scenes; no-JavaScript users retain all narrative content plus a dedicated phase anchor navigation. Services, Products, and Contact keep their existing server data/form paths and inherit Noon, Golden Hour, and Night visual states respectively. About and Projects remain in the confirmed future IA but are filtered from public navigation until their routes exist.
+
+**Rationale:** The approved concept requires the environment, typography, shadows, and interaction to evolve as a single solar day without compromising SSR, accessibility, or performance. One small CSS-variable controller avoids per-frame React rendering and multiple competing animation systems while preserving reverse-scroll behavior and progressive enhancement. Layered SVG/CSS provides the required depth without the bundle, power, and compatibility costs of WebGL for effects that do not need it.
+
+**Validation:** `npm run check` passes (lint, typecheck, format, 131 Vitest tests, production build). All 39 Playwright scenarios pass, including continuous environmental response, mobile overflow, reduced motion, keyboard phase navigation, final sun CTA, contact flow states, and existing admin/auth route gates. The solar client chunk is approximately 2.9 KB gzip and its scene CSS approximately 3.7 KB gzip in the production build.
+
+**Unchanged:** Supabase schema/RLS, authentication, admin CRUD, API routes, quotation validation/submission, migrations, and public published-only data access.
+
 ## Superseded decisions
 
 None yet.

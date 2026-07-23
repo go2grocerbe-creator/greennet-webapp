@@ -4,6 +4,15 @@ Format loosely follows [Keep a Changelog](https://keepachangelog.com/). Dates ar
 
 ## Unreleased — `migration/nextjs-supabase`
 
+### Changed — Public website redesign: "The Sun Is the Interface"
+
+- Rebuilt the public homepage as one scroll-driven solar day: Morning, Noon, Golden Hour, Sunset, and Night. A single accessible sun control tracks progress, supports desktop pointer dragging and keyboard phase navigation, and transforms into the final quotation action.
+- Added a lightweight CSS-variable motion controller plus layered SVG/CSS perspective scene (panel field, energy path, battery, horizon, shadows, house, stars). No WebGL, animation framework, or runtime dependency added.
+- Redesigned Services, Products, Contact, Header, Footer, loading, error, empty/unavailable, and 404 states around the same time-of-day visual system. About and Projects remain absent from public navigation until their routes exist.
+- Added static reduced-motion scenes, a no-JavaScript solar phase navigation, global/story skip links, 44px public controls, mobile direct-contact-first ordering, and explicit 320px layout handling.
+- Replaced the public typography pairing with Archivo + Instrument Sans and extended the confirmed GreenNet palette into First Light, Daylight, and Night Canopy scene tokens.
+- Expanded Playwright coverage for the solar control, final CTA transition, reduced motion, mobile navigation, route visibility, and horizontal overflow.
+
 ### Added — Public Services/Products pages, Products/Projects management
 
 - Public `/services` and `/products` pages — title, short/full description, optional icon/image, sorted by display order then title/name. Published-only via RLS, reusing the exact same `list()` call the admin tables use (`listServicesForPublic`/`listProductsForPublic`), not a duplicate query. Metadata title/description/canonical on both.

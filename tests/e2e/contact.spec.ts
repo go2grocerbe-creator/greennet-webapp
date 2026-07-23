@@ -13,7 +13,7 @@ test.describe("Contact / Request a quotation page", () => {
   test("loads with the heading and form visible", async ({ page }) => {
     await page.goto("/contact");
     await expect(
-      page.getByRole("heading", { name: /contact us.*request a quotation/i }),
+      page.getByRole("heading", { name: /turn daylight into a next step/i }),
     ).toBeVisible();
     await expect(page.getByRole("button", { name: /send enquiry/i })).toBeVisible();
   });

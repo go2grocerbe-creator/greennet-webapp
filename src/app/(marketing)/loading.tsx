@@ -1,11 +1,12 @@
 export default function MarketingLoading() {
   return (
-    <div className="flex min-h-[50vh] items-center justify-center">
-      <div
-        role="status"
-        aria-label="Loading"
-        className="border-border border-t-brand-primary h-8 w-8 animate-spin rounded-full border-2"
-      />
+    <div className="solar-loading" role="status" aria-label="Loading page">
+      <div className="solar-loading__horizon" aria-hidden="true">
+        <i />
+      </div>
+      <p>
+        <span>First light</span>Loading the next scene…
+      </p>
     </div>
   );
 }

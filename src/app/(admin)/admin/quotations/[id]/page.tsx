@@ -41,13 +41,13 @@ export default async function QuotationDetailPage({ params }: QuotationDetailPag
     <div className="p-6">
       <Link
         href="/admin/quotations"
-        className="text-muted-foreground text-sm underline underline-offset-2"
+        className="text-muted-foreground hover:text-foreground text-sm font-medium transition-colors"
       >
         ← Back to quotation requests
       </Link>
 
       <div className="mt-4 flex flex-wrap items-center justify-between gap-4">
-        <h1 className="text-2xl font-semibold">{quotation.name}</h1>
+        <h1 className="font-heading text-2xl font-semibold tracking-tight">{quotation.name}</h1>
         <StatusBadge status={quotation.status} />
       </div>
       <p className="text-muted-foreground mt-1 text-sm">
@@ -57,7 +57,7 @@ export default async function QuotationDetailPage({ params }: QuotationDetailPag
       <div className="mt-6 grid gap-6 md:grid-cols-2">
         <section
           aria-labelledby="contact-info-heading"
-          className="border-border rounded-lg border p-4"
+          className="border-border bg-card shadow-brand-xs rounded-xl border p-5"
         >
           <h2 id="contact-info-heading" className="font-medium">
             Contact information
@@ -88,7 +88,7 @@ export default async function QuotationDetailPage({ params }: QuotationDetailPag
 
         <section
           aria-labelledby="project-info-heading"
-          className="border-border rounded-lg border p-4"
+          className="border-border bg-card shadow-brand-xs rounded-xl border p-5"
         >
           <h2 id="project-info-heading" className="font-medium">
             Project information
@@ -116,7 +116,7 @@ export default async function QuotationDetailPage({ params }: QuotationDetailPag
 
       <section
         aria-labelledby="message-heading"
-        className="border-border mt-6 rounded-lg border p-4"
+        className="border-border bg-card shadow-brand-xs mt-6 rounded-xl border p-5"
       >
         <h2 id="message-heading" className="font-medium">
           Message
@@ -126,7 +126,7 @@ export default async function QuotationDetailPage({ params }: QuotationDetailPag
 
       <section
         aria-labelledby="status-heading"
-        className="border-border mt-6 rounded-lg border p-4"
+        className="border-border bg-card shadow-brand-xs mt-6 rounded-xl border p-5"
       >
         <h2 id="status-heading" className="font-medium">
           Status

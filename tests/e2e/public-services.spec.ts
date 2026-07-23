@@ -12,19 +12,22 @@ test.describe("Public Services page", () => {
   test("loads with heading and metadata", async ({ page }) => {
     await page.goto("/services");
 
-    await expect(page.getByRole("heading", { name: /solar solutions/i })).toBeVisible();
+    await expect(page.getByRole("heading", { name: /work done in daylight/i })).toBeVisible();
     await expect(page).toHaveTitle(/solar solutions/i);
   });
 
   test("shows a friendly message instead of a crash when data is unavailable", async ({ page }) => {
     await page.goto("/services");
 
-    await expect(page.getByText(/unavailable right now/i)).toBeVisible();
+    await expect(page.getByText(/catalogue is between connections/i)).toBeVisible();
   });
 
   test("nav link to Solar Solutions points at /services", async ({ page }) => {
     await page.goto("/");
-    await page.getByRole("link", { name: "Solar Solutions" }).click();
+    await page
+      .getByRole("navigation", { name: "Main navigation" })
+      .getByRole("link", { name: "Solar Solutions" })
+      .click();
     await expect(page).toHaveURL(/\/services$/);
   });
 });

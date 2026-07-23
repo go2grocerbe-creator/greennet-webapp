@@ -10,18 +10,29 @@ export function QuotationSummaryCards({ result }: { result: DataResult<Quotation
   }
 
   const cards = [
-    { label: "Total quotations", value: result.data.total },
-    { label: "New", value: result.data.new },
-    { label: "Contacted", value: result.data.contacted },
-    { label: "Closed", value: result.data.closed },
+    { label: "Total quotations", value: result.data.total, accent: "text-foreground" },
+    { label: "New", value: result.data.new, accent: "text-blue-700 dark:text-blue-300" },
+    {
+      label: "Contacted",
+      value: result.data.contacted,
+      accent: "text-amber-700 dark:text-amber-300",
+    },
+    { label: "Closed", value: result.data.closed, accent: "text-brand-primary" },
   ];
 
   return (
     <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
       {cards.map((card) => (
-        <div key={card.label} className="border-border rounded-lg border p-4">
-          <p className="text-muted-foreground text-sm">{card.label}</p>
-          <p className="mt-1 text-2xl font-semibold">{card.value}</p>
+        <div
+          key={card.label}
+          className="border-border bg-card shadow-brand-xs rounded-xl border p-5"
+        >
+          <p className="text-muted-foreground text-xs font-medium tracking-wide uppercase">
+            {card.label}
+          </p>
+          <p className={`font-heading mt-2 text-3xl font-semibold tracking-tight ${card.accent}`}>
+            {card.value}
+          </p>
         </div>
       ))}
     </div>

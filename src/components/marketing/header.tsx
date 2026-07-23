@@ -1,35 +1,58 @@
 import Link from "next/link";
+import { ArrowRight } from "lucide-react";
 
-import { Container } from "@/components/ui/container";
 import { Button } from "@/components/ui/button";
-import { siteConfig } from "@/lib/config";
+import { Container } from "@/components/ui/container";
+import { publicNav, siteConfig } from "@/lib/config";
 
-/**
- * Placeholder header. Layout/behavior only — no final nav styling,
- * mobile drawer, or scroll-spy yet (see legacy-demo for the reference
- * interaction pattern to reimplement, per docs/migration-strategy.md).
- */
 export function Header() {
   return (
-    <header className="border-border bg-background border-b">
-      <Container className="flex h-16 items-center justify-between">
-        <Link href="/" className="font-heading text-brand-deep-forest text-lg font-semibold">
-          {siteConfig.name}
+    <header className="public-header">
+      <Container className="public-header__inner">
+        <Link href="/" className="public-wordmark" aria-label={`${siteConfig.name} home`}>
+          <span className="public-wordmark__sun" aria-hidden="true" />
+          <span>{siteConfig.name}</span>
         </Link>
-        <nav className="hidden items-center gap-6 md:flex">
-          {siteConfig.nav.map((item) => (
-            <Link
-              key={item.href}
-              href={item.href}
-              className="text-muted-foreground hover:text-foreground text-sm font-medium"
-            >
+
+        <nav className="public-desktop-nav" aria-label="Main navigation">
+          {publicNav.map((item) => (
+            <Link key={item.href} href={item.href}>
               {item.label}
             </Link>
           ))}
         </nav>
-        <Button render={<Link href="/contact" />} nativeButton={false} size="sm">
-          Request a Quotation
-        </Button>
+
+        <div className="public-header__actions">
+          <Button
+            render={<Link href="/contact" />}
+            nativeButton={false}
+            size="lg"
+            className="public-quote-link"
+          >
+            <span className="public-quote-link__long">Request a quotation</span>
+            <span className="public-quote-link__short">Enquire</span>
+            <ArrowRight data-icon="inline-end" aria-hidden="true" />
+          </Button>
+
+          <details className="public-mobile-menu">
+            <summary>
+              <span>Menu</span>
+              <i aria-hidden="true" />
+            </summary>
+            <div className="public-mobile-menu__panel">
+              <p>Navigate</p>
+              <nav aria-label="Mobile navigation">
+                {publicNav.map((item, index) => (
+                  <Link key={item.href} href={item.href}>
+                    <span>{String(index + 1).padStart(2, "0")}</span>
+                    {item.label}
+                    <ArrowRight aria-hidden="true" />
+                  </Link>
+                ))}
+              </nav>
+            </div>
+          </details>
+        </div>
       </Container>
     </header>
   );

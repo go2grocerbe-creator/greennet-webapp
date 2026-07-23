@@ -13,7 +13,7 @@ export default async function AdminProductsPage() {
     <div className="p-6">
       <div className="flex flex-wrap items-center justify-between gap-4">
         <div>
-          <h1 className="text-2xl font-semibold">Products</h1>
+          <h1 className="font-heading text-2xl font-semibold tracking-tight">Products</h1>
           <p className="text-muted-foreground mt-1 text-sm">
             Manage the Products page content. Only published products will appear on the public
             site.

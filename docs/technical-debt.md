@@ -31,3 +31,7 @@ Non-blocking issues: don't break the build, don't fail tests, don't affect secur
 
 - **`middleware.ts` naming deprecation.** Next.js 16 warns `The "middleware" file convention is deprecated. Please use "proxy" instead.` on every build/dev start. Functionally correct today; rename to `proxy.ts` in a dedicated pass once Next's migration guidance is confirmed stable, not mid-feature-milestone.
 - **Dev-time console noise when Supabase env vars are unset.** `[auth] failed to resolve admin session`, `[middleware] failed to resolve session`, `[admin] failed to create quotations data source` all log a full `ZodError` in this environment (no `.env.local` exists, by design). These are the intended fail-closed error path, not bugs — see `docs/security-model.md`. Noisy in the Next.js dev overlay but harmless; will disappear once a real Supabase project is configured.
+
+## Public solar-story redesign
+
+- **Total framework route JavaScript exceeds the aspirational 180 KB gzip budget.** A local production-load measurement for `/` transferred approximately 254 KB of JavaScript, dominated by the shared Next.js/React runtime; the new solar controller itself is approximately 2.9 KB gzip and adds no runtime dependency. Total transferred page resources were approximately 374 KB, scene CSS 3.7 KB gzip, and fonts 65 KB, all within their respective blueprint budgets. Revisit framework/shared-chunk reduction separately; replacing the small controller would not materially close the gap.

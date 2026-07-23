@@ -16,7 +16,7 @@ export function DataUnavailableNotice({
     <div
       role="status"
       className={cn(
-        "border-border bg-muted/30 text-muted-foreground rounded-lg border p-6 text-sm",
+        "border-border bg-muted/40 text-muted-foreground rounded-xl border p-8 text-center text-sm leading-relaxed",
         className,
       )}
     >
@@ -31,7 +31,7 @@ export function EmptyNotice({ message, className }: NoticeProps & { message: str
     <div
       role="status"
       className={cn(
-        "border-border text-muted-foreground rounded-lg border border-dashed p-6 text-sm",
+        "border-border text-muted-foreground rounded-xl border border-dashed p-8 text-center text-sm leading-relaxed",
         className,
       )}
     >

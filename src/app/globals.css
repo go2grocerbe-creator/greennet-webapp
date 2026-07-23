@@ -75,32 +75,34 @@
   --card-foreground: oklch(0.145 0 0);
   --popover: oklch(1 0 0);
   --popover-foreground: oklch(0.145 0 0);
-  --primary: oklch(0.205 0 0);
-  --primary-foreground: oklch(0.985 0 0);
-  --secondary: oklch(0.97 0 0);
-  --secondary-foreground: oklch(0.205 0 0);
-  --muted: oklch(0.97 0 0);
-  --muted-foreground: oklch(0.556 0 0);
-  --accent: oklch(0.97 0 0);
-  --accent-foreground: oklch(0.205 0 0);
+  /* Semantic tokens mapped to the confirmed GreenNet brand palette
+     (docs/content-register.md "Company identity" — #063f2a / #087a42 / #f5c400). */
+  --primary: #087a42;
+  --primary-foreground: #ffffff;
+  --secondary: #e8f2e9;
+  --secondary-foreground: #063f2a;
+  --muted: oklch(0.968 0.005 150);
+  --muted-foreground: oklch(0.5 0.015 155);
+  --accent: #e8f2e9;
+  --accent-foreground: #063f2a;
   --destructive: oklch(0.577 0.245 27.325);
-  --border: oklch(0.922 0 0);
-  --input: oklch(0.922 0 0);
-  --ring: oklch(0.708 0 0);
+  --border: oklch(0.915 0.008 150);
+  --input: oklch(0.885 0.01 150);
+  --ring: #087a42;
   --chart-1: oklch(0.87 0 0);
   --chart-2: oklch(0.556 0 0);
   --chart-3: oklch(0.439 0 0);
   --chart-4: oklch(0.371 0 0);
   --chart-5: oklch(0.269 0 0);
   --radius: 0.625rem;
-  --sidebar: oklch(0.985 0 0);
+  --sidebar: oklch(0.99 0.003 150);
   --sidebar-foreground: oklch(0.145 0 0);
-  --sidebar-primary: oklch(0.205 0 0);
-  --sidebar-primary-foreground: oklch(0.985 0 0);
-  --sidebar-accent: oklch(0.97 0 0);
-  --sidebar-accent-foreground: oklch(0.205 0 0);
-  --sidebar-border: oklch(0.922 0 0);
-  --sidebar-ring: oklch(0.708 0 0);
+  --sidebar-primary: #087a42;
+  --sidebar-primary-foreground: #ffffff;
+  --sidebar-accent: #e8f2e9;
+  --sidebar-accent-foreground: #063f2a;
+  --sidebar-border: oklch(0.915 0.008 150);
+  --sidebar-ring: #087a42;
 
   /* GreenNet brand tokens — migrated from legacy-demo/styles.css design system, see docs/content-register.md */
   --c-deep-forest: #063f2a;
@@ -129,7 +131,20 @@
   --t-base: 250ms;
   --t-slow: 400ms;
 
-  --font-heading-brand: var(--font-outfit), system-ui, sans-serif;
+  --font-heading-brand: var(--font-archivo), system-ui, sans-serif;
+
+  /* Sun-journey atmosphere tokens — golden-hour light, derived from the
+     confirmed brand gold (#f5c400) and deep forest (#063f2a). */
+  --sun-core: #ffdf6b;
+  --sun-glow: #f5c400;
+  --sky-dawn: #fff7e0;
+  --sky-noon: #fdfcf7;
+  --sky-dusk: #0a3d2b;
+  --solar-core: #f5c400;
+  --first-light: #fff3c4;
+  --daylight-canvas: #fcfbf4;
+  --living-green: #087a42;
+  --night-canopy: #031f17;
 }
 
 .dark {
@@ -139,18 +154,18 @@
   --card-foreground: oklch(0.985 0 0);
   --popover: oklch(0.205 0 0);
   --popover-foreground: oklch(0.985 0 0);
-  --primary: oklch(0.922 0 0);
-  --primary-foreground: oklch(0.205 0 0);
-  --secondary: oklch(0.269 0 0);
-  --secondary-foreground: oklch(0.985 0 0);
+  --primary: oklch(0.72 0.15 155);
+  --primary-foreground: oklch(0.18 0.05 160);
+  --secondary: oklch(0.28 0.03 160);
+  --secondary-foreground: oklch(0.97 0.01 150);
   --muted: oklch(0.269 0 0);
   --muted-foreground: oklch(0.708 0 0);
-  --accent: oklch(0.269 0 0);
-  --accent-foreground: oklch(0.985 0 0);
+  --accent: oklch(0.28 0.03 160);
+  --accent-foreground: oklch(0.97 0.01 150);
   --destructive: oklch(0.704 0.191 22.216);
   --border: oklch(1 0 0 / 10%);
   --input: oklch(1 0 0 / 15%);
-  --ring: oklch(0.556 0 0);
+  --ring: oklch(0.72 0.15 155);
   --chart-1: oklch(0.87 0 0);
   --chart-2: oklch(0.556 0 0);
   --chart-3: oklch(0.439 0 0);
@@ -158,12 +173,12 @@
   --chart-5: oklch(0.269 0 0);
   --sidebar: oklch(0.205 0 0);
   --sidebar-foreground: oklch(0.985 0 0);
-  --sidebar-primary: oklch(0.488 0.243 264.376);
-  --sidebar-primary-foreground: oklch(0.985 0 0);
-  --sidebar-accent: oklch(0.269 0 0);
-  --sidebar-accent-foreground: oklch(0.985 0 0);
+  --sidebar-primary: oklch(0.72 0.15 155);
+  --sidebar-primary-foreground: oklch(0.18 0.05 160);
+  --sidebar-accent: oklch(0.28 0.03 160);
+  --sidebar-accent-foreground: oklch(0.97 0.01 150);
   --sidebar-border: oklch(1 0 0 / 10%);
-  --sidebar-ring: oklch(0.556 0 0);
+  --sidebar-ring: oklch(0.72 0.15 155);
 }
 
 @layer base {
@@ -172,8 +187,1853 @@
   }
   body {
     @apply bg-background text-foreground;
+    background: var(--daylight-canvas);
   }
   html {
-    @apply font-sans;
+    @apply scroll-smooth font-sans;
+  }
+  h1,
+  h2,
+  h3,
+  h4 {
+    text-wrap: balance;
+    letter-spacing: -0.02em;
+  }
+  p {
+    text-wrap: pretty;
+  }
+  ::selection {
+    background-color: var(--c-soft-green);
+    color: var(--c-deep-forest);
+  }
+}
+
+/* Public storytelling system */
+.global-skip-link {
+  position: fixed;
+  z-index: 100;
+  top: 0.75rem;
+  left: 0.75rem;
+  padding: 0.8rem 1rem;
+  color: white;
+  background: var(--c-deep-forest);
+  border-radius: 999px;
+  outline: 3px solid var(--c-accent);
+  transform: translateY(-180%);
+  transition: transform 160ms ease;
+}
+
+.global-skip-link:focus {
+  transform: translateY(0);
+}
+
+.public-header {
+  position: sticky;
+  z-index: 60;
+  top: 0;
+  color: var(--c-deep-forest);
+  background: rgb(252 251 244 / 86%);
+  border-bottom: 1px solid rgb(6 63 42 / 12%);
+  backdrop-filter: blur(18px) saturate(125%);
+}
+
+.public-header__inner {
+  display: flex;
+  min-height: 4.5rem;
+  gap: 1rem;
+  align-items: center;
+  justify-content: space-between;
+}
+.public-wordmark {
+  display: flex;
+  min-height: 2.75rem;
+  color: inherit;
+  font-family: var(--font-heading-brand);
+  font-weight: 720;
+  letter-spacing: -0.04em;
+  text-decoration: none;
+  align-items: center;
+  gap: 0.7rem;
+  border-radius: 0.4rem;
+  outline: none;
+}
+.public-wordmark:focus-visible {
+  box-shadow: 0 0 0 3px var(--c-accent);
+}
+.public-wordmark__sun,
+.public-footer__sun {
+  position: relative;
+  display: inline-block;
+  width: 1rem;
+  height: 1rem;
+  background: var(--c-accent);
+  border-radius: 50%;
+  box-shadow: 0 0 0 0.3rem rgb(245 196 0 / 17%);
+}
+.public-desktop-nav {
+  display: none;
+  align-items: center;
+  gap: 0.25rem;
+}
+.public-desktop-nav a {
+  display: inline-flex;
+  min-height: 2.75rem;
+  padding: 0 0.85rem;
+  color: rgb(6 63 42 / 68%);
+  font-size: 0.83rem;
+  font-weight: 610;
+  text-decoration: none;
+  border-radius: 999px;
+  outline: none;
+  align-items: center;
+}
+.public-desktop-nav a:hover {
+  color: var(--c-deep-forest);
+  background: rgb(8 122 66 / 7%);
+}
+.public-desktop-nav a:focus-visible {
+  box-shadow: inset 0 0 0 2px var(--c-primary);
+}
+.public-header__actions {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+.public-quote-link {
+  min-height: 2.75rem;
+  background: var(--c-deep-forest);
+  border-radius: 999px;
+}
+.public-quote-link:hover {
+  background: var(--c-primary);
+}
+.public-quote-link__long {
+  display: none;
+}
+.public-mobile-menu {
+  position: relative;
+}
+.public-mobile-menu summary {
+  display: flex;
+  min-width: 3.6rem;
+  min-height: 2.75rem;
+  padding: 0 0.7rem;
+  cursor: pointer;
+  list-style: none;
+  font-size: 0.78rem;
+  font-weight: 680;
+  border: 1px solid rgb(6 63 42 / 18%);
+  border-radius: 999px;
+  outline: none;
+  align-items: center;
+  justify-content: center;
+  gap: 0.45rem;
+}
+.public-mobile-menu summary::-webkit-details-marker {
+  display: none;
+}
+.public-mobile-menu summary:focus-visible {
+  box-shadow: 0 0 0 3px var(--c-accent);
+}
+.public-mobile-menu summary i {
+  position: relative;
+  width: 0.8rem;
+  height: 1px;
+  background: currentColor;
+  transition: transform 180ms ease;
+}
+.public-mobile-menu summary i::after {
+  position: absolute;
+  top: 0.3rem;
+  left: 0;
+  width: 100%;
+  height: 1px;
+  content: "";
+  background: currentColor;
+}
+.public-mobile-menu[open] summary i {
+  transform: rotate(45deg);
+}
+.public-mobile-menu[open] summary i::after {
+  top: 0;
+  transform: rotate(90deg);
+}
+.public-mobile-menu__panel {
+  position: absolute;
+  top: calc(100% + 0.7rem);
+  right: 0;
+  width: min(22rem, calc(100vw - 2rem));
+  padding: 1rem;
+  color: white;
+  background: rgb(3 31 23 / 97%);
+  border: 1px solid rgb(255 255 255 / 15%);
+  border-radius: 1rem;
+  box-shadow: 0 2rem 6rem rgb(0 0 0 / 28%);
+}
+.public-mobile-menu:not([open]) .public-mobile-menu__panel {
+  display: none;
+}
+.public-mobile-menu__panel > p {
+  margin: 0.35rem 0.75rem 0.8rem;
+  color: rgb(255 255 255 / 54%);
+  font-size: 0.68rem;
+  font-weight: 700;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+}
+.public-mobile-menu__panel nav {
+  display: grid;
+}
+.public-mobile-menu__panel a {
+  display: grid;
+  min-height: 3.25rem;
+  padding: 0 0.75rem;
+  color: white;
+  text-decoration: none;
+  border-top: 1px solid rgb(255 255 255 / 10%);
+  border-radius: 0.4rem;
+  outline: none;
+  grid-template-columns: 2rem 1fr auto;
+  align-items: center;
+}
+.public-mobile-menu__panel a span {
+  color: var(--c-accent);
+  font-size: 0.62rem;
+}
+.public-mobile-menu__panel a svg {
+  width: 1rem;
+}
+.public-mobile-menu__panel a:focus-visible {
+  box-shadow: inset 0 0 0 2px var(--c-accent);
+}
+
+.solar-chapter {
+  position: relative;
+  min-height: 124svh;
+  scroll-margin-top: 4rem;
+}
+[data-enhanced="true"] .solar-chapter {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  min-height: 100svh;
+  scroll-margin-top: 0;
+}
+.solar-chapter__inner {
+  display: flex;
+  min-height: 100svh;
+  padding-top: clamp(6rem, 13vh, 9rem);
+  padding-bottom: clamp(5rem, 12vh, 8rem);
+  align-items: center;
+  justify-content: center;
+}
+[data-enhanced="true"] .solar-chapter__inner {
+  position: absolute;
+  inset: 0;
+  min-height: 100svh;
+  align-items: center;
+}
+[data-enhanced="true"] .solar-chapter--predawn .solar-chapter__inner {
+  opacity: var(--opacity-predawn, 1);
+}
+[data-enhanced="true"] .solar-chapter--morning .solar-chapter__inner {
+  opacity: var(--opacity-morning, 1);
+}
+[data-enhanced="true"] .solar-chapter--noon .solar-chapter__inner {
+  opacity: var(--opacity-noon, 1);
+}
+[data-enhanced="true"] .solar-chapter--golden .solar-chapter__inner {
+  opacity: var(--opacity-golden, 1);
+}
+[data-enhanced="true"] .solar-chapter--sunset .solar-chapter__inner {
+  opacity: var(--opacity-sunset, 1);
+}
+[data-enhanced="true"] .solar-chapter--night .solar-chapter__inner {
+  opacity: var(--opacity-night, 1);
+}
+[data-enhanced="true"] .solar-chapter__inner {
+  pointer-events: none;
+}
+[data-enhanced="true"][data-text-phase="predawn"] .solar-chapter--predawn .solar-chapter__inner,
+[data-enhanced="true"][data-text-phase="morning"] .solar-chapter--morning .solar-chapter__inner,
+[data-enhanced="true"][data-text-phase="noon"] .solar-chapter--noon .solar-chapter__inner,
+[data-enhanced="true"][data-text-phase="golden"] .solar-chapter--golden .solar-chapter__inner,
+[data-enhanced="true"][data-text-phase="sunset"] .solar-chapter--sunset .solar-chapter__inner,
+[data-enhanced="true"][data-text-phase="night"] .solar-chapter--night .solar-chapter__inner {
+  pointer-events: auto;
+}
+.solar-chapter__inner--right {
+  justify-content: center;
+}
+.solar-chapter__inner--low {
+  align-items: flex-end;
+}
+.solar-chapter__inner--center {
+  text-align: center;
+  align-items: center;
+  justify-content: center;
+}
+.solar-chapter__copy {
+  position: relative;
+  z-index: 1;
+  width: min(38rem, 44vw);
+}
+.solar-chapter__copy::before {
+  display: none;
+}
+[data-enhanced="true"] .solar-chapter__copy {
+  transform: none;
+}
+[data-enhanced="true"]
+  :is(.solar-chapter--morning, .solar-chapter--noon, .solar-chapter--golden, .solar-chapter--sunset)
+  :is(.solar-time, .solar-kicker, .solar-lede, .solar-text-link),
+[data-enhanced="true"] .solar-chapter--predawn :is(.solar-lede, .solar-actions),
+[data-enhanced="true"] .solar-chapter--night .solar-kicker {
+  display: none;
+}
+.solar-chapter__copy--hero {
+  width: min(48rem, 62vw);
+}
+.solar-chapter__copy--night {
+  width: min(50rem, 62vw);
+}
+.solar-time {
+  display: flex;
+  width: min(19rem, 100%);
+  padding-bottom: 0.65rem;
+  margin-bottom: 1.8rem;
+  font-size: 0.68rem;
+  font-weight: 700;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  border-bottom: 1px solid currentColor;
+  justify-content: space-between;
+  opacity: 0.7;
+}
+.solar-chapter__inner--right .solar-time {
+  margin-left: 0;
+}
+.solar-chapter__inner--center .solar-time {
+  margin-right: auto;
+  margin-left: auto;
+}
+.solar-time time {
+  font-variant-numeric: tabular-nums;
+}
+.solar-kicker {
+  margin: 0 0 1.25rem;
+  font-size: 0.73rem;
+  font-weight: 720;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+}
+.solar-chapter h1,
+.solar-chapter h2 {
+  position: relative;
+  max-width: 12ch;
+  margin: 0;
+  font-family: var(--font-heading-brand);
+  font-size: clamp(3.8rem, 6.8vw, 7.2rem);
+  font-weight: 780;
+  line-height: 0.88;
+  letter-spacing: -0.064em;
+  text-wrap: balance;
+}
+.solar-chapter h1 {
+  max-width: 15ch;
+  font-size: clamp(3.7rem, 6.2vw, 6.8rem);
+}
+.solar-chapter--noon h2 {
+  font-stretch: condensed;
+  letter-spacing: -0.085em;
+}
+.solar-chapter--golden h2 {
+  font-stretch: expanded;
+}
+.solar-chapter--sunset h2 {
+  max-width: 9ch;
+}
+.solar-chapter--night h2 {
+  max-width: 9ch;
+  margin-inline: auto;
+  letter-spacing: -0.06em;
+  text-shadow: 0 0 4rem rgb(245 196 0 / 20%);
+}
+[data-enhanced="true"]
+  :is(.solar-chapter--morning, .solar-chapter--noon, .solar-chapter--golden, .solar-chapter--sunset)
+  h2 {
+  max-width: 9ch;
+  font-size: clamp(3rem, 5vw, 5.6rem);
+  line-height: 0.9;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  [data-enhanced="true"] .solar-night-action {
+    display: none;
+  }
+}
+.solar-lede {
+  max-width: 34rem;
+  margin: 2rem 0 0;
+  font-size: clamp(1.05rem, 1.35vw, 1.25rem);
+  line-height: 1.6;
+}
+.solar-chapter__inner--right .solar-lede {
+  margin-left: 0;
+}
+.solar-chapter__inner--center .solar-lede {
+  margin-right: auto;
+  margin-left: auto;
+}
+.solar-actions {
+  display: flex;
+  margin-top: 2.2rem;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 1rem 1.4rem;
+}
+.solar-actions--center {
+  justify-content: center;
+}
+.solar-primary-action {
+  min-height: 3rem;
+  color: var(--c-deep-forest);
+  background: var(--c-accent);
+  border-radius: 999px;
+  box-shadow: 0 1rem 3rem rgb(0 0 0 / 18%);
+}
+.solar-primary-action:hover {
+  color: white;
+  background: var(--c-primary);
+}
+.solar-night-action {
+  min-height: 3rem;
+  color: var(--c-deep-forest);
+  background: var(--c-accent);
+  border-radius: 999px;
+}
+.solar-text-link,
+.solar-call-link {
+  display: inline-flex;
+  min-height: 2.75rem;
+  color: inherit;
+  font-size: 0.86rem;
+  font-weight: 680;
+  text-decoration: none;
+  border-bottom: 1px solid currentColor;
+  outline: none;
+  align-items: center;
+  gap: 0.55rem;
+}
+.solar-text-link {
+  margin-top: 1.7rem;
+}
+.solar-actions .solar-text-link {
+  margin-top: 0;
+}
+.solar-text-link svg {
+  width: 1rem;
+  transition: transform 180ms ease;
+}
+.solar-text-link:hover svg {
+  transform: translateX(0.25rem);
+}
+.solar-text-link:focus-visible,
+.solar-call-link:focus-visible {
+  box-shadow: 0 0 0 3px var(--c-accent);
+}
+[data-enhanced="true"] .solar-call-link {
+  opacity: var(--phone-reveal, 0);
+  transform: translateY(calc((1 - var(--phone-reveal, 0)) * 0.65rem));
+}
+.solar-chapter--predawn,
+.solar-chapter--sunset,
+.solar-chapter--night {
+  color: var(--first-light);
+}
+.solar-chapter--morning,
+.solar-chapter--noon,
+.solar-chapter--golden {
+  color: var(--c-deep-forest);
+}
+
+.solar-chapter--predawn .solar-chapter__inner,
+.solar-chapter--morning .solar-chapter__inner,
+.solar-chapter--noon .solar-chapter__inner,
+.solar-chapter--golden .solar-chapter__inner,
+.solar-chapter--sunset .solar-chapter__inner {
+  align-items: center;
+}
+.solar-chapter--morning .solar-chapter__copy,
+.solar-chapter--sunset .solar-chapter__copy {
+  margin-right: 0;
+}
+.solar-chapter--night .solar-chapter__inner {
+  padding-top: clamp(7rem, 14vh, 10rem);
+  padding-bottom: 38vh;
+  align-items: center;
+}
+.solar-chapter--night .solar-lede {
+  max-width: 38rem;
+}
+
+@media (min-width: 768px) {
+  .solar-chapter__inner {
+    position: sticky;
+    top: 0;
+  }
+}
+
+.story-exit {
+  color: white;
+  background: var(--night-canopy);
+  border-top: 1px solid rgb(255 255 255 / 12%);
+}
+.story-exit__inner {
+  display: grid;
+  min-height: 16rem;
+  padding-top: 3rem;
+  padding-bottom: 3rem;
+  gap: 2rem;
+  align-items: center;
+}
+.story-exit__inner > p {
+  color: var(--c-accent);
+  font-size: 0.68rem;
+  font-weight: 700;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+}
+.story-exit nav {
+  display: grid;
+}
+.story-exit a {
+  display: flex;
+  min-height: 3.25rem;
+  color: white;
+  font-family: var(--font-heading-brand);
+  font-size: clamp(1.25rem, 2.5vw, 2rem);
+  font-weight: 650;
+  letter-spacing: -0.035em;
+  text-decoration: none;
+  border-top: 1px solid rgb(255 255 255 / 14%);
+  outline: none;
+  align-items: center;
+  justify-content: space-between;
+}
+.story-exit a:hover {
+  color: var(--c-accent);
+}
+.story-exit a:focus-visible {
+  box-shadow: inset 0 0 0 2px var(--c-accent);
+}
+
+.public-footer {
+  padding-top: clamp(4rem, 9vw, 8rem);
+  color: white;
+  background: var(--night-canopy);
+}
+.public-footer__masthead {
+  display: flex;
+  padding-bottom: 1.5rem;
+  border-bottom: 1px solid rgb(255 255 255 / 15%);
+  align-items: flex-end;
+  justify-content: space-between;
+}
+.public-footer__masthead p {
+  margin: 0;
+  font-family: var(--font-heading-brand);
+  font-size: clamp(4rem, 13vw, 10rem);
+  font-weight: 780;
+  line-height: 0.72;
+  letter-spacing: -0.08em;
+}
+.public-footer__masthead span {
+  display: none;
+  color: var(--c-accent);
+  font-size: 0.65rem;
+  letter-spacing: 0.2em;
+}
+.public-footer__grid {
+  display: grid;
+  padding: 3.5rem 0;
+  gap: 3rem;
+}
+.public-footer__statement {
+  display: flex;
+  max-width: 25rem;
+  font-family: var(--font-heading-brand);
+  font-size: clamp(1.4rem, 3vw, 2.2rem);
+  line-height: 1.05;
+  gap: 1.2rem;
+  align-items: flex-start;
+}
+.public-footer__statement p {
+  margin: 0;
+}
+.public-footer__sun {
+  flex: 0 0 auto;
+  margin-top: 0.25rem;
+}
+.public-footer__nav,
+.public-footer__contact {
+  display: flex;
+  margin: 0;
+  font-style: normal;
+  flex-direction: column;
+}
+.public-footer__nav > p,
+.public-footer__contact > p {
+  margin: 0 0 1rem;
+  color: var(--c-accent);
+  font-size: 0.68rem;
+  font-weight: 700;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+}
+.public-footer__nav a,
+.public-footer__contact a,
+.public-footer__contact span {
+  display: flex;
+  min-height: 2.75rem;
+  color: rgb(255 255 255 / 72%);
+  font-size: 0.86rem;
+  text-decoration: none;
+  outline: none;
+  align-items: center;
+}
+.public-footer__nav a {
+  justify-content: space-between;
+  border-top: 1px solid rgb(255 255 255 / 10%);
+}
+.public-footer__nav a svg {
+  width: 0.9rem;
+}
+.public-footer__contact span {
+  height: auto;
+  padding: 0.7rem 0;
+  line-height: 1.5;
+}
+.public-footer__nav a:hover,
+.public-footer__contact a:hover {
+  color: white;
+}
+.public-footer__nav a:focus-visible,
+.public-footer__contact a:focus-visible {
+  box-shadow: inset 0 0 0 2px var(--c-accent);
+}
+.public-footer__legal {
+  display: flex;
+  min-height: 4rem;
+  color: rgb(255 255 255 / 42%);
+  font-size: 0.7rem;
+  border-top: 1px solid rgb(255 255 255 / 12%);
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+}
+
+@media (min-width: 768px) {
+  .public-desktop-nav {
+    display: flex;
+  }
+  .public-mobile-menu {
+    display: none;
+  }
+  .public-quote-link__long {
+    display: inline;
+  }
+  .public-quote-link__short {
+    display: none;
+  }
+  .story-exit__inner {
+    grid-template-columns: 1fr 2fr;
+  }
+  .public-footer__masthead span {
+    display: block;
+  }
+  .public-footer__grid {
+    grid-template-columns: minmax(16rem, 1.5fr) 0.75fr 1fr;
+    gap: clamp(3rem, 7vw, 7rem);
+  }
+}
+
+@media (max-width: 767px) {
+  .public-header__inner {
+    min-height: 4rem;
+  }
+  .public-wordmark {
+    font-size: 0.92rem;
+  }
+  .public-quote-link {
+    min-height: 2.75rem;
+    padding-inline: 0.8rem;
+    font-size: 0.78rem;
+  }
+  .solar-chapter {
+    min-height: 122svh;
+  }
+  .solar-chapter__inner {
+    min-height: 100svh;
+    padding-top: 7rem;
+    padding-bottom: 5rem;
+    align-items: center;
+  }
+  .solar-chapter__inner--low {
+    align-items: flex-end;
+  }
+  .solar-chapter__inner--center {
+    align-items: center;
+  }
+  .solar-chapter--golden .solar-chapter__copy {
+    transform: translateY(-3vh);
+  }
+  [data-enhanced="true"] .solar-chapter__inner,
+  [data-enhanced="true"] .solar-chapter__inner--low,
+  [data-enhanced="true"] .solar-chapter--night .solar-chapter__inner {
+    position: absolute;
+    top: 0;
+    padding-top: 6.5rem;
+    padding-bottom: 5rem;
+    align-items: center;
+  }
+  [data-enhanced="true"] .solar-chapter__copy {
+    transform: none;
+  }
+  [data-enhanced="true"]
+    :is(
+      .solar-chapter--morning,
+      .solar-chapter--noon,
+      .solar-chapter--golden,
+      .solar-chapter--sunset
+    )
+    h2 {
+    max-width: 8ch;
+    font-size: clamp(2.6rem, 11vw, 3.7rem);
+  }
+  [data-enhanced="true"] .solar-chapter--night .solar-actions {
+    margin-top: 1.25rem;
+    transform: translateY(-1.75rem);
+  }
+  .solar-chapter__copy,
+  .solar-chapter__copy--hero,
+  .solar-chapter__copy--night {
+    width: 100%;
+  }
+  .solar-chapter h1,
+  .solar-chapter h2 {
+    font-size: clamp(2.9rem, 14vw, 4.8rem);
+    line-height: 0.9;
+    letter-spacing: -0.06em;
+  }
+  .solar-chapter h1 {
+    font-size: clamp(2.75rem, 12.5vw, 4.25rem);
+  }
+  .solar-lede {
+    font-size: 1rem;
+    line-height: 1.55;
+  }
+  .solar-actions {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+  .solar-actions .solar-text-link {
+    margin-left: 6rem;
+  }
+  .solar-actions--center {
+    align-items: center;
+  }
+  .solar-actions--center .solar-text-link {
+    margin-left: 0;
+  }
+  .solar-chapter--morning .solar-chapter__copy,
+  .solar-chapter--sunset .solar-chapter__copy {
+    margin-right: 0;
+  }
+  .solar-chapter--night .solar-chapter__inner {
+    position: sticky;
+    top: 0;
+    padding-top: 6.5rem;
+    padding-bottom: 24vh;
+    align-items: center;
+  }
+  .public-footer__legal {
+    align-items: flex-start;
+    flex-direction: column;
+    justify-content: center;
+  }
+}
+
+@media (max-width: 359px) {
+  .public-quote-link {
+    display: none;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+  *,
+  *::before,
+  *::after {
+    scroll-behavior: auto !important;
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+  }
+  .solar-chapter {
+    position: relative;
+    inset: auto;
+    min-height: 78svh;
+    color: var(--c-deep-forest);
+  }
+  .solar-chapter__inner {
+    position: relative;
+    top: auto;
+    min-height: 78svh;
+  }
+  [data-enhanced="true"] .solar-chapter__inner,
+  [data-enhanced="true"] .solar-chapter--night .solar-chapter__inner {
+    position: relative;
+    inset: auto;
+  }
+  [data-enhanced="true"] .solar-time,
+  [data-enhanced="true"] .solar-actions {
+    display: flex;
+  }
+  [data-enhanced="true"] .solar-kicker,
+  [data-enhanced="true"] .solar-lede {
+    display: block;
+  }
+  [data-enhanced="true"] :is(.solar-text-link, .solar-call-link) {
+    display: inline-flex;
+  }
+  [data-enhanced="true"] .solar-chapter__inner {
+    pointer-events: auto;
+    opacity: 1;
+  }
+  [data-enhanced="true"] .solar-call-link {
+    opacity: 1;
+    transform: none;
+  }
+  .solar-chapter--predawn {
+    color: var(--first-light);
+    background: linear-gradient(180deg, #071922, #5c674b);
+  }
+  .solar-chapter--morning,
+  .solar-chapter--noon {
+    background: linear-gradient(180deg, #d9edf0, #f6f4dd);
+  }
+  .solar-chapter--golden {
+    background: linear-gradient(180deg, #c9c6a0, #e4b967);
+  }
+  .solar-chapter--sunset {
+    color: var(--first-light);
+    background: linear-gradient(180deg, #926e45, #553d31);
+  }
+  .solar-chapter--night {
+    color: var(--first-light);
+    background: linear-gradient(180deg, #061c18, #031f17);
+  }
+}
+
+@media (forced-colors: active) {
+  .public-header,
+  .public-footer,
+  .story-exit,
+  .solar-chapter {
+    color: CanvasText;
+    background: Canvas;
+  }
+  .public-wordmark__sun,
+  .public-footer__sun {
+    background: Highlight;
+    box-shadow: none;
+  }
+}
+
+/* Interior public pages inherit one precise moment from the solar day. */
+.solar-page-hero {
+  position: relative;
+  min-height: clamp(34rem, 72svh, 48rem);
+  overflow: hidden;
+  isolation: isolate;
+}
+
+.solar-page-hero--noon {
+  color: var(--c-deep-forest);
+  background: linear-gradient(160deg, #d9edf0 0%, #fcfbf4 58%, #d6ddb0 100%);
+}
+.solar-page-hero--golden {
+  color: var(--c-deep-forest);
+  background: linear-gradient(155deg, #bdc9b0 0%, #edc873 62%, #9b7442 100%);
+}
+.solar-page-hero--night {
+  color: var(--first-light);
+  background:
+    radial-gradient(60% 60% at 78% 80%, rgb(8 122 66 / 34%), transparent 70%),
+    linear-gradient(155deg, #020d12, #031f17 72%);
+}
+.solar-page-hero__content {
+  position: relative;
+  z-index: 3;
+  width: min(72rem, calc(100% - 2rem));
+  padding: clamp(7rem, 16vh, 11rem) 0 clamp(4rem, 10vh, 7rem);
+  margin: 0 auto;
+}
+.solar-page-hero__time {
+  display: flex;
+  width: min(24rem, 100%);
+  padding-bottom: 0.7rem;
+  margin: 0 0 1.5rem;
+  font-size: 0.68rem;
+  font-weight: 720;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  border-bottom: 1px solid currentColor;
+  justify-content: space-between;
+  opacity: 0.68;
+}
+.solar-page-hero__time time {
+  font-variant-numeric: tabular-nums;
+}
+.solar-page-hero h1 {
+  max-width: 10ch;
+  margin: 0;
+  font-family: var(--font-heading-brand);
+  font-size: clamp(4.5rem, 10vw, 9rem);
+  font-weight: 780;
+  line-height: 0.82;
+  letter-spacing: -0.075em;
+  text-wrap: balance;
+}
+.solar-page-hero__content > p:last-child {
+  max-width: 34rem;
+  margin: 2rem 0 0;
+  font-size: clamp(1rem, 1.6vw, 1.25rem);
+  line-height: 1.6;
+}
+.solar-page-hero__orbit {
+  position: absolute;
+  z-index: 2;
+  top: 7%;
+  right: -5%;
+  width: min(58vw, 46rem);
+  aspect-ratio: 1;
+  border: 1px solid currentColor;
+  border-radius: 50%;
+  opacity: 0.25;
+  transform: rotate(-18deg);
+}
+.solar-page-hero__orbit::before,
+.solar-page-hero__orbit::after {
+  position: absolute;
+  inset: 13%;
+  content: "";
+  border: 1px solid currentColor;
+  border-radius: 50%;
+}
+.solar-page-hero__orbit::after {
+  inset: 31%;
+}
+.solar-page-hero__orbit i {
+  position: absolute;
+  top: 7%;
+  left: 21%;
+  width: 5.5rem;
+  height: 5.5rem;
+  background: var(--c-accent);
+  border-radius: 50%;
+  box-shadow: 0 0 3rem rgb(245 196 0 / 45%);
+}
+.solar-page-hero__orbit span {
+  position: absolute;
+  right: 8%;
+  bottom: 18%;
+  width: 1px;
+  height: 42%;
+  background: currentColor;
+  transform: rotate(35deg);
+}
+.solar-page-hero__plane {
+  position: absolute;
+  z-index: 1;
+  right: 4%;
+  bottom: -17%;
+  display: grid;
+  width: min(48vw, 42rem);
+  height: 46%;
+  padding: 0.45rem;
+  background: #073339;
+  border: 1px solid rgb(255 255 255 / 30%);
+  gap: 0.35rem;
+  grid-template-columns: repeat(4, 1fr);
+  transform: perspective(700px) rotateX(58deg) rotateZ(-12deg);
+  transform-origin: 100% 100%;
+}
+.solar-page-hero__plane i {
+  background: linear-gradient(145deg, #0a5557, #071e2c);
+  border: 1px solid rgb(255 255 255 / 12%);
+}
+
+.public-catalogue {
+  padding-top: clamp(4rem, 9vw, 8rem);
+  padding-bottom: clamp(6rem, 12vw, 10rem);
+}
+.public-data-state {
+  display: grid;
+  min-height: 28rem;
+  border-top: 1px solid rgb(6 63 42 / 20%);
+  border-bottom: 1px solid rgb(6 63 42 / 20%);
+  gap: 3rem;
+  align-items: center;
+}
+.public-data-state__signal {
+  position: relative;
+  display: flex;
+  min-height: 13rem;
+  align-items: center;
+}
+.public-data-state__signal span {
+  color: rgb(8 122 66 / 12%);
+  font-family: var(--font-heading-brand);
+  font-size: clamp(8rem, 20vw, 15rem);
+  font-weight: 780;
+  line-height: 0.7;
+  letter-spacing: -0.08em;
+}
+.public-data-state__signal i {
+  position: absolute;
+  top: 50%;
+  right: 8%;
+  left: 18%;
+  height: 2px;
+  background: linear-gradient(90deg, transparent, var(--c-accent));
+  transform: rotate(-10deg);
+  transform-origin: 100% 50%;
+}
+.public-data-state > div:last-child > p:first-child {
+  margin: 0 0 0.8rem;
+  color: var(--c-primary);
+  font-size: 0.68rem;
+  font-weight: 700;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+}
+.public-data-state h2 {
+  max-width: 12ch;
+  margin: 0;
+  color: var(--c-deep-forest);
+  font-family: var(--font-heading-brand);
+  font-size: clamp(2.7rem, 6vw, 5.5rem);
+  font-weight: 740;
+  line-height: 0.92;
+  letter-spacing: -0.065em;
+}
+.public-data-state > div:last-child > p:nth-child(3) {
+  max-width: 32rem;
+  margin: 1.4rem 0;
+  color: rgb(23 33 27 / 70%);
+  line-height: 1.65;
+}
+.public-data-state a {
+  display: inline-flex;
+  min-height: 2.75rem;
+  color: var(--c-deep-forest);
+  font-weight: 680;
+  text-decoration: none;
+  border-bottom: 1px solid;
+  outline: none;
+  align-items: center;
+  gap: 0.6rem;
+}
+.public-data-state a:focus-visible {
+  box-shadow: 0 0 0 3px var(--c-accent);
+}
+
+.service-ledger {
+  padding: 0;
+  margin: 0;
+  list-style: none;
+  counter-reset: services;
+}
+.service-ledger > li {
+  position: relative;
+  display: grid;
+  min-height: 30rem;
+  padding: clamp(3rem, 7vw, 6rem) 0;
+  overflow: hidden;
+  border-top: 1px solid rgb(6 63 42 / 18%);
+  gap: 2rem;
+  align-items: center;
+}
+.service-ledger > li:last-child {
+  border-bottom: 1px solid rgb(6 63 42 / 18%);
+}
+.service-ledger__index {
+  align-self: start;
+}
+.service-ledger__index span {
+  color: rgb(8 122 66 / 18%);
+  font-family: var(--font-heading-brand);
+  font-size: clamp(5rem, 12vw, 9rem);
+  font-weight: 780;
+  line-height: 0.75;
+  letter-spacing: -0.08em;
+}
+.service-ledger__index p {
+  display: inline-flex;
+  min-height: 2rem;
+  padding: 0.35rem 0.7rem;
+  margin: 1.4rem 0 0;
+  color: var(--c-deep-forest);
+  font-size: 0.66rem;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  border: 1px solid rgb(6 63 42 / 18%);
+  border-radius: 999px;
+  align-items: center;
+}
+.service-ledger__content {
+  position: relative;
+  z-index: 2;
+  max-width: 43rem;
+}
+.service-ledger__content h2 {
+  margin: 0;
+  color: var(--c-deep-forest);
+  font-family: var(--font-heading-brand);
+  font-size: clamp(3rem, 6.5vw, 6rem);
+  font-weight: 750;
+  line-height: 0.86;
+  letter-spacing: -0.07em;
+}
+.service-ledger__summary {
+  margin: 1.4rem 0 0;
+  color: var(--c-primary);
+  font-size: 1.12rem;
+  font-weight: 630;
+  line-height: 1.45;
+}
+.service-ledger__body {
+  max-width: 36rem;
+  margin: 1rem 0 0;
+  color: rgb(23 33 27 / 68%);
+  line-height: 1.7;
+  white-space: pre-wrap;
+}
+.service-ledger__ray {
+  position: absolute;
+  z-index: 1;
+  right: 2%;
+  bottom: 2rem;
+  width: 42%;
+  height: 34%;
+  background: linear-gradient(
+    120deg,
+    transparent 36%,
+    rgb(245 196 0 / 13%) 36.5% 43%,
+    transparent 43.5%
+  );
+  transform: perspective(500px) rotateX(55deg) skewX(-18deg);
+}
+
+.product-exhibition {
+  display: grid;
+  gap: clamp(7rem, 14vw, 12rem);
+}
+.product-exhibition__item {
+  display: grid;
+  gap: clamp(2rem, 6vw, 6rem);
+  align-items: center;
+}
+.product-exhibition__visual {
+  position: relative;
+  min-height: clamp(23rem, 52vw, 42rem);
+  overflow: hidden;
+  background: linear-gradient(150deg, #dac99a, #edf0d8 46%, #788d72);
+}
+.product-exhibition__visual img {
+  width: 100%;
+  height: 100%;
+  min-height: inherit;
+  object-fit: cover;
+}
+.product-exhibition__visual > p {
+  position: absolute;
+  right: -0.03em;
+  bottom: -0.16em;
+  margin: 0;
+  color: rgb(255 255 255 / 26%);
+  font-family: var(--font-heading-brand);
+  font-size: clamp(8rem, 26vw, 18rem);
+  font-weight: 780;
+  line-height: 0.8;
+  letter-spacing: -0.09em;
+}
+.product-exhibition__object {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 44%;
+  height: 60%;
+  background: linear-gradient(145deg, #0a4c50, #031f2c);
+  border: 1px solid rgb(255 255 255 / 35%);
+  box-shadow: 3rem 4rem 6rem rgb(3 31 23 / 30%);
+  transform: translate(-50%, -50%) perspective(600px) rotateY(-18deg) rotateX(4deg);
+}
+.product-exhibition__object::before {
+  position: absolute;
+  top: -4%;
+  left: 33%;
+  width: 34%;
+  height: 5%;
+  content: "";
+  background: #031f2c;
+  border-radius: 0.3rem 0.3rem 0 0;
+}
+.product-exhibition__object i {
+  position: absolute;
+  right: 12%;
+  bottom: 12%;
+  left: 12%;
+  height: 15%;
+  background: var(--c-accent);
+  border-radius: 0.3rem;
+  box-shadow:
+    0 -2.8rem 0 rgb(245 196 0 / 48%),
+    0 -5.6rem 0 rgb(245 196 0 / 18%);
+}
+.product-exhibition__object span {
+  position: absolute;
+  top: 18%;
+  left: 50%;
+  width: 18%;
+  aspect-ratio: 1;
+  border: 2px solid var(--c-accent);
+  border-radius: 50%;
+  transform: translateX(-50%);
+}
+.product-exhibition__content > p:first-child {
+  margin: 0 0 1rem;
+  color: var(--c-primary);
+  font-size: 0.68rem;
+  font-weight: 700;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+}
+.product-exhibition__content h2 {
+  margin: 0;
+  color: var(--c-deep-forest);
+  font-family: var(--font-heading-brand);
+  font-size: clamp(3.2rem, 7vw, 6.5rem);
+  font-weight: 750;
+  line-height: 0.86;
+  letter-spacing: -0.072em;
+}
+.product-exhibition__summary {
+  margin: 1.4rem 0 0;
+  color: var(--c-primary);
+  font-size: 1.12rem;
+  font-weight: 630;
+}
+.product-exhibition__body {
+  max-width: 36rem;
+  margin: 1rem 0 0;
+  color: rgb(23 33 27 / 68%);
+  line-height: 1.7;
+  white-space: pre-wrap;
+}
+
+.contact-stage {
+  display: grid;
+  padding-top: clamp(4rem, 8vw, 7rem);
+  padding-bottom: clamp(6rem, 12vw, 10rem);
+  gap: 3rem;
+}
+.contact-direct {
+  position: relative;
+  padding: clamp(2rem, 5vw, 4rem);
+  color: var(--first-light);
+  background: var(--night-canopy);
+  overflow: hidden;
+}
+.contact-direct::after {
+  position: absolute;
+  right: -8rem;
+  bottom: -10rem;
+  width: 22rem;
+  aspect-ratio: 1;
+  content: "";
+  background: radial-gradient(circle, rgb(245 196 0 / 16%), transparent 68%);
+  border: 1px solid rgb(245 196 0 / 20%);
+  border-radius: 50%;
+}
+.contact-direct > p,
+.contact-form-stage__intro > p {
+  margin: 0 0 0.8rem;
+  color: var(--c-accent);
+  font-size: 0.68rem;
+  font-weight: 700;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+}
+.contact-direct h2,
+.contact-form-stage__intro h2 {
+  max-width: 9ch;
+  margin: 0;
+  font-family: var(--font-heading-brand);
+  font-size: clamp(2.6rem, 5vw, 4.5rem);
+  font-weight: 740;
+  line-height: 0.9;
+  letter-spacing: -0.06em;
+}
+.contact-direct ul {
+  position: relative;
+  z-index: 2;
+  display: grid;
+  padding: 0;
+  margin: 3rem 0 0;
+  list-style: none;
+  gap: 0;
+}
+.contact-direct li {
+  display: grid;
+  min-height: 5.5rem;
+  padding: 1rem 0;
+  border-top: 1px solid rgb(255 255 255 / 14%);
+  grid-template-columns: 2.5rem 1fr;
+  align-items: start;
+}
+.contact-direct li > svg {
+  width: 1rem;
+  margin-top: 0.2rem;
+  color: var(--c-accent);
+}
+.contact-direct li div {
+  display: grid;
+  gap: 0.3rem;
+}
+.contact-direct li span {
+  color: rgb(255 255 255 / 52%);
+  font-size: 0.65rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+.contact-direct a,
+.contact-direct address {
+  min-height: 2.75rem;
+  margin: 0;
+  color: white;
+  font-size: 0.9rem;
+  font-style: normal;
+  line-height: 1.45;
+  text-decoration: none;
+  outline: none;
+  align-content: center;
+  overflow-wrap: anywhere;
+}
+.contact-direct a:focus-visible {
+  box-shadow: 0 0 0 3px var(--c-accent);
+}
+.contact-form-stage {
+  padding: clamp(1.25rem, 4vw, 4rem);
+  background: #fff;
+  border-top: 4px solid var(--c-accent);
+  box-shadow: 0 2.5rem 7rem rgb(6 63 42 / 9%);
+}
+.contact-form-stage__intro {
+  display: grid;
+  padding-bottom: 2.5rem;
+  margin-bottom: 2.5rem;
+  border-bottom: 1px solid var(--border);
+}
+.contact-form-stage__intro h2 {
+  color: var(--c-deep-forest);
+}
+.contact-form-stage__intro span {
+  margin-top: 1rem;
+  color: var(--muted-foreground);
+  font-size: 0.72rem;
+}
+
+@media (min-width: 768px) {
+  .public-data-state {
+    grid-template-columns: 1fr 1.1fr;
+  }
+  .service-ledger > li {
+    grid-template-columns: minmax(10rem, 0.65fr) minmax(0, 1.4fr);
+    gap: clamp(3rem, 8vw, 8rem);
+  }
+  .product-exhibition__item {
+    grid-template-columns: 1.15fr 0.85fr;
+  }
+  .product-exhibition__item:nth-child(even) .product-exhibition__visual {
+    order: 2;
+  }
+}
+
+@media (min-width: 1024px) {
+  .contact-stage {
+    grid-template-columns: minmax(19rem, 0.72fr) minmax(0, 1.5fr);
+    align-items: start;
+  }
+  .contact-direct {
+    position: sticky;
+    top: 6.5rem;
+    order: 1;
+  }
+  .contact-form-stage {
+    order: 2;
+  }
+}
+
+@media (max-width: 767px) {
+  .solar-page-hero {
+    min-height: 37rem;
+  }
+  .solar-page-hero__content {
+    width: calc(100% - 2rem);
+    padding-top: 7rem;
+  }
+  .solar-page-hero h1 {
+    font-size: clamp(3.6rem, 16vw, 5.5rem);
+  }
+  .solar-page-hero__orbit {
+    top: 14%;
+    right: -42%;
+    width: 29rem;
+  }
+  .solar-page-hero__plane {
+    right: -24%;
+    bottom: -12%;
+    width: 88vw;
+  }
+  .public-data-state {
+    padding: 3rem 0;
+  }
+  .public-data-state__signal {
+    min-height: 8rem;
+  }
+  .service-ledger > li {
+    min-height: 34rem;
+  }
+  .service-ledger__ray {
+    width: 70%;
+  }
+  .product-exhibition__visual {
+    min-height: 26rem;
+  }
+  .contact-stage {
+    padding-right: 0;
+    padding-left: 0;
+  }
+  .contact-direct,
+  .contact-form-stage {
+    margin-right: 1rem;
+    margin-left: 1rem;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .solar-page-hero__orbit,
+  .solar-page-hero__plane {
+    transform: none;
+  }
+}
+
+.solar-loading {
+  position: relative;
+  display: grid;
+  min-height: 72svh;
+  overflow: hidden;
+  color: var(--c-deep-forest);
+  background: linear-gradient(180deg, #dcebed, #fff3c4);
+  place-items: center;
+}
+.solar-loading__horizon {
+  position: absolute;
+  right: 0;
+  bottom: -30vw;
+  left: 0;
+  height: 58vw;
+  border-top: 1px solid rgb(6 63 42 / 20%);
+  border-radius: 50% 50% 0 0;
+}
+.solar-loading__horizon i {
+  position: absolute;
+  top: -2rem;
+  left: 50%;
+  width: 4rem;
+  height: 4rem;
+  background: var(--c-accent);
+  border-radius: 50%;
+  box-shadow: 0 0 3rem rgb(245 196 0 / 48%);
+  transform: translateX(-50%);
+  animation: gn-sun-breathe 2.4s ease-in-out infinite;
+}
+.solar-loading > p {
+  position: relative;
+  display: grid;
+  margin-top: -4rem;
+  font-size: 0.9rem;
+  text-align: center;
+  gap: 0.55rem;
+}
+.solar-loading > p span {
+  color: var(--c-primary);
+  font-size: 0.66rem;
+  font-weight: 720;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+}
+
+.solar-error {
+  position: relative;
+  display: grid;
+  min-height: 72svh;
+  padding: 5rem max(1rem, calc((100vw - 72rem) / 2));
+  overflow: hidden;
+  color: var(--first-light);
+  background: linear-gradient(145deg, #5b3d31, #031f17 76%);
+  align-items: center;
+}
+.solar-error__sun {
+  position: absolute;
+  right: -8rem;
+  bottom: -8rem;
+  width: min(40rem, 70vw);
+  aspect-ratio: 1;
+  background: radial-gradient(circle, #f5c400, #b26e2e 52%, transparent 53%);
+  border-radius: 50%;
+  opacity: 0.34;
+}
+.solar-error > div:last-child {
+  position: relative;
+  z-index: 2;
+  max-width: 46rem;
+}
+.solar-error > div > p:first-child,
+.eclipse-404__content > p:first-child {
+  margin: 0 0 1rem;
+  color: var(--c-accent);
+  font-size: 0.68rem;
+  font-weight: 720;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+}
+.solar-error h1,
+.eclipse-404 h1 {
+  max-width: 9ch;
+  margin: 0;
+  font-family: var(--font-heading-brand);
+  font-size: clamp(4rem, 10vw, 8rem);
+  font-weight: 770;
+  line-height: 0.84;
+  letter-spacing: -0.075em;
+}
+.solar-error > div > p:nth-child(3),
+.eclipse-404__content > p:nth-child(3) {
+  max-width: 34rem;
+  margin: 1.6rem 0;
+  color: rgb(255 243 196 / 72%);
+  line-height: 1.65;
+}
+.solar-error > div > div {
+  display: flex;
+  margin-top: 2rem;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+}
+
+.eclipse-404 {
+  position: relative;
+  display: grid;
+  min-height: 100svh;
+  padding: 4rem max(1rem, calc((100vw - 72rem) / 2));
+  overflow: hidden;
+  color: var(--first-light);
+  background: #020d12;
+  align-items: center;
+}
+.eclipse-404__orb {
+  position: absolute;
+  top: 50%;
+  right: 5vw;
+  width: min(45rem, 72vw);
+  aspect-ratio: 1;
+  background: #000;
+  border: 1px solid rgb(255 243 196 / 20%);
+  border-radius: 50%;
+  box-shadow: 0 0 7rem rgb(245 196 0 / 20%);
+  transform: translateY(-50%);
+}
+.eclipse-404__orb i {
+  position: absolute;
+  inset: -1.5%;
+  border: 1px solid rgb(245 196 0 / 35%);
+  border-radius: 50%;
+  clip-path: inset(0 0 0 82%);
+}
+.eclipse-404__content {
+  position: relative;
+  z-index: 2;
+  max-width: 50rem;
+}
+.eclipse-404__content a {
+  display: inline-flex;
+  min-height: 2.75rem;
+  color: var(--c-accent);
+  font-weight: 680;
+  text-decoration: none;
+  border-bottom: 1px solid;
+  outline: none;
+  align-items: center;
+  gap: 0.6rem;
+}
+.eclipse-404__content a:focus-visible {
+  box-shadow: 0 0 0 3px white;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .solar-loading__horizon i {
+    animation: none;
+  }
+}
+
+/* ─── Sun-journey motion system ───────────────────────────────────────────
+   Ambient, storytelling-grade motion. Every animation lives behind
+   prefers-reduced-motion: no-preference — reduced-motion users get a calm,
+   fully readable static page. Only transform/opacity are animated. */
+
+@keyframes gn-sun-breathe {
+  0%,
+  100% {
+    transform: scale(1);
+    opacity: 0.9;
+  }
+  50% {
+    transform: scale(1.04);
+    opacity: 1;
+  }
+}
+
+@keyframes gn-rotate-slow {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@keyframes gn-float {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-14px);
+  }
+}
+
+@keyframes gn-drift {
+  0% {
+    transform: translate(0, 0);
+    opacity: 0;
+  }
+  10%,
+  90% {
+    opacity: 1;
+  }
+  100% {
+    transform: translate(var(--gn-drift-x, 60px), var(--gn-drift-y, -120px));
+    opacity: 0;
+  }
+}
+
+@keyframes gn-scroll-cue {
+  0%,
+  100% {
+    transform: translateY(0);
+    opacity: 0.9;
+  }
+  50% {
+    transform: translateY(8px);
+    opacity: 0.4;
+  }
+}
+
+@keyframes gn-fade-up {
+  from {
+    transform: translateY(32px);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+/* Reveal-on-scroll primitive (armed by src/components/marketing/reveal.tsx).
+   Without JS or with reduced motion, content is simply visible. */
+.gn-reveal {
+  opacity: 1;
+  transform: none;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .gn-reveal[data-armed] {
+    opacity: 0;
+    transform: translateY(28px);
+    transition:
+      opacity 700ms var(--ease-out-brand),
+      transform 700ms var(--ease-out-brand);
+    transition-delay: var(--gn-reveal-delay, 0ms);
+  }
+  .gn-reveal[data-armed][data-visible] {
+    opacity: 1;
+    transform: translateY(0);
+  }
+
+  .gn-animate-sun {
+    animation: gn-sun-breathe 9s var(--ease-std-brand) infinite;
+  }
+  .gn-animate-rays {
+    animation: gn-rotate-slow 140s linear infinite;
+  }
+  .gn-animate-float {
+    animation: gn-float 8s ease-in-out infinite;
+  }
+  .gn-animate-float-late {
+    animation: gn-float 11s ease-in-out 1.2s infinite;
+  }
+  .gn-animate-drift {
+    animation: gn-drift var(--gn-drift-t, 14s) linear var(--gn-drift-delay, 0s) infinite;
+  }
+  .gn-animate-scroll-cue {
+    animation: gn-scroll-cue 2.4s ease-in-out infinite;
+  }
+  .gn-animate-enter {
+    animation: gn-fade-up 900ms var(--ease-out-brand) both;
+    animation-delay: var(--gn-enter-delay, 0ms);
+  }
+
+  /* Hero sun leans toward the cursor (var set by sun-scene.tsx). The
+     transition smooths pointer movement into a lazy, atmospheric drift. */
+  .gn-sun-parallax {
+    transform: translate3d(var(--sun-dx, 0px), var(--sun-dy, 0px), 0);
+    transition: transform 900ms var(--ease-out-brand);
+    will-change: transform;
+  }
+
+  /* Energy flowing along dashed lines (dash patterns sum to 9). */
+  .gn-anim-ray {
+    animation: gn-dash-flow 1.4s linear infinite;
+  }
+
+  /* AC wave drawing itself after the inverter. */
+  .gn-anim-wave {
+    stroke-dasharray: 120;
+    animation: gn-wave-draw 2.6s var(--ease-std-brand) infinite;
+  }
+
+  /* Battery cells charge on a continuous loop (fill → hold → recycle),
+     staggered per cell via negative delays so the phase offset is
+     visible from the first frame. */
+  .gn-anim-fill {
+    transform-box: fill-box;
+    transform-origin: bottom;
+    animation: gn-battery-cycle 4.2s var(--ease-std-brand) infinite;
+    animation-delay: var(--gn-fill-delay, 0ms);
+  }
+
+  /* The house lamp breathes — a slow, living glow. */
+  .gn-anim-glow {
+    animation: gn-glow-pulse 4.5s ease-in-out infinite;
+    animation-delay: var(--gn-glow-delay, 0ms);
+  }
+
+  /* Sunset: the sun sinks below the horizon as the closing section
+     scrolls into view (scroll-driven, so scrolling back up rises it).
+     Progressive enhancement — browsers without scroll timelines keep a
+     static half-set sun. */
+  @supports (animation-timeline: view()) {
+    .gn-sunset-sun {
+      animation: gn-sun-set linear both;
+      animation-timeline: view();
+      animation-range: entry 0% entry 95%;
+    }
+  }
+}
+
+@keyframes gn-dash-flow {
+  to {
+    stroke-dashoffset: -36;
+  }
+}
+
+@keyframes gn-wave-draw {
+  0% {
+    stroke-dashoffset: 120;
+  }
+  55%,
+  100% {
+    stroke-dashoffset: 0;
+  }
+}
+
+@keyframes gn-battery-cycle {
+  0%,
+  6% {
+    transform: scaleY(0);
+    opacity: 0.45;
+  }
+  42% {
+    transform: scaleY(1);
+    opacity: 1;
+  }
+  82% {
+    transform: scaleY(1);
+    opacity: 1;
+  }
+  94%,
+  100% {
+    transform: scaleY(0);
+    opacity: 0.45;
+  }
+}
+
+@keyframes gn-glow-pulse {
+  0%,
+  100% {
+    opacity: 0.3;
+  }
+  50% {
+    opacity: 1;
+  }
+}
+
+@keyframes gn-sun-set {
+  from {
+    transform: translateY(-70%);
+  }
+  to {
+    transform: translateY(12%);
+  }
+}
+
+/* From "The journey of the sun" onward, the cursor becomes a small sun on
+   hover-capable devices. Links and buttons keep the standard pointer. */
+@media (pointer: fine) {
+  .gn-cursor-sun {
+    cursor:
+      url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='22' height='22' viewBox='0 0 24 24'><circle cx='12' cy='12' r='4.5' fill='%23f5c400' stroke='%23063f2a' stroke-width='1'/><g stroke='%23f5c400' stroke-width='2' stroke-linecap='round'><line x1='12' y1='1.5' x2='12' y2='4'/><line x1='12' y1='20' x2='12' y2='22.5'/><line x1='1.5' y1='12' x2='4' y2='12'/><line x1='20' y1='12' x2='22.5' y2='12'/><line x1='4.6' y1='4.6' x2='6.4' y2='6.4'/><line x1='17.6' y1='17.6' x2='19.4' y2='19.4'/><line x1='4.6' y1='19.4' x2='6.4' y2='17.6'/><line x1='17.6' y1='6.4' x2='19.4' y2='4.6'/></g></svg>")
+        11 11,
+      auto;
+  }
+  .gn-cursor-sun a,
+  .gn-cursor-sun button,
+  .gn-cursor-sun [role="button"] {
+    cursor: pointer;
   }
 }

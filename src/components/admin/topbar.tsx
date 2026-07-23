@@ -24,12 +24,15 @@ export function Topbar({ admin, pageTitle, onMenuClick }: TopbarProps) {
         >
           <Menu className="size-5" aria-hidden="true" />
         </button>
-        <h1 className="text-base font-semibold">{pageTitle}</h1>
+        <h1 className="font-heading text-base font-semibold tracking-tight">{pageTitle}</h1>
       </div>
 
       <div className="flex items-center gap-3">
-        <span className="text-muted-foreground hidden text-sm sm:inline">
-          {admin.fullName ?? admin.id} · {admin.role}
+        <span className="text-muted-foreground hidden items-center gap-2 text-sm sm:inline-flex">
+          {admin.fullName ?? admin.id}
+          <span className="bg-brand-soft-green text-brand-deep-forest rounded-full px-2 py-0.5 text-xs font-medium capitalize">
+            {admin.role}
+          </span>
         </span>
         <form action={logout}>
           <Button type="submit" variant="outline" size="sm" data-testid="logout-button">

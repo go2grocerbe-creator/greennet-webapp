@@ -41,3 +41,9 @@ export const siteConfig: SiteConfig = {
     { label: "Contact", href: "/contact" },
   ],
 };
+
+/** Routes that exist today. About and Projects remain in the confirmed Phase 1
+ * information architecture, but stay out of public navigation until built. */
+export const publicNav = siteConfig.nav.filter(
+  (item) => item.href !== "/about" && item.href !== "/projects",
+);

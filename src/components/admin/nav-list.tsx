@@ -22,9 +22,9 @@ export function NavList({ activeHref, onNavigate }: NavListProps) {
             onClick={onNavigate}
             aria-current={active ? "page" : undefined}
             className={cn(
-              "focus-visible:ring-ring rounded-md px-3 py-2 text-sm font-medium outline-none focus-visible:ring-2",
+              "focus-visible:ring-ring rounded-lg px-3 py-2 text-sm font-medium transition-colors outline-none focus-visible:ring-2",
               active
-                ? "bg-muted text-foreground"
+                ? "bg-sidebar-accent text-sidebar-accent-foreground font-semibold"
                 : "text-muted-foreground hover:bg-muted hover:text-foreground",
             )}
           >

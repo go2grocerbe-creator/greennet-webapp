@@ -3,3 +3,6 @@ node_modules
 legacy-demo
 playwright-report
 test-results
+.agents
+.claude
+.codex

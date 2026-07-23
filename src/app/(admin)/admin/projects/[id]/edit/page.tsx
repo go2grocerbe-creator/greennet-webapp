@@ -35,12 +35,12 @@ export default async function EditProjectPage({ params }: EditProjectPageProps) 
     <div className="p-6">
       <Link
         href="/admin/projects"
-        className="text-muted-foreground text-sm underline underline-offset-2"
+        className="text-muted-foreground hover:text-foreground text-sm font-medium transition-colors"
       >
         ← Back to projects
       </Link>
-      <h1 className="mt-4 text-2xl font-semibold">Edit project</h1>
-      <div className="mt-6">
+      <h1 className="font-heading mt-4 text-2xl font-semibold tracking-tight">Edit project</h1>
+      <div className="border-border bg-card shadow-brand-xs mt-6 max-w-2xl rounded-xl border p-6 sm:p-8">
         <ProjectForm
           action={updateProjectAction}
           projectId={project.id}
