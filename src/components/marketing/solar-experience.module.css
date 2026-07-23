@@ -80,6 +80,91 @@
 .experience[data-enhanced="true"] .solarControl {
   visibility: visible;
 }
+.objectCues {
+  position: sticky;
+  z-index: 18;
+  top: 0;
+  height: 100svh;
+  margin-bottom: -100svh;
+  pointer-events: none;
+  visibility: hidden;
+}
+.experience[data-enhanced="true"] .objectCues {
+  visibility: visible;
+}
+.objectCue {
+  position: absolute;
+  display: grid;
+  min-width: 12rem;
+  min-height: 3.5rem;
+  color: #063f2a;
+  text-decoration: none;
+  pointer-events: none;
+  visibility: hidden;
+  opacity: 0;
+  gap: 0.18rem;
+  transition:
+    opacity 240ms ease,
+    transform 650ms cubic-bezier(0.16, 1, 0.3, 1),
+    visibility 240ms;
+}
+.objectCue span {
+  font-size: 0.63rem;
+  font-weight: 720;
+  letter-spacing: 0.13em;
+  text-transform: uppercase;
+  opacity: 0.72;
+}
+.objectCue strong {
+  font-family: var(--font-heading-brand), sans-serif;
+  font-size: clamp(1rem, 1.35vw, 1.35rem);
+  letter-spacing: -0.025em;
+}
+.objectCue i {
+  position: absolute;
+  top: calc(100% + 0.65rem);
+  height: 1px;
+  content: "";
+  background: currentcolor;
+  transform: scaleX(0);
+  transition: transform 760ms cubic-bezier(0.16, 1, 0.3, 1) 120ms;
+  transform-origin: 0 50%;
+}
+.objectCue:focus-visible {
+  outline: 3px solid #087a42;
+  outline-offset: 0.65rem;
+}
+.panelCue {
+  bottom: 23vh;
+  left: clamp(14rem, 33vw, 34rem);
+  transform: translate3d(-2rem, 1rem, 0);
+}
+.panelCue i {
+  right: calc(100% + 0.75rem);
+  width: clamp(7rem, 15vw, 16rem);
+  transform-origin: 100% 50%;
+}
+.batteryCue {
+  right: clamp(13rem, 27vw, 29rem);
+  bottom: 18vh;
+  text-align: right;
+  transform: translate3d(2rem, 1rem, 0);
+}
+.batteryCue i {
+  left: calc(100% + 0.75rem);
+  width: clamp(5rem, 11vw, 11rem);
+}
+.experience[data-object-cue="panel"] .panelCue,
+.experience[data-object-cue="battery"] .batteryCue {
+  pointer-events: auto;
+  visibility: visible;
+  opacity: 1;
+  transform: translate3d(0, 0, 0);
+}
+.experience[data-object-cue="panel"] .panelCue i,
+.experience[data-object-cue="battery"] .batteryCue i {
+  transform: scaleX(1);
+}
 .noScriptNavigation {
   position: sticky;
   z-index: 30;
@@ -471,6 +556,13 @@
   opacity: var(--battery-presence);
   transform: translate3d(0, calc((1 - var(--battery-presence)) * 2.5rem), 4rem)
     rotateY(calc(-14deg + var(--battery-presence) * 4deg));
+  transition:
+    filter 450ms ease,
+    transform 650ms cubic-bezier(0.16, 1, 0.3, 1);
+}
+.experience[data-object-cue="battery"] .battery {
+  filter: brightness(1.12) drop-shadow(0 0 2rem rgb(245 196 0 / 56%));
+  transform: translate3d(0, -0.65rem, 4rem) rotateY(-5deg) scale(1.04);
 }
 .batteryBody {
   position: absolute;
@@ -515,15 +607,37 @@
 .nightHome {
   position: absolute;
   z-index: 6;
-  right: 7vw;
+  right: auto;
   bottom: 4vh;
+  left: 50%;
   width: 22rem;
   height: 17rem;
   opacity: var(--night);
   filter: brightness(calc(0.72 + var(--home-light) * 0.28));
-  transform: translate3d(0, calc((1 - var(--night)) * 6rem), 2rem)
+  transform: translate3d(-50%, calc((1 - var(--night)) * 6rem), 2rem)
     scale(calc(0.96 + var(--night) * 0.04));
   transform-origin: 50% 100%;
+}
+.homeLightWash {
+  position: absolute;
+  z-index: 0;
+  top: -6rem;
+  left: 50%;
+  width: 26rem;
+  height: 23rem;
+  pointer-events: none;
+  background:
+    radial-gradient(ellipse at 50% 18%, rgb(255 243 161 / 70%), transparent 20%),
+    conic-gradient(
+      from 162deg at 50% 10%,
+      transparent 0 42%,
+      rgb(245 196 0 / 26%) 47%,
+      transparent 53% 100%
+    );
+  opacity: calc(var(--home-light) * 0.9);
+  filter: blur(1rem);
+  transform: translateX(-50%) scale(calc(0.84 + var(--home-light) * 0.16));
+  transform-origin: 50% 10%;
 }
 .roof {
   position: absolute;
@@ -699,10 +813,32 @@
     height: 8rem;
   }
   .nightHome {
-    right: -5rem;
+    right: auto;
+    bottom: 1vh;
+    left: 50%;
     width: 19rem;
-    transform: scale(0.78) translateY(calc((1 - var(--night)) * 6rem));
-    transform-origin: 100% 100%;
+    transform: translateX(-50%) scale(0.78) translateY(calc((1 - var(--night)) * 6rem));
+    transform-origin: 50% 100%;
+  }
+  .objectCue {
+    min-width: 10.5rem;
+  }
+  .objectCue strong {
+    font-size: 1rem;
+  }
+  .panelCue {
+    bottom: 22vh;
+    left: 34vw;
+  }
+  .panelCue i {
+    width: 24vw;
+  }
+  .batteryCue {
+    right: 32vw;
+    bottom: 20vh;
+  }
+  .batteryCue i {
+    width: 18vw;
   }
   .energyPath {
     transform: scaleX(0.9) translateX(75%);
@@ -717,7 +853,8 @@
     background: #fcfbf4;
   }
   .stage,
-  .solarControl {
+  .solarControl,
+  .objectCues {
     display: none;
   }
   .chapters {
@@ -747,5 +884,8 @@
   .sunCore {
     background: Highlight;
     box-shadow: none;
+  }
+  .objectCue {
+    color: LinkText;
   }
 }

@@ -57,7 +57,8 @@ export function SunScene() {
           <i />
         </span>
       </div>
-      <div className={styles.nightHome}>
+      <div className={styles.nightHome} data-solar-home>
+        <span className={styles.homeLightWash} />
         <span className={styles.roof} />
         <span className={styles.houseBody} />
         <span className={styles.window} />

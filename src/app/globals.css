@@ -998,15 +998,15 @@
     position: relative;
     inset: auto;
   }
-  [data-enhanced="true"] .solar-time,
-  [data-enhanced="true"] .solar-actions {
+  [data-enhanced="true"] .solar-chapter .solar-time,
+  [data-enhanced="true"] .solar-chapter .solar-actions {
     display: flex;
   }
-  [data-enhanced="true"] .solar-kicker,
-  [data-enhanced="true"] .solar-lede {
+  [data-enhanced="true"] .solar-chapter .solar-kicker,
+  [data-enhanced="true"] .solar-chapter .solar-lede {
     display: block;
   }
-  [data-enhanced="true"] :is(.solar-text-link, .solar-call-link) {
+  [data-enhanced="true"] .solar-chapter :is(.solar-text-link, .solar-call-link) {
     display: inline-flex;
   }
   [data-enhanced="true"] .solar-chapter__inner {

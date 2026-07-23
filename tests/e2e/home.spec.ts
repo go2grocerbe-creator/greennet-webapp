@@ -190,6 +190,61 @@ test("the landscape responds continuously to the solar day", async ({ page }) =>
   expect(night.homeLight).toBeGreaterThan(0.95);
 });
 
+test("landscape objects reveal contextual routes and the night sun meets the home", async ({
+  page,
+}) => {
+  await page.setViewportSize({ width: 1440, height: 900 });
+  await page.goto("/");
+  await expect(page.locator('[aria-label="A solar day"][data-enhanced="true"]')).toBeAttached();
+  await page.evaluate(() => {
+    document.documentElement.style.scrollBehavior = "auto";
+  });
+
+  const sample = async (progress: number) => {
+    await page.evaluate((targetProgress) => {
+      const root = document.querySelector<HTMLElement>('[aria-label="A solar day"]');
+      if (!root) return;
+      const top = window.scrollY + root.getBoundingClientRect().top;
+      window.scrollTo({
+        top: top + targetProgress * (root.offsetHeight - window.innerHeight),
+        behavior: "auto",
+      });
+    }, progress);
+    await page.waitForTimeout(100);
+  };
+
+  const panelCue = page.locator('[data-object-cue-link="panel"]');
+  const batteryCue = page.locator('[data-object-cue-link="battery"]');
+
+  await sample(0.29);
+  await expect(panelCue).toBeVisible();
+  await expect(panelCue).toHaveAttribute("href", "/services");
+  await expect(batteryCue).toBeHidden();
+
+  await sample(0.67);
+  await expect(panelCue).toBeHidden();
+  await expect(batteryCue).toBeVisible();
+  await expect(batteryCue).toHaveAttribute("href", "/products");
+
+  await sample(1);
+  await expect(panelCue).toBeHidden();
+  await expect(batteryCue).toBeHidden();
+
+  const finalSun = page.getByRole("button", { name: /night\. request a quotation/i });
+  const home = page.locator("[data-solar-home]");
+  await expect(finalSun).toBeVisible();
+
+  const [sunBox, homeBox] = await Promise.all([finalSun.boundingBox(), home.boundingBox()]);
+  expect(sunBox).not.toBeNull();
+  expect(homeBox).not.toBeNull();
+  if (sunBox && homeBox) {
+    const sunCenter = sunBox.x + sunBox.width / 2;
+    const homeCenter = homeBox.x + homeBox.width / 2;
+    expect(Math.abs(sunCenter - homeCenter)).toBeLessThan(8);
+    expect(sunBox.y + sunBox.height).toBeGreaterThan(homeBox.y - 80);
+  }
+});
+
 test("mobile navigation exposes only live public routes without overflow", async ({ page }) => {
   await page.setViewportSize({ width: 390, height: 844 });
   await page.goto("/");

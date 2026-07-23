@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { useCallback, useEffect, useRef, useState } from "react";
 
 import { SunScene } from "@/components/marketing/sun-scene";
@@ -16,6 +17,7 @@ const phases = [
 ] as const;
 
 type PhaseId = (typeof phases)[number]["id"];
+type ObjectCue = "panel" | "battery";
 
 type ChapterWindow = {
   id: PhaseId;
@@ -60,6 +62,12 @@ function visiblePhaseForProgress(progress: number): PhaseId | null {
   return chapterWindows.find((window) => chapterOpacity(progress, window) > 0)?.id ?? null;
 }
 
+function objectCueForProgress(progress: number): ObjectCue | null {
+  if (progress >= 0.245 && progress <= 0.345) return "panel";
+  if (progress >= 0.625 && progress <= 0.725) return "battery";
+  return null;
+}
+
 /**
  * The one client controller for the solar story. Native scroll remains the
  * input. Layout is read once per animation frame and motion is expressed as
@@ -96,6 +104,7 @@ export function SolarExperience({ children }: { children: React.ReactNode }) {
     let visible = true;
     let lastPhase: PhaseId = "predawn";
     let lastVisiblePhase: PhaseId | null = "predawn";
+    let lastObjectCue: ObjectCue | null | undefined;
     let wasSettled = false;
 
     const render = () => {
@@ -122,6 +131,7 @@ export function SolarExperience({ children }: { children: React.ReactNode }) {
       const sunY = baseY * (1 - endpointLift) + 70 * endpointLift;
       const nextPhase = phaseForProgress(progress);
       const nextVisiblePhase = visiblePhaseForProgress(progress);
+      const nextObjectCue = objectCueForProgress(progress);
       const nextSettled = progress >= 0.997;
 
       root.style.setProperty("--solar-progress", progress.toFixed(4));
@@ -173,6 +183,10 @@ export function SolarExperience({ children }: { children: React.ReactNode }) {
         lastVisiblePhase = nextVisiblePhase;
         root.dataset.textPhase = nextVisiblePhase ?? "transition";
         setVisiblePhase(nextVisiblePhase);
+      }
+      if (nextObjectCue !== lastObjectCue) {
+        lastObjectCue = nextObjectCue;
+        root.dataset.objectCue = nextObjectCue ?? "none";
       }
       if (nextSettled !== wasSettled) {
         wasSettled = nextSettled;
@@ -333,6 +347,27 @@ export function SolarExperience({ children }: { children: React.ReactNode }) {
       <div className={styles.stage} data-solar-stage aria-hidden="true">
         <SunScene />
       </div>
+
+      <nav className={styles.objectCues} aria-label="Explore GreenNet">
+        <Link
+          href="/services"
+          className={`${styles.objectCue} ${styles.panelCue}`}
+          data-object-cue-link="panel"
+        >
+          <span>Follow the current</span>
+          <strong>Solar Solutions</strong>
+          <i aria-hidden="true" />
+        </Link>
+        <Link
+          href="/products"
+          className={`${styles.objectCue} ${styles.batteryCue}`}
+          data-object-cue-link="battery"
+        >
+          <span>Use what the day stored</span>
+          <strong>Batteries &amp; inverters</strong>
+          <i aria-hidden="true" />
+        </Link>
+      </nav>
 
       <div className={styles.chapters}>{children}</div>
     </section>
