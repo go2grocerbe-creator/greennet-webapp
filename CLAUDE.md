@@ -36,6 +36,23 @@ In this order:
 
 `legacy-demo/index.html` / `legacy-demo/styles.css` / `legacy-demo/script.js` are the pre-discovery static prototype, audited in `docs/current-demo-audit.md`. Worth porting deliberately (not copy-pasted) into the new stack: design tokens (`--c-*`, `--color-*`, `--text-*`, `--sp-*`, `--r-*`, `--shadow-*`, `--ease-*`/`--t-*` custom properties in `styles.css`), BEM naming discipline, section/information architecture, responsive breakpoint strategy, and accessibility patterns (focus trap, ARIA attributes, `prefers-reduced-motion` handling, skip-to-content link). CSS section banners follow `/* ─── N. NAME ───... */` (numbered, not `=====`); HTML section banners follow `<!-- ===== NAME ===== -->` — the two don't use identical delimiter syntax, match them by section name, not by comment style. Do not port the demo's hardcoded/duplicated contact info, hotlinked stock images, or vanilla-JS imperative DOM patterns — see `docs/content-register.md` for the full reuse/replace breakdown.
 
+## Deploy Configuration (configured by /setup-deploy)
+
+- Platform: Vercel
+- Production URL: https://greennet-webapp.vercel.app/
+- Deploy workflow: automatic production deploy from `main`
+- Deploy status command: `npx vercel inspect https://greennet-webapp.vercel.app/`
+- Merge method: pull-request merge or fast-forward to `main`
+- Project type: Next.js web app
+- Post-deploy health check: https://greennet-webapp.vercel.app/
+
+### Custom deploy hooks
+
+- Pre-merge: `npm run check`
+- Deploy trigger: automatic on push to `main`
+- Deploy status: `npx vercel inspect https://greennet-webapp.vercel.app/`
+- Health check: `https://greennet-webapp.vercel.app/`
+
 ## Running / previewing (current state)
 
 On `migration/nextjs-supabase`: `npm install`, then `npm run dev` for the production app; `npm run check` runs lint + typecheck + format:check + unit tests + build. See `README.md` for the full script list. No `.env.local` exists yet — the app builds and renders non-Supabase pages without one; Supabase-backed features need real credentials once that project exists (never commit them). To preview the legacy demo only: open `legacy-demo/index.html` directly in a browser, or serve `legacy-demo/` with any static file server.
