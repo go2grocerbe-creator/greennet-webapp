@@ -1,15 +1,12 @@
 import Link from "next/link";
-import { ArrowDown, ArrowRight } from "lucide-react";
+import { ArrowRight } from "lucide-react";
 
 import { SolarExperience } from "@/components/marketing/solar-experience";
-import { Button } from "@/components/ui/button";
 import { Container } from "@/components/ui/container";
-import { siteConfig } from "@/lib/config";
 
 /**
- * All business-facing copy below is limited to confirmed taglines, location,
- * and contact facts. The intervening narrative explains general solar-energy
- * physics and does not claim GreenNet-specific performance or service terms.
+ * The narrative describes general solar-energy physics and avoids unconfirmed
+ * GreenNet-specific performance, warranty, product, or service claims.
  */
 export default function HomePage() {
   return (
@@ -24,24 +21,12 @@ export default function HomePage() {
             <div className="solar-chapter__copy solar-chapter__copy--hero">
               <div className="solar-time">
                 <span>Pre-dawn</span>
-                <time>05:42</time>
               </div>
-              <p className="solar-kicker">Harness the Power of the Sun Today</p>
-              <h1 id="solar-title">Powering Homes &amp; Businesses with Clean Solar Energy</h1>
-              <p className="solar-lede">A solar energy company in Benin City, Nigeria.</p>
-              <div className="solar-actions">
-                <Button
-                  render={<Link href="/contact" />}
-                  nativeButton={false}
-                  size="lg"
-                  className="solar-primary-action"
-                >
-                  Request a quotation <ArrowRight data-icon="inline-end" aria-hidden="true" />
-                </Button>
-                <a href="#solar-morning" className="solar-text-link">
-                  Move the sun <ArrowDown aria-hidden="true" />
-                </a>
-              </div>
+              <h1 id="solar-title">Harness the power of the sun.</h1>
+              <p className="solar-lede">Powering homes and businesses with clean solar energy.</p>
+              <p className="solar-scroll-cue">
+                Follow the sun <span aria-hidden="true">↓</span>
+              </p>
             </div>
           </Container>
         </section>
@@ -58,9 +43,9 @@ export default function HomePage() {
                 <time>06:30</time>
               </div>
               <p className="solar-kicker">01 / Collection</p>
-              <h2 id="morning-title">Light becomes current.</h2>
+              <h2 id="morning-title">Sunlight becomes power.</h2>
               <p className="solar-lede">
-                Photovoltaic cells receive daylight and begin collecting clean energy.
+                Electricity is generated the moment light reaches the panels.
               </p>
               <Link href="/services" className="solar-text-link">
                 Explore Solar Solutions <ArrowRight aria-hidden="true" />
@@ -81,10 +66,8 @@ export default function HomePage() {
                 <time>12:08</time>
               </div>
               <p className="solar-kicker">02 / Conversion</p>
-              <h2 id="noon-title">Sunlight becomes current.</h2>
-              <p className="solar-lede">
-                Photovoltaic cells produce direct current—quietly, without moving parts.
-              </p>
+              <h2 id="noon-title">Power becomes possibility.</h2>
+              <p className="solar-lede">Reliable energy for homes and businesses.</p>
             </div>
           </Container>
         </section>
@@ -102,10 +85,7 @@ export default function HomePage() {
               </div>
               <p className="solar-kicker">03 / Storage</p>
               <h2 id="golden-title">Energy becomes reserve.</h2>
-              <p className="solar-lede">
-                An inverter makes solar electricity usable. Batteries can hold surplus energy for
-                the hours after daylight changes.
-              </p>
+              <p className="solar-lede">Store today&apos;s energy for when you need it most.</p>
               <Link href="/products" className="solar-text-link">
                 See Products <ArrowRight aria-hidden="true" />
               </Link>
@@ -125,11 +105,7 @@ export default function HomePage() {
                 <time>18:47</time>
               </div>
               <p className="solar-kicker">04 / Handoff</p>
-              <h2 id="sunset-title">Light changes hands.</h2>
-              <p className="solar-lede">
-                The horizon darkens. Stored electricity carries the day forward as the environment
-                moves into night.
-              </p>
+              <h2 id="sunset-title">The day transitions.</h2>
             </div>
           </Container>
         </section>
@@ -143,30 +119,10 @@ export default function HomePage() {
             <div className="solar-chapter__copy solar-chapter__copy--night">
               <div className="solar-time">
                 <span>Night</span>
-                <time>19:11</time>
               </div>
               <p className="solar-kicker">05 / Stored power</p>
               <h2 id="night-title">The sun is still working.</h2>
-              <p className="solar-lede">
-                Tell us about your property or send a general enquiry. The sun above has become your
-                next step.
-              </p>
-              <div className="solar-actions solar-actions--center">
-                <Button
-                  render={<Link href="/contact" />}
-                  nativeButton={false}
-                  size="lg"
-                  className="solar-night-action"
-                >
-                  Request a quotation <ArrowRight data-icon="inline-end" aria-hidden="true" />
-                </Button>
-                <a
-                  className="solar-call-link"
-                  href={`tel:${siteConfig.contact.phone.replace(/\s+/g, "")}`}
-                >
-                  Call {siteConfig.contact.phone}
-                </a>
-              </div>
+              <p className="solar-lede">Stored energy, working for you.</p>
             </div>
           </Container>
         </section>

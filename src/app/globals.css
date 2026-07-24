@@ -460,7 +460,7 @@
 [data-enhanced="true"][data-text-phase="golden"] .solar-chapter--golden .solar-chapter__inner,
 [data-enhanced="true"][data-text-phase="sunset"] .solar-chapter--sunset .solar-chapter__inner,
 [data-enhanced="true"][data-text-phase="night"] .solar-chapter--night .solar-chapter__inner {
-  pointer-events: auto;
+  pointer-events: none;
 }
 .solar-chapter__inner--right {
   justify-content: center;
@@ -486,8 +486,8 @@
 }
 [data-enhanced="true"]
   :is(.solar-chapter--morning, .solar-chapter--noon, .solar-chapter--golden, .solar-chapter--sunset)
-  :is(.solar-time, .solar-kicker, .solar-lede, .solar-text-link),
-[data-enhanced="true"] .solar-chapter--predawn :is(.solar-lede, .solar-actions),
+  :is(.solar-time, .solar-kicker, .solar-text-link),
+[data-enhanced="true"] .solar-chapter--predawn .solar-actions,
 [data-enhanced="true"] .solar-chapter--night .solar-kicker {
   display: none;
 }
@@ -578,6 +578,37 @@
   font-size: clamp(1.05rem, 1.35vw, 1.25rem);
   line-height: 1.6;
 }
+.solar-scroll-cue {
+  display: inline-flex;
+  margin: 2.15rem 0 0;
+  font-size: 0.68rem;
+  font-weight: 720;
+  letter-spacing: 0.16em;
+  line-height: 1;
+  text-transform: uppercase;
+  align-items: center;
+  gap: 0.7rem;
+  opacity: 0.72;
+}
+.solar-scroll-cue span {
+  display: inline-block;
+}
+@media (prefers-reduced-motion: no-preference) {
+  .solar-scroll-cue span {
+    animation: solar-scroll-invite 2.8s ease-in-out infinite;
+  }
+}
+@keyframes solar-scroll-invite {
+  0%,
+  100% {
+    opacity: 0.5;
+    transform: translateY(-0.12rem);
+  }
+  50% {
+    opacity: 1;
+    transform: translateY(0.22rem);
+  }
+}
 .solar-chapter__inner--right .solar-lede {
   margin-left: 0;
 }
@@ -612,19 +643,6 @@
   background: var(--c-accent);
   border-radius: 999px;
 }
-.solar-text-link,
-.solar-call-link {
-  display: inline-flex;
-  min-height: 2.75rem;
-  color: inherit;
-  font-size: 0.86rem;
-  font-weight: 680;
-  text-decoration: none;
-  border-bottom: 1px solid currentColor;
-  outline: none;
-  align-items: center;
-  gap: 0.55rem;
-}
 .solar-text-link {
   margin-top: 1.7rem;
 }
@@ -638,13 +656,8 @@
 .solar-text-link:hover svg {
   transform: translateX(0.25rem);
 }
-.solar-text-link:focus-visible,
-.solar-call-link:focus-visible {
+.solar-text-link:focus-visible {
   box-shadow: 0 0 0 3px var(--c-accent);
-}
-[data-enhanced="true"] .solar-call-link {
-  opacity: var(--phone-reveal, 0);
-  transform: translateY(calc((1 - var(--phone-reveal, 0)) * 0.65rem));
 }
 .solar-chapter--predawn,
 .solar-chapter--sunset,
@@ -667,6 +680,14 @@
 .solar-chapter--morning .solar-chapter__copy,
 .solar-chapter--sunset .solar-chapter__copy {
   margin-right: 0;
+}
+@media (min-width: 768px) and (min-height: 560px) {
+  .solar-chapter--morning .solar-chapter__copy {
+    margin-left: 6rem;
+  }
+  [data-enhanced="true"] .solar-chapter--night .solar-chapter__copy {
+    transform: translateY(-1.5rem);
+  }
 }
 .solar-chapter--night .solar-chapter__inner {
   padding-top: clamp(7rem, 14vh, 10rem);
@@ -957,10 +978,86 @@
     padding-bottom: 24vh;
     align-items: center;
   }
+  [data-enhanced="true"] .solar-chapter--night .solar-chapter__inner {
+    padding-bottom: 16rem;
+  }
   .public-footer__legal {
     align-items: flex-start;
     flex-direction: column;
     justify-content: center;
+  }
+}
+
+@media (max-height: 559px) and (orientation: landscape) {
+  [data-enhanced="true"] .solar-chapter--predawn .solar-chapter__inner {
+    padding: 5.25rem 1rem 1rem 48%;
+    text-align: left;
+    align-items: center;
+  }
+  [data-enhanced="true"] .solar-chapter--predawn .solar-chapter__copy {
+    width: 100%;
+  }
+  [data-enhanced="true"] .solar-chapter--predawn h1 {
+    font-size: clamp(2.15rem, 6.5vw, 3rem);
+  }
+  [data-enhanced="true"] .solar-chapter--predawn .solar-lede {
+    font-size: 0.82rem;
+    line-height: 1.4;
+  }
+  [data-enhanced="true"] .solar-chapter--morning .solar-chapter__copy {
+    margin-left: 4.5rem;
+    transform: translateY(-1rem);
+  }
+  [data-enhanced="true"] .solar-chapter--noon .solar-chapter__inner {
+    padding: 5.25rem 1rem 1rem 52%;
+    justify-content: flex-start;
+  }
+  [data-enhanced="true"] .solar-chapter--noon .solar-chapter__copy {
+    width: 100%;
+  }
+  [data-enhanced="true"] .solar-chapter--golden .solar-chapter__inner {
+    padding: 5.25rem 55% 1rem 1rem;
+    justify-content: flex-start;
+  }
+  [data-enhanced="true"] .solar-chapter--golden .solar-chapter__copy {
+    width: 100%;
+    transform: translateY(-1.5rem);
+  }
+  [data-enhanced="true"] .solar-chapter--night .solar-chapter__inner {
+    padding: 5.25rem 55% 2rem 1.25rem;
+    text-align: left;
+    align-items: center;
+  }
+  [data-enhanced="true"] .solar-chapter--night .solar-time {
+    margin-right: 0;
+    margin-left: 0;
+  }
+  [data-enhanced="true"] .solar-chapter--night h2 {
+    margin-inline: 0;
+    font-size: clamp(2.2rem, 7vw, 3rem);
+  }
+  [data-enhanced="true"] .solar-chapter--night .solar-lede {
+    margin-top: 1rem;
+    font-size: 0.82rem;
+    line-height: 1.4;
+  }
+}
+
+@media (max-width: 767px) and (min-height: 560px) {
+  [data-enhanced="true"] .solar-chapter--morning .solar-chapter__copy {
+    transform: translateY(1rem);
+  }
+}
+
+@media (min-width: 768px) and (max-height: 760px) {
+  [data-enhanced="true"] .solar-chapter--night .solar-chapter__copy {
+    transform: translateY(-2.5rem);
+  }
+  [data-enhanced="true"] .solar-chapter--night h2 {
+    font-size: clamp(3.5rem, 6vw, 4.5rem);
+  }
+  [data-enhanced="true"] .solar-chapter--night .solar-lede {
+    margin-top: 1rem;
   }
 }
 
@@ -1006,16 +1103,12 @@
   [data-enhanced="true"] .solar-chapter .solar-lede {
     display: block;
   }
-  [data-enhanced="true"] .solar-chapter :is(.solar-text-link, .solar-call-link) {
+  [data-enhanced="true"] .solar-chapter .solar-text-link {
     display: inline-flex;
   }
   [data-enhanced="true"] .solar-chapter__inner {
     pointer-events: auto;
     opacity: 1;
-  }
-  [data-enhanced="true"] .solar-call-link {
-    opacity: 1;
-    transform: none;
   }
   .solar-chapter--predawn {
     color: var(--first-light);

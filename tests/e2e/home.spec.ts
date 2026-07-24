@@ -1,28 +1,30 @@
 import { expect, test } from "@playwright/test";
 
-test("home page renders the hero with the confirmed brand tagline", async ({ page }) => {
+test("home page opens with the quiet pre-dawn story", async ({ page }) => {
   await page.goto("/");
+  await expect(page.getByRole("heading", { name: /harness the power of the sun/i })).toBeVisible();
   await expect(
-    page.getByRole("heading", { name: /powering homes & businesses with clean solar energy/i }),
+    page.getByText("Powering homes and businesses with clean solar energy."),
   ).toBeVisible();
+  await expect(page.getByText("Follow the sun")).toBeVisible();
+  await expect(page.getByText("The day begins.", { exact: true })).toHaveCount(0);
   await expect(page.getByRole("button", { name: /open solar day navigation/i })).toBeVisible();
   await expect(page.getByRole("link", { name: "About", exact: true })).toHaveCount(0);
   await expect(page.getByRole("link", { name: "Projects", exact: true })).toHaveCount(0);
 });
 
-test("the sun is a keyboard-operable phase navigator and becomes the final action", async ({
-  page,
-}) => {
+test("the sun navigates the day and hands the final action to the home", async ({ page }) => {
   await page.goto("/");
   const sun = page.getByRole("button", { name: /open solar day navigation/i });
   await sun.focus();
   await page.keyboard.press("End");
 
-  const finalSun = page.getByRole("button", { name: /night\. request a quotation/i });
-  await expect(finalSun).toBeVisible();
+  const finalHome = page.locator('[data-object-cue-link="home"]');
+  await expect(finalHome).toBeVisible();
+  await expect(finalHome).toHaveAttribute("tabindex", "0");
   await expect(page.getByRole("heading", { name: /the sun is still working/i })).toBeVisible();
-  await finalSun.click();
-  await expect(page).toHaveURL(/\/contact$/);
+  await finalHome.click();
+  await expect(page).toHaveURL(/\/services$/);
 });
 
 test("phase copy windows are exclusive and synchronized on desktop and mobile", async ({
@@ -30,13 +32,14 @@ test("phase copy windows are exclusive and synchronized on desktop and mobile", 
 }) => {
   const anchors = [
     ["predawn", 0],
+    ["predawn", 0.08],
     ["morning", 0.19],
     ["noon", 0.38],
     ["golden", 0.57],
     ["sunset", 0.76],
     ["night", 1],
   ] as const;
-  const transitions = [0.14, 0.3, 0.49, 0.68, 0.86] as const;
+  const transitions = [0.16, 0.3, 0.49, 0.68, 0.86] as const;
 
   for (const viewport of [
     { width: 1440, height: 900 },
@@ -92,7 +95,8 @@ test("phase copy windows are exclusive and synchronized on desktop and mobile", 
       expect(result.activeHref).toBe(`#solar-${id}`);
     }
 
-    await expect(page.locator(".solar-chapter--morning .solar-lede")).toBeHidden();
+    await sample(0.19);
+    await expect(page.locator(".solar-chapter--morning .solar-lede")).toBeVisible();
 
     for (const progress of transitions) {
       const result = await sample(progress);
@@ -132,14 +136,14 @@ test("reduced motion renders every chapter as a static scene", async ({ page }) 
 
   await expect(page.locator("[data-solar-stage]")).toBeHidden();
   await expect(
-    page.getByRole("heading", { name: "Light becomes current.", exact: true }),
+    page.getByRole("heading", { name: "Sunlight becomes power.", exact: true }),
   ).toBeVisible();
   await expect(page.locator(".solar-chapter--morning .solar-lede")).toBeVisible();
   await expect(
-    page.getByRole("heading", { name: "Sunlight becomes current.", exact: true }),
+    page.getByRole("heading", { name: "Power becomes possibility.", exact: true }),
   ).toBeVisible();
   await expect(page.getByRole("heading", { name: /energy becomes reserve/i })).toBeVisible();
-  await expect(page.getByRole("heading", { name: /light changes hands/i })).toBeVisible();
+  await expect(page.getByRole("heading", { name: /the day transitions/i })).toBeVisible();
   await expect(page.getByRole("heading", { name: /the sun is still working/i })).toBeVisible();
 });
 
@@ -190,7 +194,7 @@ test("the landscape responds continuously to the solar day", async ({ page }) =>
   expect(night.homeLight).toBeGreaterThan(0.95);
 });
 
-test("landscape objects reveal contextual routes and the night sun meets the home", async ({
+test("landscape objects become the contextual routes and energy reaches the home", async ({
   page,
 }) => {
   await page.setViewportSize({ width: 1440, height: 900 });
@@ -210,40 +214,115 @@ test("landscape objects reveal contextual routes and the night sun meets the hom
         behavior: "auto",
       });
     }, progress);
-    await page.waitForTimeout(100);
+    await page.waitForTimeout(progress === 1 ? 500 : 100);
   };
 
   const panelCue = page.locator('[data-object-cue-link="panel"]');
   const batteryCue = page.locator('[data-object-cue-link="battery"]');
+  const homeCue = page.locator('[data-object-cue-link="home"]');
 
   await sample(0.29);
   await expect(panelCue).toBeVisible();
   await expect(panelCue).toHaveAttribute("href", "/services");
-  await expect(batteryCue).toBeHidden();
+  await expect(panelCue).toHaveAttribute("tabindex", "0");
+  await expect(batteryCue).toHaveAttribute("tabindex", "-1");
 
   await sample(0.67);
-  await expect(panelCue).toBeHidden();
+  await expect(panelCue).toHaveAttribute("tabindex", "-1");
   await expect(batteryCue).toBeVisible();
   await expect(batteryCue).toHaveAttribute("href", "/products");
+  await expect(batteryCue).toHaveAttribute("tabindex", "0");
+
+  await sample(0.76);
+  await expect(batteryCue).toHaveAttribute("tabindex", "-1");
+  await expect(homeCue).toHaveAttribute("tabindex", "-1");
+
+  await sample(0.94);
+  await expect(homeCue).toHaveAttribute("tabindex", "-1");
+  const roofArrival = await page.locator('[aria-label="A solar day"]').evaluate((root) => {
+    const styles = getComputedStyle(root);
+    return {
+      sunDissolve: Number.parseFloat(styles.getPropertyValue("--sun-dissolve")),
+      homeLight: Number.parseFloat(styles.getPropertyValue("--home-light")),
+      ctaReveal: Number.parseFloat(styles.getPropertyValue("--cta-reveal")),
+    };
+  });
+  expect(roofArrival.sunDissolve).toBeLessThan(0.05);
+  expect(roofArrival.homeLight).toBeLessThan(0.05);
+  expect(roofArrival.ctaReveal).toBeLessThan(0.05);
+
+  await sample(0.972);
+  const illuminatedHome = await page.locator('[aria-label="A solar day"]').evaluate((root) => {
+    const styles = getComputedStyle(root);
+    return {
+      homeLight: Number.parseFloat(styles.getPropertyValue("--home-light")),
+      doorLight: Number.parseFloat(styles.getPropertyValue("--door-light")),
+      ctaReveal: Number.parseFloat(styles.getPropertyValue("--cta-reveal")),
+    };
+  });
+  expect(illuminatedHome.homeLight).toBeGreaterThan(0.95);
+  expect(illuminatedHome.doorLight).toBeLessThan(0.05);
+  expect(illuminatedHome.ctaReveal).toBeLessThan(0.05);
+
+  await sample(0.99);
+  const illuminatedDoor = await page.locator('[aria-label="A solar day"]').evaluate((root) => {
+    const styles = getComputedStyle(root);
+    return {
+      doorLight: Number.parseFloat(styles.getPropertyValue("--door-light")),
+      ctaReveal: Number.parseFloat(styles.getPropertyValue("--cta-reveal")),
+    };
+  });
+  expect(illuminatedDoor.doorLight).toBeGreaterThan(0.95);
+  expect(illuminatedDoor.ctaReveal).toBeLessThan(0.05);
 
   await sample(1);
-  await expect(panelCue).toBeHidden();
-  await expect(batteryCue).toBeHidden();
+  await expect(panelCue).toHaveAttribute("tabindex", "-1");
+  await expect(batteryCue).toHaveAttribute("tabindex", "-1");
+  await expect(homeCue).toHaveAttribute("tabindex", "0");
+  await expect(homeCue).toHaveAttribute("href", "/services");
+  await expect(homeCue).toBeVisible();
+  await expect(page.getByRole("link", { name: /^Call / })).toHaveCount(0);
 
-  const finalSun = page.getByRole("button", { name: /night\. request a quotation/i });
-  const home = page.locator("[data-solar-home]");
-  await expect(finalSun).toBeVisible();
-
-  const [sunBox, homeBox] = await Promise.all([finalSun.boundingBox(), home.boundingBox()]);
-  expect(sunBox).not.toBeNull();
-  expect(homeBox).not.toBeNull();
-  if (sunBox && homeBox) {
-    const sunCenter = sunBox.x + sunBox.width / 2;
-    const homeCenter = homeBox.x + homeBox.width / 2;
-    expect(Math.abs(sunCenter - homeCenter)).toBeLessThan(8);
-    expect(sunBox.y + sunBox.height).toBeGreaterThan(homeBox.y - 80);
-  }
+  const handoff = await page.locator('[aria-label="A solar day"]').evaluate((root) => {
+    const styles = getComputedStyle(root);
+    const panel = root.querySelector<HTMLElement>('[data-object-cue-link="panel"]');
+    return {
+      sunDissolve: Number.parseFloat(styles.getPropertyValue("--sun-dissolve")),
+      batteryVisibility: Number.parseFloat(styles.getPropertyValue("--battery-visibility")),
+      panelOpacity: panel ? Number.parseFloat(getComputedStyle(panel).opacity) : 1,
+      homeLight: Number.parseFloat(styles.getPropertyValue("--home-light")),
+      ctaReveal: Number.parseFloat(styles.getPropertyValue("--cta-reveal")),
+    };
+  });
+  expect(handoff.sunDissolve).toBeGreaterThan(0.95);
+  expect(handoff.batteryVisibility).toBeLessThan(0.05);
+  expect(handoff.panelOpacity).toBeLessThan(0.05);
+  expect(handoff.homeLight).toBeGreaterThan(0.95);
+  expect(handoff.ctaReveal).toBeGreaterThan(0.95);
 });
+
+for (const gateway of [
+  { name: "solar panel", progress: 0.29, selector: "panel", destination: "/services" },
+  { name: "battery", progress: 0.67, selector: "battery", destination: "/products" },
+] as const) {
+  test(`${gateway.name} gateway navigates from the landscape object`, async ({ page }) => {
+    await page.setViewportSize({ width: 1440, height: 900 });
+    await page.goto("/");
+    await expect(page.locator('[aria-label="A solar day"][data-enhanced="true"]')).toBeAttached();
+    await page.locator('[aria-label="A solar day"]').evaluate((root, targetProgress) => {
+      const top = window.scrollY + root.getBoundingClientRect().top;
+      window.scrollTo({
+        top: top + targetProgress * (root.scrollHeight - window.innerHeight),
+        behavior: "auto",
+      });
+    }, gateway.progress);
+
+    const object = page.locator(`[data-object-cue-link="${gateway.selector}"]`);
+    await expect(object).toHaveAttribute("tabindex", "0");
+    await object.click();
+    await expect(page).toHaveURL(new RegExp(`${gateway.destination}$`));
+  });
+}
 
 test("mobile navigation exposes only live public routes without overflow", async ({ page }) => {
   await page.setViewportSize({ width: 390, height: 844 });

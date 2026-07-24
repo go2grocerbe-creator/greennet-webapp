@@ -1,6 +1,5 @@
 "use client";
 
-import Link from "next/link";
 import { useCallback, useEffect, useRef, useState } from "react";
 
 import { SunScene } from "@/components/marketing/sun-scene";
@@ -17,7 +16,7 @@ const phases = [
 ] as const;
 
 type PhaseId = (typeof phases)[number]["id"];
-type ObjectCue = "panel" | "battery";
+type ObjectCue = "panel" | "battery" | "home";
 
 type ChapterWindow = {
   id: PhaseId;
@@ -28,8 +27,8 @@ type ChapterWindow = {
 };
 
 const chapterWindows: readonly ChapterWindow[] = [
-  { id: "predawn", start: 0, holdStart: 0, holdEnd: 0.045, end: 0.065 },
-  { id: "morning", start: 0.17, holdStart: 0.18, holdEnd: 0.22, end: 0.235 },
+  { id: "predawn", start: 0, holdStart: 0, holdEnd: 0.085, end: 0.12 },
+  { id: "morning", start: 0.185, holdStart: 0.195, holdEnd: 0.23, end: 0.25 },
   { id: "noon", start: 0.36, holdStart: 0.37, holdEnd: 0.41, end: 0.425 },
   { id: "golden", start: 0.55, holdStart: 0.56, holdEnd: 0.6, end: 0.615 },
   { id: "sunset", start: 0.74, holdStart: 0.75, holdEnd: 0.79, end: 0.805 },
@@ -63,8 +62,9 @@ function visiblePhaseForProgress(progress: number): PhaseId | null {
 }
 
 function objectCueForProgress(progress: number): ObjectCue | null {
-  if (progress >= 0.245 && progress <= 0.345) return "panel";
-  if (progress >= 0.625 && progress <= 0.725) return "battery";
+  if (progress >= 0.205 && progress <= 0.5) return "panel";
+  if (progress >= 0.52 && progress <= 0.7) return "battery";
+  if (progress >= 0.992) return "home";
   return null;
 }
 
@@ -78,6 +78,7 @@ export function SolarExperience({ children }: { children: React.ReactNode }) {
   const movedDuringDrag = useRef(false);
   const [phase, setPhase] = useState<PhaseId>("predawn");
   const [visiblePhase, setVisiblePhase] = useState<PhaseId | null>("predawn");
+  const [objectCue, setObjectCue] = useState<ObjectCue | null>(null);
   const [sunSettled, setSunSettled] = useState(false);
   const [navOpen, setNavOpen] = useState(false);
   const [dragging, setDragging] = useState(false);
@@ -109,30 +110,55 @@ export function SolarExperience({ children }: { children: React.ReactNode }) {
 
     const render = () => {
       frame = 0;
-      if (!visible || reducedQuery.matches) return;
-
       const rect = root.getBoundingClientRect();
+      const intersectsViewport = rect.bottom > 0 && rect.top < window.innerHeight;
+      if ((!visible && !intersectsViewport) || reducedQuery.matches) return;
       const distance = Math.max(1, root.offsetHeight - window.innerHeight);
       const progress = clamp(-rect.top / distance);
       const daylight = clamp(progress / 0.82);
-      const nightMorph = clamp((progress - 0.82) / 0.16);
+      const nightMorph = clamp((progress - 0.8) / 0.13);
       const solarAltitude = Math.sin(Math.PI * daylight);
       const dawnWarmth = clamp((progress - 0.015) / 0.11) * (1 - clamp((progress - 0.2) / 0.16));
       const duskWarmth = clamp((progress - 0.5) / 0.17) * (1 - clamp((progress - 0.8) / 0.14));
       const shadowStrength =
         (0.2 + Math.abs(daylight - 0.5) * 1.15) * (1 - clamp((progress - 0.84) / 0.16) * 0.55);
       const panelLight = clamp(solarAltitude * 1.18) * (1 - clamp((progress - 0.72) / 0.24) * 0.72);
+      const batteryHero = clamp((progress - 0.51) / 0.08) * (1 - clamp((progress - 0.67) / 0.08));
+      const batteryPresence = clamp((progress - 0.47) / 0.11);
+      const batteryHandoff = clamp((progress - 0.8) / 0.14);
+      const homePulseProgress = clamp((progress - 0.86) / 0.08);
+      const homePulse = Math.sin(Math.PI * homePulseProgress);
+      const sunDissolve = clamp((progress - 0.94) / 0.035);
+      const mobileSunPath = window.matchMedia("(max-width: 767px)").matches;
+      const mobileBaseX = 7 + daylight * 43;
+      const mobileRise = clamp(daylight / 0.45);
+      const mobileDayDescent = clamp((progress - 0.38) / 0.42);
+      const mobileHomeDescent = clamp((progress - 0.8) / 0.14);
+      const mobileHomeDescentEase =
+        mobileHomeDescent * mobileHomeDescent * (3 - 2 * mobileHomeDescent);
+      const mobileBaseY =
+        progress <= 0.38
+          ? 86 - 72 * Math.sin(mobileRise * (Math.PI / 2))
+          : progress <= 0.8
+            ? 14 + Math.pow(mobileDayDescent, 2) * 24
+            : 38 + mobileHomeDescentEase * 25;
+      const mobileReleaseProgress = clamp((progress - 0.06) / 0.13);
+      const mobileRelease =
+        mobileReleaseProgress * mobileReleaseProgress * (3 - 2 * mobileReleaseProgress);
+      const mobileSunX = 7 * (1 - mobileRelease) + mobileBaseX * mobileRelease;
+      const mobileSunY = 86 * (1 - mobileRelease) + mobileBaseY * mobileRelease;
       const baseX = 7 + daylight * 86;
       const baseY = 80 - Math.sin(Math.PI * daylight) * 68;
-      const sunX = baseX * (1 - nightMorph) + 50 * nightMorph;
-      const endpointLiftProgress = clamp((progress - 0.97) / 0.03);
-      const endpointLift =
-        endpointLiftProgress * endpointLiftProgress * (3 - 2 * endpointLiftProgress);
-      const sunY = baseY * (1 - endpointLift) + 70 * endpointLift;
+      const dawnReleaseProgress = clamp((progress - 0.08) / 0.09);
+      const dawnRelease = dawnReleaseProgress * dawnReleaseProgress * (3 - 2 * dawnReleaseProgress);
+      const releasedX = 7 * (1 - dawnRelease) + baseX * dawnRelease;
+      const releasedY = 86 * (1 - dawnRelease) + baseY * dawnRelease;
+      const sunX = mobileSunPath ? mobileSunX : releasedX * (1 - nightMorph) + 50 * nightMorph;
+      const sunY = mobileSunPath ? mobileSunY : releasedY * (1 - nightMorph) + 63 * nightMorph;
       const nextPhase = phaseForProgress(progress);
       const nextVisiblePhase = visiblePhaseForProgress(progress);
       const nextObjectCue = objectCueForProgress(progress);
-      const nextSettled = progress >= 0.997;
+      const nextSettled = progress >= 0.992;
 
       root.style.setProperty("--solar-progress", progress.toFixed(4));
       for (const window of chapterWindows) {
@@ -151,12 +177,21 @@ export function SolarExperience({ children }: { children: React.ReactNode }) {
       root.style.setProperty("--panel-light", panelLight.toFixed(4));
       root.style.setProperty("--terrain-lift", `${((1 - solarAltitude) * 1.8).toFixed(3)}vh`);
       root.style.setProperty("--atmosphere-shift", `${((progress - 0.5) * 2.4).toFixed(3)}vw`);
-      root.style.setProperty("--battery-presence", clamp((progress - 0.47) / 0.11).toFixed(4));
+      root.style.setProperty("--battery-presence", batteryPresence.toFixed(4));
+      root.style.setProperty(
+        "--battery-visibility",
+        (batteryPresence * (1 - batteryHandoff)).toFixed(4),
+      );
+      root.style.setProperty("--battery-hero", batteryHero.toFixed(4));
+      root.style.setProperty("--battery-handoff", batteryHandoff.toFixed(4));
       root.style.setProperty("--charge-low", clamp((progress - 0.39) / 0.13).toFixed(4));
       root.style.setProperty("--charge-mid", clamp((progress - 0.52) / 0.13).toFixed(4));
       root.style.setProperty("--charge-high", clamp((progress - 0.65) / 0.13).toFixed(4));
       root.style.setProperty("--stored-glow", clamp((progress - 0.58) / 0.28).toFixed(4));
-      root.style.setProperty("--home-light", clamp((progress - 0.84) / 0.12).toFixed(4));
+      root.style.setProperty("--home-light", clamp((progress - 0.956) / 0.016).toFixed(4));
+      root.style.setProperty("--door-light", clamp((progress - 0.978) / 0.012).toFixed(4));
+      root.style.setProperty("--home-pulse", homePulse.toFixed(4));
+      root.style.setProperty("--sun-dissolve", sunDissolve.toFixed(4));
       root.style.setProperty("--pre-dawn", clamp(1 - progress / 0.12).toFixed(4));
       root.style.setProperty(
         "--daylight",
@@ -169,9 +204,7 @@ export function SolarExperience({ children }: { children: React.ReactNode }) {
       root.style.setProperty("--night", clamp((progress - 0.69) / 0.25).toFixed(4));
       root.style.setProperty("--sun-morph", nightMorph.toFixed(4));
       root.style.setProperty("--cta-reveal", clamp((progress - 0.992) / 0.008).toFixed(4));
-      root.style.setProperty("--phone-reveal", clamp((progress - 0.97) / 0.015).toFixed(4));
-      root.style.setProperty("--shadow-reach", `${((0.5 - daylight) * 56).toFixed(2)}vw`);
-      root.style.setProperty("--camera-tilt", `${((progress - 0.5) * 7).toFixed(2)}deg`);
+      root.style.setProperty("--shadow-reach", `${((0.5 - daylight) * 6).toFixed(2)}vw`);
 
       if (nextPhase !== lastPhase) {
         lastPhase = nextPhase;
@@ -187,6 +220,7 @@ export function SolarExperience({ children }: { children: React.ReactNode }) {
       if (nextObjectCue !== lastObjectCue) {
         lastObjectCue = nextObjectCue;
         root.dataset.objectCue = nextObjectCue ?? "none";
+        setObjectCue(nextObjectCue);
       }
       if (nextSettled !== wasSettled) {
         wasSettled = nextSettled;
@@ -217,25 +251,25 @@ export function SolarExperience({ children }: { children: React.ReactNode }) {
     };
   }, []);
 
-  const selectPhase = (target: (typeof phases)[number]) => {
+  const selectPhase = (target: (typeof phases)[number], behavior: ScrollBehavior = "smooth") => {
     setNavOpen(false);
-    scrollToProgress(target.progress);
+    scrollToProgress(target.progress, behavior);
   };
 
   const handleSunKeyDown = (event: React.KeyboardEvent<HTMLButtonElement>) => {
     const index = phases.findIndex((item) => item.id === phase);
     if (event.key === "ArrowLeft" || event.key === "ArrowUp") {
       event.preventDefault();
-      selectPhase(phases[Math.max(0, index - 1)]);
+      selectPhase(phases[Math.max(0, index - 1)], "auto");
     } else if (event.key === "ArrowRight" || event.key === "ArrowDown") {
       event.preventDefault();
-      selectPhase(phases[Math.min(phases.length - 1, index + 1)]);
+      selectPhase(phases[Math.min(phases.length - 1, index + 1)], "auto");
     } else if (event.key === "Home") {
       event.preventDefault();
-      selectPhase(phases[0]);
+      selectPhase(phases[0], "auto");
     } else if (event.key === "End") {
       event.preventDefault();
-      selectPhase(phases[phases.length - 1]);
+      selectPhase(phases[phases.length - 1], "auto");
     }
   };
 
@@ -279,18 +313,11 @@ export function SolarExperience({ children }: { children: React.ReactNode }) {
           className={styles.sunHandle}
           aria-expanded={navOpen}
           aria-controls="solar-phase-navigation"
-          aria-label={
-            sunSettled
-              ? "Night. Request a quotation"
-              : `${currentLabel}. Open solar day navigation. Use arrow keys to move through time.`
-          }
+          aria-label={`${currentLabel}. Open solar day navigation. Use arrow keys to move through time.`}
+          tabIndex={sunSettled ? -1 : 0}
           onClick={() => {
             if (movedDuringDrag.current) {
               movedDuringDrag.current = false;
-              return;
-            }
-            if (sunSettled) {
-              window.location.assign("/contact");
               return;
             }
             if (phase === "night") {
@@ -315,7 +342,6 @@ export function SolarExperience({ children }: { children: React.ReactNode }) {
           onPointerCancel={() => setDragging(false)}
         >
           <span className={styles.sunCore} aria-hidden="true" />
-          <span className={styles.sunCtaLabel}>Request a quotation</span>
         </button>
 
         <nav
@@ -344,30 +370,9 @@ export function SolarExperience({ children }: { children: React.ReactNode }) {
         </nav>
       </div>
 
-      <div className={styles.stage} data-solar-stage aria-hidden="true">
-        <SunScene />
+      <div className={styles.stage} data-solar-stage>
+        <SunScene activeGateway={objectCue} finalCta={sunSettled} />
       </div>
-
-      <nav className={styles.objectCues} aria-label="Explore GreenNet">
-        <Link
-          href="/services"
-          className={`${styles.objectCue} ${styles.panelCue}`}
-          data-object-cue-link="panel"
-        >
-          <span>Follow the current</span>
-          <strong>Solar Solutions</strong>
-          <i aria-hidden="true" />
-        </Link>
-        <Link
-          href="/products"
-          className={`${styles.objectCue} ${styles.batteryCue}`}
-          data-object-cue-link="battery"
-        >
-          <span>Use what the day stored</span>
-          <strong>Batteries &amp; inverters</strong>
-          <i aria-hidden="true" />
-        </Link>
-      </nav>
 
       <div className={styles.chapters}>{children}</div>
     </section>

@@ -15,16 +15,20 @@
   --terrain-lift: 1.8vh;
   --atmosphere-shift: -1.2vw;
   --battery-presence: 0;
+  --battery-visibility: 0;
+  --battery-hero: 0;
+  --battery-handoff: 0;
   --charge-low: 0;
   --charge-mid: 0;
   --charge-high: 0;
   --stored-glow: 0;
   --home-light: 0;
+  --door-light: 0;
+  --home-pulse: 0;
   --sun-morph: 0;
+  --sun-dissolve: 0;
   --cta-reveal: 0;
-  --phone-reveal: 0;
-  --shadow-reach: 28vw;
-  --camera-tilt: -3.5deg;
+  --shadow-reach: 3vw;
   position: relative;
   min-height: 560svh;
   overflow: clip;
@@ -50,6 +54,7 @@
   top: 0;
   height: 100svh;
   overflow: hidden;
+  pointer-events: none;
 }
 
 .skipStory {
@@ -80,91 +85,6 @@
 .experience[data-enhanced="true"] .solarControl {
   visibility: visible;
 }
-.objectCues {
-  position: sticky;
-  z-index: 18;
-  top: 0;
-  height: 100svh;
-  margin-bottom: -100svh;
-  pointer-events: none;
-  visibility: hidden;
-}
-.experience[data-enhanced="true"] .objectCues {
-  visibility: visible;
-}
-.objectCue {
-  position: absolute;
-  display: grid;
-  min-width: 12rem;
-  min-height: 3.5rem;
-  color: #063f2a;
-  text-decoration: none;
-  pointer-events: none;
-  visibility: hidden;
-  opacity: 0;
-  gap: 0.18rem;
-  transition:
-    opacity 240ms ease,
-    transform 650ms cubic-bezier(0.16, 1, 0.3, 1),
-    visibility 240ms;
-}
-.objectCue span {
-  font-size: 0.63rem;
-  font-weight: 720;
-  letter-spacing: 0.13em;
-  text-transform: uppercase;
-  opacity: 0.72;
-}
-.objectCue strong {
-  font-family: var(--font-heading-brand), sans-serif;
-  font-size: clamp(1rem, 1.35vw, 1.35rem);
-  letter-spacing: -0.025em;
-}
-.objectCue i {
-  position: absolute;
-  top: calc(100% + 0.65rem);
-  height: 1px;
-  content: "";
-  background: currentcolor;
-  transform: scaleX(0);
-  transition: transform 760ms cubic-bezier(0.16, 1, 0.3, 1) 120ms;
-  transform-origin: 0 50%;
-}
-.objectCue:focus-visible {
-  outline: 3px solid #087a42;
-  outline-offset: 0.65rem;
-}
-.panelCue {
-  bottom: 23vh;
-  left: clamp(14rem, 33vw, 34rem);
-  transform: translate3d(-2rem, 1rem, 0);
-}
-.panelCue i {
-  right: calc(100% + 0.75rem);
-  width: clamp(7rem, 15vw, 16rem);
-  transform-origin: 100% 50%;
-}
-.batteryCue {
-  right: clamp(13rem, 27vw, 29rem);
-  bottom: 18vh;
-  text-align: right;
-  transform: translate3d(2rem, 1rem, 0);
-}
-.batteryCue i {
-  left: calc(100% + 0.75rem);
-  width: clamp(5rem, 11vw, 11rem);
-}
-.experience[data-object-cue="panel"] .panelCue,
-.experience[data-object-cue="battery"] .batteryCue {
-  pointer-events: auto;
-  visibility: visible;
-  opacity: 1;
-  transform: translate3d(0, 0, 0);
-}
-.experience[data-object-cue="panel"] .panelCue i,
-.experience[data-object-cue="battery"] .batteryCue i {
-  transform: scaleX(1);
-}
 .noScriptNavigation {
   position: sticky;
   z-index: 30;
@@ -191,8 +111,8 @@
 }
 .sunHandle {
   position: absolute;
-  top: var(--sun-y);
-  left: var(--sun-x);
+  top: clamp(8rem, var(--sun-y), calc(100% - 4.5rem));
+  left: clamp(4.25rem, var(--sun-x), calc(100% - 16rem));
   display: grid;
   width: 7rem;
   height: 7rem;
@@ -204,13 +124,10 @@
   border: 0;
   border-radius: 999px;
   outline: none;
+  opacity: calc(1 - var(--sun-dissolve));
+  filter: blur(calc(var(--sun-dissolve) * 0.65rem));
   place-items: center;
-  transform: translate(-50%, -50%) translateZ(0);
-  transition:
-    top 650ms cubic-bezier(0.16, 1, 0.3, 1),
-    left 650ms cubic-bezier(0.16, 1, 0.3, 1),
-    width 700ms cubic-bezier(0.16, 1, 0.3, 1),
-    border-radius 700ms cubic-bezier(0.16, 1, 0.3, 1);
+  transform: translate(-50%, -50%) translateZ(0) scale(calc(1 - var(--sun-dissolve) * 0.22));
   touch-action: none;
 }
 .sunHandle:active {
@@ -233,36 +150,10 @@
     0 0 0 1.1rem rgb(245 196 0 / 12%),
     0 0 4rem 1.6rem rgb(245 196 0 / 34%),
     0 1.5rem 4rem rgb(38 31 0 / 24%);
-  transform: scale(calc(1 - var(--sun-morph) * 0.22));
-  transition: transform 500ms ease;
-}
-.sunCtaLabel {
-  position: relative;
-  z-index: 1;
-  max-width: 0;
-  overflow: hidden;
-  font-family: var(--font-heading-brand), sans-serif;
-  font-size: 0.78rem;
-  font-weight: 720;
-  letter-spacing: -0.02em;
-  white-space: nowrap;
-  opacity: 0;
-  transition: opacity 260ms ease 220ms;
+  transform: scale(calc(1 - var(--sun-morph) * 0.08));
 }
 .experience[data-sun-settled="true"] .sunHandle {
-  width: 14rem;
-  cursor: pointer;
-  border-radius: 3.5rem;
-}
-.experience[data-sun-settled="true"] .sunCore {
-  background: radial-gradient(circle at 68% 32%, #fff3a1 0, #f5c400 48%, #e8a900 100%);
-  box-shadow:
-    0 0 0 0.75rem rgb(245 196 0 / 10%),
-    0 0 3.5rem 1.2rem rgb(245 196 0 / 26%);
-}
-.experience[data-sun-settled="true"] .sunCtaLabel {
-  max-width: 12rem;
-  opacity: 1;
+  pointer-events: none;
 }
 
 .phaseNavigation {
@@ -403,22 +294,13 @@
   background: #fff3c4;
   border-radius: 50%;
   box-shadow: 0 0 0.7rem #fff3c4;
-  animation: starPulse 3.6s ease-in-out infinite alternate;
-}
-.stars i:nth-child(3n + 1) {
-  animation-delay: -1.2s;
-  animation-duration: 4.8s;
-}
-.stars i:nth-child(4n + 2) {
-  animation-delay: -2.6s;
-  animation-duration: 5.7s;
 }
 
 .horizonGlow {
   z-index: 2;
   top: auto;
   right: auto;
-  left: var(--sun-x);
+  left: clamp(4.25rem, var(--sun-x), calc(100% - 16rem));
   width: 68vw;
   height: 35vh;
   background: radial-gradient(
@@ -429,7 +311,6 @@
   opacity: calc((1 - var(--night)) * (0.5 + var(--solar-altitude) * 0.5));
   transform: translate3d(-50%, var(--terrain-lift), 0)
     scaleX(calc(0.8 + var(--solar-altitude) * 0.45));
-  animation: horizonBreath 9s ease-in-out infinite alternate;
 }
 .horizon {
   z-index: 3;
@@ -456,18 +337,108 @@
   transform-origin: 50% 100%;
 }
 
+.sceneGateway {
+  color: inherit;
+  text-decoration: none;
+  outline: none;
+  pointer-events: none;
+}
+.sceneGateway:focus-visible {
+  outline: 3px solid #fff3a1;
+  outline-offset: 0.6rem;
+}
 .panelField {
   position: absolute;
   z-index: 5;
-  bottom: -3vh;
-  left: 5vw;
-  width: min(43rem, 48vw);
-  height: 28vh;
+  bottom: 1rem;
+  left: 4vw;
+  width: min(38rem, 40vw);
+  height: clamp(8rem, 18vh, 11rem);
+  opacity: calc(1 - var(--battery-handoff));
   filter: brightness(calc(0.62 + var(--panel-light) * 0.5))
     saturate(calc(0.82 + var(--panel-light) * 0.28));
-  transform: translate3d(0, calc(var(--terrain-lift) * 0.35), 0)
-    rotateX(calc(56deg + var(--camera-tilt))) rotateZ(-7deg);
+  transform: translate3d(0, calc(var(--terrain-lift) * 0.2), 0)
+    rotateZ(calc(-5deg + var(--solar-progress) * 3deg));
   transform-origin: 50% 100%;
+  transition:
+    filter 360ms ease,
+    scale 500ms cubic-bezier(0.16, 1, 0.3, 1),
+    translate 500ms cubic-bezier(0.16, 1, 0.3, 1);
+}
+.experience[data-object-cue="panel"] .panelField {
+  cursor: pointer;
+  pointer-events: auto;
+  filter: brightness(calc(0.72 + var(--panel-light) * 0.56))
+    saturate(calc(0.9 + var(--panel-light) * 0.34)) drop-shadow(0 0 1.25rem rgb(245 196 0 / 28%));
+  scale: 1.04;
+  translate: 0 -0.35rem;
+}
+.experience[data-object-cue="panel"] .panelField:is(:hover, :focus-visible) {
+  filter: brightness(calc(0.78 + var(--panel-light) * 0.58))
+    saturate(calc(0.94 + var(--panel-light) * 0.36)) drop-shadow(0 0 1.8rem rgb(245 196 0 / 38%));
+  scale: 1.055;
+  translate: 0 -0.5rem;
+}
+.panelGatewayLabel,
+.batteryGatewayLabel {
+  position: absolute;
+  z-index: 4;
+  display: grid;
+  visibility: hidden;
+  width: max-content;
+  max-width: 14rem;
+  color: #063f2a;
+  font-family: var(--font-heading-brand), sans-serif;
+  font-size: clamp(0.9rem, 1.15vw, 1.1rem);
+  font-weight: 720;
+  line-height: 1.08;
+  letter-spacing: -0.025em;
+  pointer-events: none;
+  opacity: 0;
+  gap: 0.22rem;
+  transform: translateY(0.75rem);
+  transition:
+    opacity 160ms ease,
+    transform 520ms cubic-bezier(0.16, 1, 0.3, 1),
+    visibility 0s linear 160ms;
+}
+.panelGatewayLabel {
+  bottom: 100%;
+  left: 42%;
+  padding-bottom: 2rem;
+}
+.panelGatewayLabel::after {
+  position: absolute;
+  bottom: 0;
+  left: 0.35rem;
+  width: 1px;
+  height: 1.55rem;
+  content: "";
+  background: currentcolor;
+  opacity: 0.65;
+}
+.panelGatewayLabel b {
+  position: absolute;
+  bottom: -0.2rem;
+  left: 0.08rem;
+  font-size: 0.8rem;
+  line-height: 1;
+}
+.panelGatewayLabel small,
+.batteryGatewayLabel small {
+  font-family: var(--font-body);
+  font-size: 0.58rem;
+  font-weight: 720;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  opacity: 0.65;
+}
+.experience[data-object-cue="panel"] .panelGatewayLabel,
+.experience[data-object-cue="battery"] .batteryGatewayLabel {
+  visibility: visible;
+  opacity: 1;
+  transform: translateY(0);
+  transition-delay: 0s;
 }
 .panelPlane {
   display: grid;
@@ -495,13 +466,17 @@
   background: linear-gradient(110deg, transparent 18%, rgb(245 196 0 / 35%) 48%, transparent 72%);
   opacity: calc(0.12 + var(--panel-light) * 0.88);
   transform: translateX(calc(-160% + var(--solar-progress) * 360%));
+  transition: opacity 280ms ease;
+}
+.experience[data-object-cue="panel"] .panelField:is(:hover, :focus-visible) .panelPlane i::after {
+  opacity: 1;
 }
 .panelShadow {
   position: absolute;
   right: 0;
-  bottom: -2rem;
+  bottom: 0;
   width: 75%;
-  height: 3rem;
+  height: 1.5rem;
   background: rgb(1 14 13 / 42%);
   filter: blur(var(--shadow-softness));
   opacity: var(--shadow-strength);
@@ -515,7 +490,7 @@
   inset: 0;
   width: 100%;
   height: 100%;
-  overflow: visible;
+  overflow: hidden;
   pointer-events: none;
   opacity: 1;
   transition: opacity 180ms ease;
@@ -553,16 +528,30 @@
   bottom: 7vh;
   width: 8rem;
   height: 12rem;
-  opacity: var(--battery-presence);
-  transform: translate3d(0, calc((1 - var(--battery-presence)) * 2.5rem), 4rem)
-    rotateY(calc(-14deg + var(--battery-presence) * 4deg));
+  opacity: var(--battery-visibility);
+  transform: translate3d(
+      calc(var(--battery-handoff) * -24vw + var(--battery-hero) * -4vw),
+      calc((1 - var(--battery-presence)) * 1rem),
+      0
+    )
+    rotateY(calc(-14deg + var(--battery-presence) * 4deg))
+    scale(calc(1 + var(--battery-hero) * 0.18));
   transition:
     filter 450ms ease,
     transform 650ms cubic-bezier(0.16, 1, 0.3, 1);
 }
 .experience[data-object-cue="battery"] .battery {
-  filter: brightness(1.12) drop-shadow(0 0 2rem rgb(245 196 0 / 56%));
-  transform: translate3d(0, -0.65rem, 4rem) rotateY(-5deg) scale(1.04);
+  cursor: pointer;
+  pointer-events: auto;
+  filter: brightness(1.08) drop-shadow(0 0 1.2rem rgb(245 196 0 / 44%));
+}
+.experience[data-object-cue="battery"] .battery:is(:hover, :focus-visible) {
+  filter: brightness(1.16) drop-shadow(0 0 1.8rem rgb(245 196 0 / 55%));
+}
+.batteryGatewayLabel {
+  right: 0;
+  bottom: calc(100% + 1.1rem);
+  text-align: right;
 }
 .batteryBody {
   position: absolute;
@@ -570,10 +559,13 @@
   display: flex;
   padding: 0.8rem;
   overflow: hidden;
-  background: rgb(3 31 23 / 88%);
+  background: linear-gradient(135deg, rgb(255 255 255 / 13%), transparent 24%), rgb(3 31 23 / 88%);
   border: 1px solid rgb(255 255 255 / 30%);
   border-radius: 1rem;
-  box-shadow: 1.4rem 1.8rem 2.5rem rgb(3 31 23 / 30%);
+  box-shadow:
+    inset 0 1px rgb(255 255 255 / 16%),
+    inset -0.7rem -0.8rem 1.5rem rgb(0 0 0 / 16%),
+    1.4rem 1.8rem 2.5rem rgb(3 31 23 / 36%);
   flex-direction: column-reverse;
   gap: 0.45rem;
 }
@@ -608,15 +600,23 @@
   position: absolute;
   z-index: 6;
   right: auto;
-  bottom: 4vh;
+  bottom: 7vh;
   left: 50%;
   width: 22rem;
   height: 17rem;
   opacity: var(--night);
   filter: brightness(calc(0.72 + var(--home-light) * 0.28));
-  transform: translate3d(-50%, calc((1 - var(--night)) * 6rem), 2rem)
+  transform: translate3d(-50%, calc((1 - var(--night)) * 1rem), 0)
     scale(calc(0.96 + var(--night) * 0.04));
   transform-origin: 50% 100%;
+}
+.experience[data-object-cue="home"] .nightHome {
+  cursor: pointer;
+  pointer-events: auto;
+}
+.experience[data-object-cue="home"] .nightHome:is(:hover, :focus-visible) {
+  filter: brightness(calc(0.78 + var(--home-light) * 0.34))
+    drop-shadow(0 0 1.4rem rgb(245 196 0 / 20%));
 }
 .homeLightWash {
   position: absolute;
@@ -639,43 +639,206 @@
   transform: translateX(-50%) scale(calc(0.84 + var(--home-light) * 0.16));
   transform-origin: 50% 10%;
 }
+.homeEnergyPulse {
+  position: absolute;
+  z-index: 4;
+  right: 7.5rem;
+  bottom: 4.65rem;
+  width: 7rem;
+  height: 0.2rem;
+  background: linear-gradient(90deg, transparent, #fff3a1 35%, #f5c400);
+  border-radius: 999px;
+  box-shadow: 0 0 1rem rgb(245 196 0 / 80%);
+  opacity: var(--home-pulse);
+  transform: scaleX(var(--home-pulse));
+  transform-origin: 100% 50%;
+}
+.homeGroundGlow {
+  position: absolute;
+  z-index: 0;
+  bottom: -1.5rem;
+  left: 50%;
+  width: 25rem;
+  height: 6rem;
+  background: radial-gradient(ellipse, rgb(245 196 0 / 32%), transparent 68%);
+  opacity: calc(var(--door-light) * 0.82);
+  filter: blur(0.8rem);
+  transform: translateX(-50%) scaleX(calc(0.72 + var(--home-light) * 0.28));
+}
+.chimney {
+  position: absolute;
+  z-index: 1;
+  top: 2.5rem;
+  right: 4.8rem;
+  width: 2.1rem;
+  height: 5.8rem;
+  background: linear-gradient(90deg, #02130f, #092a20);
+  transform: skewY(-6deg);
+}
 .roof {
   position: absolute;
-  z-index: 2;
-  top: 1rem;
-  left: 1rem;
-  width: 18rem;
-  height: 10rem;
-  background: #021711;
-  clip-path: polygon(50% 0, 100% 72%, 88% 76%, 88% 100%, 12% 100%, 12% 76%, 0 72%);
+  z-index: 3;
+  top: 0.2rem;
+  left: 0.3rem;
+  width: 20.5rem;
+  height: 11rem;
+  background:
+    linear-gradient(102deg, transparent 49.4%, rgb(255 243 161 / 8%) 50%, transparent 50.8%),
+    linear-gradient(145deg, #020f0c, #06251b 72%);
+  clip-path: polygon(50% 0, 100% 70%, 91% 76%, 50% 24%, 9% 76%, 0 70%);
+  filter: drop-shadow(0 1.2rem 1.2rem rgb(0 0 0 / 32%));
 }
 .houseBody {
   position: absolute;
-  right: 2.4rem;
+  z-index: 1;
+  right: 3rem;
   bottom: 0;
-  left: 2.4rem;
-  height: 9.8rem;
-  background: #032219;
+  left: 3rem;
+  height: 10.4rem;
+  background:
+    linear-gradient(90deg, rgb(255 255 255 / 3%) 1px, transparent 1px) 0 0 / 2.1rem 100%,
+    linear-gradient(135deg, #073326, #021812 72%);
+  border-top: 1px solid rgb(255 255 255 / 8%);
+  box-shadow:
+    inset 0 1.4rem 2.8rem rgb(0 0 0 / 18%),
+    0 1.8rem 3rem rgb(0 0 0 / 34%);
+}
+.houseSide {
+  position: absolute;
+  z-index: 2;
+  right: 0.7rem;
+  bottom: 0;
+  width: 5.8rem;
+  height: 9.4rem;
+  background: linear-gradient(135deg, #0a3729, #02130f);
+  clip-path: polygon(0 8%, 100% 0, 100% 100%, 0 100%);
+  opacity: 0.9;
 }
 .window,
+.sideWindow,
 .door {
   position: absolute;
-  z-index: 3;
-  bottom: 3.5rem;
-  width: 3.2rem;
-  height: 3.2rem;
-  background: #f5c400;
-  box-shadow: 0 0 2.5rem rgb(245 196 0 / 60%);
+  z-index: 4;
+  display: grid;
+  overflow: hidden;
+  background:
+    linear-gradient(135deg, rgb(255 255 255 / 54%), transparent 26%),
+    linear-gradient(135deg, #f5c400, #fff3a1);
+  border: 0.35rem solid #09291f;
+  box-shadow:
+    0 0 calc(1.2rem + var(--home-light) * 2.2rem) rgb(245 196 0 / 48%),
+    inset 0 0 1.2rem rgb(255 255 255 / 34%);
   opacity: var(--home-light);
 }
 .window {
-  left: 4.5rem;
+  bottom: 3.4rem;
+  left: 4.7rem;
+  width: 3.2rem;
+  height: 3.2rem;
+  gap: 1px;
+  grid-template-columns: 1fr 1fr;
+}
+.window i,
+.sideWindow i {
+  background: rgb(255 250 213 / 26%);
 }
 .door {
-  right: 4rem;
+  right: 5.6rem;
   bottom: 0;
+  width: 3.7rem;
   height: 6rem;
-  background: #fff3a1;
+  border-bottom: 0;
+  opacity: var(--door-light);
+}
+.door i {
+  position: absolute;
+  top: 50%;
+  right: 0.35rem;
+  width: 0.25rem;
+  height: 0.25rem;
+  background: #063f2a;
+  border-radius: 50%;
+}
+.sideWindow {
+  right: 1.6rem;
+  bottom: 3.8rem;
+  width: 2.7rem;
+  height: 2.5rem;
+  gap: 1px;
+  grid-template-columns: 1fr 1fr;
+  transform: skewY(-4deg);
+}
+.porch {
+  position: absolute;
+  z-index: 5;
+  right: 4.5rem;
+  bottom: -0.35rem;
+  width: 6rem;
+  height: 0.55rem;
+  background: linear-gradient(90deg, #0b3528, #e8c657 55%, #0b3528);
+  box-shadow: 0 0 1.4rem rgb(245 196 0 / 38%);
+  opacity: calc(0.48 + var(--door-light) * 0.52);
+}
+.homeCtaLabel {
+  position: absolute;
+  z-index: 8;
+  bottom: -3rem;
+  left: 50%;
+  display: inline-flex;
+  width: 11rem;
+  min-height: 3.7rem;
+  padding: 1.35rem 0.4rem 0.5rem;
+  color: #fff8d9;
+  font-family: var(--font-heading-brand), sans-serif;
+  font-size: 0.72rem;
+  font-weight: 780;
+  white-space: nowrap;
+  text-shadow: 0 0 0.65rem rgb(245 196 0 / 52%);
+  background: transparent;
+  opacity: var(--cta-reveal);
+  align-items: center;
+  justify-content: center;
+  transform: translate(-50%, calc((1 - var(--cta-reveal)) * 1.4rem))
+    scale(calc(0.9 + var(--cta-reveal) * 0.1));
+}
+.homeCtaLabel::before {
+  position: absolute;
+  top: -2.2rem;
+  left: 50%;
+  width: 3.3rem;
+  height: 3rem;
+  content: "";
+  pointer-events: none;
+  background: linear-gradient(180deg, rgb(255 243 161 / 82%), rgb(245 196 0 / 8%));
+  clip-path: polygon(18% 0, 82% 0, 100% 100%, 0 100%);
+  filter: blur(0.3rem);
+  opacity: var(--cta-reveal);
+  transform: translateX(-50%);
+}
+.homeCtaLabel::after {
+  position: absolute;
+  z-index: 0;
+  bottom: -0.7rem;
+  left: 50%;
+  width: 13rem;
+  height: 4rem;
+  content: "";
+  pointer-events: none;
+  background: radial-gradient(
+    ellipse,
+    rgb(245 196 0 / 42%) 0,
+    rgb(245 196 0 / 16%) 42%,
+    transparent 72%
+  );
+  filter: blur(0.35rem);
+  opacity: var(--cta-reveal);
+  transform: translateX(-50%);
+}
+.homeCtaLabel > span {
+  position: relative;
+  z-index: 1;
+  padding-bottom: 0.2rem;
+  border-bottom: 1px solid rgb(255 243 161 / 44%);
 }
 .shadowLine {
   position: absolute;
@@ -690,25 +853,6 @@
   transform: translateX(var(--shadow-reach)) skewX(-38deg);
 }
 
-@keyframes starPulse {
-  from {
-    opacity: 0.34;
-    transform: scale(0.82);
-  }
-  to {
-    opacity: 0.96;
-    transform: scale(1.08);
-  }
-}
-
-@keyframes horizonBreath {
-  from {
-    filter: blur(0);
-  }
-  to {
-    filter: blur(0.35rem);
-  }
-}
 .solarReadout {
   position: absolute;
   z-index: 9;
@@ -727,7 +871,7 @@
   opacity: 0.65;
 }
 
-@media (min-width: 768px) {
+@media (min-width: 768px) and (min-height: 560px) {
   .phaseNavigation {
     top: 50%;
     right: 2rem;
@@ -773,12 +917,19 @@
   }
 }
 
-@media (max-width: 767px) {
+@media (min-width: 768px) and (max-width: 1350px) and (min-height: 560px) {
+  .battery {
+    right: 9vw;
+  }
+}
+
+@media (max-width: 767px), (max-height: 559px) {
   .sunHandle {
-    left: max(12%, var(--sun-x));
+    top: clamp(7.25rem, var(--sun-y), calc(100% - 4rem));
+    left: clamp(3rem, var(--sun-x), calc(100% - 3rem));
     width: 5.25rem;
     height: 5.25rem;
-    transform: translate(-50%, -50%) translateY(1.75rem);
+    transform: translate(-50%, -50%);
     touch-action: auto;
   }
   .sunCore {
@@ -786,25 +937,15 @@
       0 0 0 0.7rem rgb(245 196 0 / 11%),
       0 0 2.4rem 0.85rem rgb(245 196 0 / 29%);
   }
-  .experience[data-sun-settled="true"] .sunHandle {
-    width: 13rem;
-  }
-  .experience[data-phase="morning"] .sunHandle {
-    top: 17%;
-    left: 84%;
-  }
-  .experience[data-phase="golden"] .sunHandle {
-    top: 32%;
-    left: 86%;
-  }
-  .experience[data-phase="sunset"] .sunHandle {
-    top: 77%;
-  }
   .panelField {
-    bottom: -2vh;
-    left: -24vw;
-    width: 86vw;
-    height: 22vh;
+    bottom: 1rem;
+    left: 2vw;
+    width: 68vw;
+    height: 18vh;
+    transform: translate3d(0, calc(var(--terrain-lift) * 0.15), 0) rotateZ(-3deg);
+  }
+  .horizonGlow {
+    left: clamp(3rem, var(--sun-x), calc(100% - 3rem));
   }
   .battery {
     right: 8vw;
@@ -814,35 +955,73 @@
   }
   .nightHome {
     right: auto;
-    bottom: 1vh;
+    bottom: 7vh;
     left: 50%;
     width: 19rem;
-    transform: translateX(-50%) scale(0.78) translateY(calc((1 - var(--night)) * 6rem));
+    transform: translate3d(-50%, calc((1 - var(--night)) * 1rem), 0) scale(0.84);
     transform-origin: 50% 100%;
   }
-  .objectCue {
-    min-width: 10.5rem;
+  .homeCtaLabel {
+    font-size: 0.78rem;
   }
-  .objectCue strong {
-    font-size: 1rem;
+}
+
+@media (max-width: 767px) {
+  .sunHandle {
+    transition:
+      top 70ms linear,
+      left 70ms linear;
   }
-  .panelCue {
-    bottom: 22vh;
-    left: 34vw;
+}
+
+@media (max-height: 559px) and (orientation: landscape) {
+  .panelField {
+    bottom: 0.5rem;
+    left: 2vw;
+    width: 42vw;
+    height: 17vh;
   }
-  .panelCue i {
-    width: 24vw;
+  .nightHome {
+    left: 65%;
   }
-  .batteryCue {
-    right: 32vw;
-    bottom: 20vh;
+  .nightHome {
+    bottom: 3vh;
   }
-  .batteryCue i {
-    width: 18vw;
+  .homeCtaLabel {
+    bottom: -2.3rem;
+    width: 10rem;
+    min-height: 3.3rem;
+    padding: 1rem 0.9rem 0.55rem;
+    font-size: 0.66rem;
   }
-  .energyPath {
-    transform: scaleX(0.9) translateX(75%);
-    transform-origin: center;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .experience[data-phase="predawn"] .horizonGlow {
+    animation: predawn-horizon-breathe 4.8s ease-in-out infinite;
+  }
+  .experience[data-phase="predawn"] .sunCore {
+    animation: predawn-sun-breathe 4.8s ease-in-out infinite;
+  }
+}
+
+@keyframes predawn-horizon-breathe {
+  0%,
+  100% {
+    filter: brightness(0.88) blur(0.15rem);
+  }
+  50% {
+    filter: brightness(1.08) blur(0);
+  }
+}
+
+@keyframes predawn-sun-breathe {
+  0%,
+  100% {
+    filter: brightness(0.94);
+  }
+  50% {
+    filter: brightness(1.04);
   }
 }
 
@@ -853,8 +1032,7 @@
     background: #fcfbf4;
   }
   .stage,
-  .solarControl,
-  .objectCues {
+  .solarControl {
     display: none;
   }
   .chapters {
@@ -878,14 +1056,12 @@
 
 @media (forced-colors: active) {
   .sunHandle,
-  .phaseNavigation {
+  .phaseNavigation,
+  .sceneGateway {
     border: 2px solid ButtonText;
   }
   .sunCore {
     background: Highlight;
     box-shadow: none;
-  }
-  .objectCue {
-    color: LinkText;
   }
 }
