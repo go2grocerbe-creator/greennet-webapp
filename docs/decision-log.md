@@ -1,7 +1,7 @@
 # Decision Log
 
 Status: LIVE — append new ADRs, do not edit history
-Last updated: 2026-07-17
+Last updated: 2026-07-25
 
 Format: one entry per architecturally significant decision. Never delete or rewrite a prior entry — supersede it with a new dated entry that references the old one.
 
@@ -145,6 +145,43 @@ Format: one entry per architecturally significant decision. Never delete or rewr
 **Validation:** `npm run check` passes (lint, typecheck, format, 131 Vitest tests, production build). All 39 Playwright scenarios pass, including continuous environmental response, mobile overflow, reduced motion, keyboard phase navigation, final sun CTA, contact flow states, and existing admin/auth route gates. The solar client chunk is approximately 2.9 KB gzip and its scene CSS approximately 3.7 KB gzip in the production build.
 
 **Unchanged:** Supabase schema/RLS, authentication, admin CRUD, API routes, quotation validation/submission, migrations, and public published-only data access.
+
+## ADR-017 — Solar Solutions editorial architecture over the published CMS catalogue
+
+**Date:** 2026-07-25
+**Status:** Confirmed
+**Decision:** `/services` now publishes a server-rendered editorial Solar Solutions architecture
+using the four client-confirmed pillars (Solar Energy Systems, Project Delivery, Monitoring & System
+Care, EV Charging & Solar Carports), seven detailed capability records, the ordered Discover →
+Assess → Specify → Quote → Install → Support lifecycle, neutral sector pathways and assessment/general
+enquiry calls to action. Typed content lives in `src/lib/content/solar-solutions.ts` and is rendered
+through reusable semantic marketing components. The page continues to obtain CMS service records
+through the existing `getServerServicesDataSource()` → `listServicesForPublic()` path; no second query
+or hardcoded substitute exists. An unavailable source still renders `PublicDataState`; a successful
+empty result leaves the editorial page intact and explains that detailed published service records
+are being prepared.
+
+Contact interest values are expanded to a stable allow-list reflecting the confirmed service
+direction. `/contact?interest=...` preselection occurs only when the server recognizes an allowed
+value; arbitrary query values are ignored, and the shared Zod schema remains authoritative on both
+client and server.
+
+**Rationale:** The client explicitly confirmed the service direction and requested a production-ready
+public information architecture, while ADR-004/013 require public CMS records to remain
+published-only. Separating confirmed editorial architecture from independently published CMS rows
+allows the page to explain GreenNet's solution scope without leaking drafts or inventing catalogue
+records.
+
+**Claim boundaries:** The page does not claim exact warranties, geographic service coverage,
+certifications, supplier authenticity, monitoring/report cadence, structural-engineering sign-off,
+maintenance SLAs, guaranteed savings, performance levels, or product-specific climate ratings.
+Where specialist structural verification may be needed, the copy states that it is identified
+during assessment rather than claiming GreenNet performs or certifies it.
+
+**Accessibility and presentation:** The architecture uses semantic sections, accessible headings,
+ordered lists for true sequences, visible focus states, reduced-motion-safe existing page geometry,
+and mobile-first single-axis layouts. It extends ADR-014's forest/gold editorial system without a new
+runtime dependency, external imagery or a second visual language.
 
 ## Superseded decisions
 

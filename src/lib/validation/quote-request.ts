@@ -15,12 +15,25 @@ import { z } from "zod";
 // unapproved, so this list intentionally does not reuse those names. See
 // docs/content-register.md.
 export const INTERESTED_SOLUTION_OPTIONS = [
+  { value: "complete_solar_system", label: "Complete solar system" },
+  { value: "site_assessment", label: "Site assessment" },
   { value: "installation", label: "Solar installation" },
+  { value: "monitoring_maintenance", label: "Monitoring & maintenance" },
   { value: "products_equipment", label: "Products & equipment" },
-  { value: "maintenance_support", label: "Maintenance & support" },
+  { value: "cabling_mounting", label: "Cabling & mounting" },
+  { value: "ev_charging", label: "EV charging" },
   { value: "general_enquiry", label: "General enquiry" },
   { value: "other", label: "Other" },
 ] as const;
+
+export type InterestedSolutionValue = (typeof INTERESTED_SOLUTION_OPTIONS)[number]["value"];
+
+export function isInterestedSolutionValue(value: unknown): value is InterestedSolutionValue {
+  return (
+    typeof value === "string" &&
+    INTERESTED_SOLUTION_OPTIONS.some((option) => option.value === value)
+  );
+}
 
 export const PROPERTY_TYPE_OPTIONS = [
   { value: "residential", label: "Residential" },
