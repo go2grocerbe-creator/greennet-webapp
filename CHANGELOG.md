@@ -4,21 +4,6 @@ Format loosely follows [Keep a Changelog](https://keepachangelog.com/). Dates ar
 
 ## Unreleased — `migration/nextjs-supabase`
 
-### Fixed — Homepage solar experience stability
-
-- Reduced-motion visitors now receive the homepage as six static, readable scenes in normal document
-  flow. Previously the controller entered enhanced mode regardless of the motion preference, leaving
-  every chapter absolutely positioned at the same offset with its kicker, supporting copy and
-  in-story links hidden by enhanced-only rules that the reduced-motion overrides lacked the
-  specificity to undo.
-- Extracted the canonical solar-phase model to `src/lib/solar/solar-phase.ts` so the environment
-  phase, readable-chapter phase, active navigation step and per-chapter opacity all derive from one
-  set of thresholds, with unit coverage for anchors, transition midpoints and both sides of every
-  boundary.
-- Added a `data-solar-ready` signal so the end-to-end suite waits for the scene to reflect the
-  current scroll position — including React's committed navigation state — instead of a fixed
-  timeout. See `docs/decision-log.md` ADR-018.
-
 ### Added — Production Solar Solutions frontend
 
 - Rebuilt `/services` around four client-confirmed editorial pillars, seven typed detailed

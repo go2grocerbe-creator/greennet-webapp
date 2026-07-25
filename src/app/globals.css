@@ -993,32 +993,23 @@
     top: auto;
     min-height: 78svh;
   }
-  /* The controller stays unenhanced under reduced motion, so these overrides
-     are a safety net for the instant a viewer flips the OS setting with the
-     page already open. They deliberately mirror the specificity of the
-     enhanced-state rules they undo — the earlier versions were one class
-     short and silently lost the cascade, which is what kept the chapter copy
-     hidden (ADR-018). */
-  [data-enhanced="true"] .solar-chapter {
-    position: relative;
-    inset: auto;
-    min-height: 78svh;
-  }
-  [data-enhanced="true"] .solar-chapter .solar-chapter__inner,
+  [data-enhanced="true"] .solar-chapter__inner,
   [data-enhanced="true"] .solar-chapter--night .solar-chapter__inner {
     position: relative;
     inset: auto;
   }
-  [data-enhanced="true"] .solar-chapter :is(.solar-time, .solar-actions) {
+  [data-enhanced="true"] .solar-time,
+  [data-enhanced="true"] .solar-actions {
     display: flex;
   }
-  [data-enhanced="true"] .solar-chapter :is(.solar-kicker, .solar-lede) {
+  [data-enhanced="true"] .solar-kicker,
+  [data-enhanced="true"] .solar-lede {
     display: block;
   }
-  [data-enhanced="true"] .solar-chapter :is(.solar-text-link, .solar-call-link) {
+  [data-enhanced="true"] :is(.solar-text-link, .solar-call-link) {
     display: inline-flex;
   }
-  [data-enhanced="true"] .solar-chapter .solar-chapter__inner {
+  [data-enhanced="true"] .solar-chapter__inner {
     pointer-events: auto;
     opacity: 1;
   }

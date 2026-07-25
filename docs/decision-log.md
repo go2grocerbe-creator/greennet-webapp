@@ -183,22 +183,6 @@ ordered lists for true sequences, visible focus states, reduced-motion-safe exis
 and mobile-first single-axis layouts. It extends ADR-014's forest/gold editorial system without a new
 runtime dependency, external imagery or a second visual language.
 
-## ADR-018 — One canonical solar-phase model, and reduced motion means unenhanced
-
-**Date:** 2026-07-25
-**Status:** Confirmed
-**Decision:** Two homepage rules from ADR-014 are made explicit in code rather than left implicit in the controller.
-
-First, **reduced motion now means the solar experience stays unenhanced.** `SolarExperience` sets `data-enhanced="true"` only when `prefers-reduced-motion` does not match, and re-evaluates when the setting changes. Enhanced mode is what pins the six chapters into one stacked, phase-gated scene; because the controller never animates under reduced motion, entering it left every chapter absolutely positioned at the same offset with its supporting copy hidden by enhanced-only rules. Reduced-motion viewers now receive the server-rendered static document, which is what progressive enhancement was supposed to give them. The reduced-motion overrides in `globals.css` are kept as a safety net for a mid-session setting change, and their specificity is corrected to match the enhanced rules they undo.
-
-Second, **all phase-derived output comes from one pure module**, `src/lib/solar/solar-phase.ts`: thresholds, chapter windows, `getSolarEnvironmentPhase`, `getSolarChapterOpacity`, `getSolarTextPhase`/`getActiveSolarPhase`, the phase anchors and the derived transition midpoints. `data-phase`, `data-text-phase`, the `aria-current="step"` navigation marker and the `--opacity-*` custom properties all read from it, so no two consumers can disagree at a boundary. The e2e suite samples the same exported anchors and midpoints instead of hard-coded numbers. One real inconsistency was removed in the process: the text phase previously flipped at opacity `> 0` while "readable" is defined everywhere else as `> 0.05`, so the two could disagree inside a fade tail.
-
-The controller additionally publishes `data-solar-ready`, which reads `"false"` while an animation frame is outstanding or a React commit is pending, and `"true"` only once the DOM — including the React-rendered navigation state — reflects the current scroll position. This exists because `data-text-phase` is written synchronously in the animation frame while `aria-current` lands a commit later; tests wait on that signal plus a rendered-versus-live progress check rather than on a fixed timeout.
-
-**Rationale:** Both defects were invisible locally and surfaced only as a red CI job — a deterministic reduced-motion failure and an intermittent phase-boundary failure. Fixing the cascade and the state model addresses the causes; the readiness signal removes the timing guess from the tests without weakening a single assertion.
-
-**Unchanged:** the standard-motion visual design, scroll-driven environment, drag/keyboard sun navigation, one-controller/CSS-variable approach, semantic server-rendered chapters, approved copy, and every route, dependency and backend behavior. No animation framework, WebGL or runtime dependency was added.
-
 ## Superseded decisions
 
 None yet.
