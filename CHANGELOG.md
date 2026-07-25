@@ -4,6 +4,20 @@ Format loosely follows [Keep a Changelog](https://keepachangelog.com/). Dates ar
 
 ## Unreleased — `migration/nextjs-supabase`
 
+### Added — Production Solar Solutions frontend
+
+- Rebuilt `/services` around four client-confirmed editorial pillars, seven typed detailed
+  capabilities, an ordered six-stage lifecycle, neutral sector pathways and assessment/general
+  enquiry calls to action.
+- Preserved the existing published-only
+  `getServerServicesDataSource()` → `listServicesForPublic()` CMS path. Editorial content remains
+  visible when the catalogue is empty or unavailable; draft records are never substituted or
+  exposed.
+- Expanded the quotation interest allow-list and added safe `/contact?interest=...` preselection.
+  Unknown query values are ignored and server-side Zod validation remains unchanged in authority.
+- Added responsive, keyboard-visible and semantic test coverage for the new page at 320px and 390px,
+  plus unit coverage for stable interest values and reusable editorial components.
+
 ### Changed — Public website redesign: "The Sun Is the Interface"
 
 - Rebuilt the public homepage as one scroll-driven solar day: Morning, Noon, Golden Hour, Sunset, and Night. A single accessible sun control tracks progress, supports desktop pointer dragging and keyboard phase navigation, and transforms into the final quotation action.

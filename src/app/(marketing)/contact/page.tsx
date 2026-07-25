@@ -5,14 +5,29 @@ import { QuoteForm } from "@/components/contact/quote-form";
 import { SolarPageHero } from "@/components/marketing/solar-page-hero";
 import { Container } from "@/components/ui/container";
 import { siteConfig } from "@/lib/config";
+import {
+  isInterestedSolutionValue,
+  type InterestedSolutionValue,
+} from "@/lib/validation/quote-request";
 
 export const metadata: Metadata = {
   title: "Contact",
   description: "Get in touch with GreenNet Energy or request a solar quotation.",
 };
 
-export default function ContactPage() {
+type ContactPageProps = {
+  searchParams: Promise<{ interest?: string | string[] }>;
+};
+
+export default async function ContactPage({ searchParams }: ContactPageProps) {
   const turnstileSiteKey = process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY;
+  const interestParam = (await searchParams).interest;
+  const requestedInterest = Array.isArray(interestParam) ? interestParam[0] : interestParam;
+  const initialInterestedSolution: InterestedSolutionValue | undefined = isInterestedSolutionValue(
+    requestedInterest,
+  )
+    ? requestedInterest
+    : undefined;
 
   return (
     <>
@@ -60,7 +75,10 @@ export default function ContactPage() {
             <h2 id="enquiry-form-title">Tell us what you need.</h2>
             <span>Fields marked * are required.</span>
           </div>
-          <QuoteForm turnstileSiteKey={turnstileSiteKey} />
+          <QuoteForm
+            turnstileSiteKey={turnstileSiteKey}
+            initialInterestedSolution={initialInterestedSolution}
+          />
         </section>
       </Container>
     </>

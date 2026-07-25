@@ -1,7 +1,7 @@
 # Content Register
 
 Status: DRAFT
-Last updated: 2026-07-17
+Last updated: 2026-07-25
 
 Inventory of every content element currently in the static demo (`index.html`) and the source flyer (`docs/source-materials/Greennet Energy.jpeg`), classified for production reuse.
 
@@ -26,6 +26,37 @@ Classification key: CONFIRMED (verified real fact) / RECOMMENDED (safe to keep a
 Solar Installation Services; Solar Panels & Inverters; Batteries & Solar Accessories; Residential & Commercial Solar Solutions; Solar System Maintenance; Solar Products Distribution.
 
 Classification: **ASSUMPTION**. Matches both demo and flyer consistently, but the discovery workbook's "which services must appear on the website at launch" question is unanswered — treat this list as a strong starting draft, not a confirmed final Solar Solutions / Products scope.
+
+## Solar Solutions direction (July 2026 client confirmation)
+
+The client explicitly supplied and confirmed four editorial solution pillars:
+
+1. Solar Energy Systems
+2. Project Delivery
+3. Monitoring & System Care
+4. EV Charging & Solar Carports
+
+The client also supplied the detailed capability direction represented by Professional Site
+Assessment; Sales & Turnkey Installation; Monitoring: Diagnosis & Reporting; High-Grade Cabling
+Solutions; Solar Mount & Structural Support; Car Charging Stations / EV Integration; and
+Maintenance & Technical Support.
+
+Classification: **CONFIRMED service direction and naming**. This confirmation supersedes the legacy
+six-item demo list as the public page's editorial architecture. It does not turn unsupported
+operating claims into facts. Exact warranties, service areas, certifications, suppliers,
+monitoring-alert/report cadence, structural-engineering sign-off, maintenance SLAs, savings, and
+performance guarantees remain **MISSING/BLOCKED for claim-level publication**.
+
+Safe implementation guidance:
+
+- Describe capabilities and customer value neutrally.
+- State that specialist structural verification is identified where required; do not claim GreenNet
+  provides certification or engineering sign-off.
+- Use "warranty coordination where applicable," never an exact warranty promise without
+  documentation.
+- Sector pathways may describe intended relevance but must not imply completed GreenNet projects.
+- The editorial architecture may publish independently of the CMS catalogue. CMS service rows remain
+  governed by draft/published status and public RLS filtering.
 
 ## "Why choose us" claims (6 items, demo + flyer match)
 
@@ -72,12 +103,12 @@ Full audit of these is in `docs/current-demo-audit.md`.
 
 Added building the `/contact` flow (`docs/decision-log.md` ADR-010). All of the following is placeholder-grade, deliberately neutral, and must be reviewed before being treated as final:
 
-| Element                                                                                                    | Value                                                                                       | Classification                                                                                                                                                                                                                                                                                                                                                                                                                                      |
-| ---------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Page heading/description                                                                                   | "Contact us / Request a quotation" + one neutral sentence                                   | RECOMMENDED — no business claims, safe to keep as-is or swap freely                                                                                                                                                                                                                                                                                                                                                                                 |
-| `INTERESTED_SOLUTION_OPTIONS` labels (`src/lib/validation/quote-request.ts`)                               | Solar installation / Products & equipment / Maintenance & support / General enquiry / Other | **RECOMMENDED placeholder — deliberately not the draft `services` names.** The 6 service names elsewhere in this register are still ASSUMPTION/unapproved; reusing them as form option labels would have doubled down on unapproved copy. These 5 neutral categories exist only to make the form usable now — swap for the client-approved service list once `docs/requirements-register.md` §5 "which services must appear at launch" is answered. |
-| Success/acknowledgement-email copy ("we've received your enquiry... someone from our team will follow up") | RECOMMENDED                                                                                 | No response-time promise (unconfirmed), no pricing/savings/warranty claim — see requirements register §5                                                                                                                                                                                                                                                                                                                                            |
-| Notification email recipient default (`siteConfig.contact.email` fallback)                                 | CONFIRMED                                                                                   | Uses the one verified business email fact already in this register's "Company identity" table — not new content                                                                                                                                                                                                                                                                                                                                     |
+| Element                                                                                                    | Value                                                                                                                                                                       | Classification                                                                                                                                                                                                                                              |
+| ---------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Page heading/description                                                                                   | "Contact us / Request a quotation" + one neutral sentence                                                                                                                   | RECOMMENDED — no business claims, safe to keep as-is or swap freely                                                                                                                                                                                         |
+| `INTERESTED_SOLUTION_OPTIONS` labels (`src/lib/validation/quote-request.ts`)                               | Complete solar system / Site assessment / Solar installation / Monitoring & maintenance / Products & equipment / Cabling & mounting / EV charging / General enquiry / Other | **CONFIRMED direction, neutral form labels.** Values are stable, server-validated and safe for query-string preselection only after allow-list validation. Labels reflect the July 2026 client-confirmed service direction without adding operating claims. |
+| Success/acknowledgement-email copy ("we've received your enquiry... someone from our team will follow up") | RECOMMENDED                                                                                                                                                                 | No response-time promise (unconfirmed), no pricing/savings/warranty claim — see requirements register §5                                                                                                                                                    |
+| Notification email recipient default (`siteConfig.contact.email` fallback)                                 | CONFIRMED                                                                                                                                                                   | Uses the one verified business email fact already in this register's "Company identity" table — not new content                                                                                                                                             |
 
 ## Summary
 

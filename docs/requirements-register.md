@@ -1,7 +1,7 @@
 # Requirements Register
 
 Status: DRAFT
-Last updated: 2026-07-17
+Last updated: 2026-07-25
 
 Classification key:
 
@@ -44,6 +44,26 @@ Classification key:
 | Projects                      | CONFIRMED              | Depends on MISSING real project photography (§5) — BLOCKED for "featured/real" content, not blocked for schema/UI build |
 | Contact / Request a Quotation | CONFIRMED              | Field list depends on MISSING quotation-requirements facts (§5)                                                         |
 | Blog                          | CONFIRMED OUT OF SCOPE | "unless later confirmed" — treat as not building until explicit go-ahead                                                |
+
+### 2.1 Solar Solutions editorial direction
+
+The client explicitly supplied and confirmed the following service direction in the July 2026
+project conversation:
+
+| Pillar                       | Classification | Confirmed direction                                                                                                |
+| ---------------------------- | -------------- | ------------------------------------------------------------------------------------------------------------------ |
+| Solar Energy Systems         | CONFIRMED      | Solar generation; inverters and battery storage; cabling and protection; commercial and residential configurations |
+| Project Delivery             | CONFIRMED      | Site assessment; system planning; mounting structures; installation and handover                                   |
+| Monitoring & System Care     | CONFIRMED      | Monitoring; diagnostic review; maintenance; warranty coordination where applicable                                 |
+| EV Charging & Solar Carports | CONFIRMED      | EV charging; load management; solar carports; future expansion planning                                            |
+| Six-stage project lifecycle  | CONFIRMED      | Discover → Assess → Specify → Quote → Install → Support                                                            |
+| Sector pathways              | CONFIRMED      | Industrial/production, hospitality, commercial property, developers/estates, and premium homes as neutral pathways |
+
+These confirmations authorize the editorial Solar Solutions architecture and neutral descriptions.
+They do **not** confirm project history in any sector, geographic service coverage, exact warranties,
+maintenance SLAs, monitoring-alert cadence, structural certification/sign-off, supplier
+authenticity, savings, performance guarantees, or product-specific climate ratings. Those remain
+MISSING until supported by client-approved operating terms or product documentation.
 
 ## 3. Functional requirements
 
@@ -100,13 +120,17 @@ None of the following have recorded answers. All are needed for accurate content
 
 **Services & positioning**
 
-- Which services must appear at launch (site currently lists 6 — unconfirmed as final)
+- Detailed operating terms within the confirmed Solar Solutions pillars, including the exact
+  boundaries between assessment, installation, monitoring, maintenance, EV charging and carport work
 - Core reason to choose GreenNet over competitors
 - Product brands sold/installed/recommended (BLOCKS Products page content and brand-usage permissions)
 - Warranty / maintenance / after-sales support terms (BLOCKS "Why choose us" claims and legal accuracy)
 - Common objections prospects raise
 - Whether GreenNet offers financing/payment plans/maintenance contracts
 - Any services that should NOT be promoted publicly
+- Whether GreenNet provides structural-engineering sign-off directly or refers this to an
+  appropriately qualified specialist
+- Monitoring alert/report cadence and maintenance response expectations
 
 **Trust & content assets**
 

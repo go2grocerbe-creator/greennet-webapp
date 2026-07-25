@@ -2,6 +2,8 @@ import { describe, expect, it } from "vitest";
 
 import {
   HONEYPOT_FIELD_NAME,
+  INTERESTED_SOLUTION_OPTIONS,
+  isInterestedSolutionValue,
   quoteRequestSchema,
   quoteSubmissionSchema,
 } from "@/lib/validation/quote-request";
@@ -22,6 +24,32 @@ const validPayload = {
 };
 
 describe("quoteRequestSchema", () => {
+  it("accepts every documented interested-solution value", () => {
+    for (const option of INTERESTED_SOLUTION_OPTIONS) {
+      expect(
+        quoteRequestSchema.safeParse({
+          ...validPayload,
+          interestedSolution: option.value,
+        }).success,
+      ).toBe(true);
+      expect(isInterestedSolutionValue(option.value)).toBe(true);
+    }
+  });
+
+  it("keeps the interested-solution values stable", () => {
+    expect(INTERESTED_SOLUTION_OPTIONS.map((option) => option.value)).toEqual([
+      "complete_solar_system",
+      "site_assessment",
+      "installation",
+      "monitoring_maintenance",
+      "products_equipment",
+      "cabling_mounting",
+      "ev_charging",
+      "general_enquiry",
+      "other",
+    ]);
+  });
+
   it("accepts a valid submission and trims/normalizes optional fields", () => {
     const result = quoteRequestSchema.safeParse(validPayload);
     expect(result.success).toBe(true);
@@ -96,6 +124,7 @@ describe("quoteRequestSchema", () => {
       interestedSolution: "some-unapproved-service-name",
     });
     expect(result.success).toBe(false);
+    expect(isInterestedSolutionValue("some-unapproved-service-name")).toBe(false);
   });
 });
 

@@ -15,6 +15,7 @@ import {
   PROJECT_TIMELINE_OPTIONS,
   PROPERTY_TYPE_OPTIONS,
   quoteRequestSchema,
+  type InterestedSolutionValue,
   type QuoteRequestInput,
   type QuoteRequestValues,
 } from "@/lib/validation/quote-request";
@@ -23,6 +24,7 @@ import { TurnstileWidget } from "./turnstile-widget";
 
 type QuoteFormProps = {
   turnstileSiteKey?: string;
+  initialInterestedSolution?: InterestedSolutionValue;
 };
 
 type SubmitState =
@@ -50,7 +52,7 @@ function selectClassName() {
   return "h-11 w-full min-w-0 rounded-lg border border-input bg-transparent px-3 py-1 text-base transition-colors outline-none focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50 md:text-sm";
 }
 
-export function QuoteForm({ turnstileSiteKey }: QuoteFormProps) {
+export function QuoteForm({ turnstileSiteKey, initialInterestedSolution }: QuoteFormProps) {
   const {
     register,
     handleSubmit,
@@ -59,6 +61,9 @@ export function QuoteForm({ turnstileSiteKey }: QuoteFormProps) {
     formState: { errors, isSubmitting },
   } = useForm<QuoteRequestInput, unknown, QuoteRequestValues>({
     resolver: zodResolver(quoteRequestSchema),
+    defaultValues: {
+      interestedSolution: initialInterestedSolution,
+    },
     // We manage focus ourselves (move to the error summary, not the
     // first invalid field) — see onInvalid below.
     shouldFocusError: false,

@@ -18,6 +18,18 @@ test.describe("Contact / Request a quotation page", () => {
     await expect(page.getByRole("button", { name: /send enquiry/i })).toBeVisible();
   });
 
+  test("preselects an allowed interest from the URL", async ({ page }) => {
+    await page.goto("/contact?interest=site_assessment");
+
+    await expect(page.getByLabel(/interested solution/i)).toHaveValue("site_assessment");
+  });
+
+  test("ignores an unrecognized interest from the URL", async ({ page }) => {
+    await page.goto("/contact?interest=owner_only_value");
+
+    await expect(page.getByLabel(/interested solution/i)).toHaveValue("");
+  });
+
   test("keyboard navigation never focuses the hidden honeypot field", async ({ page }) => {
     await page.goto("/contact");
     await page.getByLabel(/full name/i).focus();
