@@ -3,62 +3,21 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 
 import { SunScene } from "@/components/marketing/sun-scene";
+import {
+  clamp,
+  getSolarChapterOpacity,
+  getSolarEnvironmentPhase,
+  getSolarTextPhase,
+  solarChapterWindows,
+  solarPhases,
+  type SolarPhaseId,
+} from "@/lib/solar/solar-phase";
 
 import styles from "./solar-experience.module.css";
 
-const phases = [
-  { id: "predawn", label: "Pre-dawn", progress: 0 },
-  { id: "morning", label: "Morning", progress: 0.19 },
-  { id: "noon", label: "Noon", progress: 0.38 },
-  { id: "golden", label: "Golden hour", progress: 0.57 },
-  { id: "sunset", label: "Sunset", progress: 0.76 },
-  { id: "night", label: "Night", progress: 1 },
-] as const;
+const phases = solarPhases;
 
-type PhaseId = (typeof phases)[number]["id"];
-
-type ChapterWindow = {
-  id: PhaseId;
-  start: number;
-  holdStart: number;
-  holdEnd: number;
-  end: number;
-};
-
-const chapterWindows: readonly ChapterWindow[] = [
-  { id: "predawn", start: 0, holdStart: 0, holdEnd: 0.045, end: 0.065 },
-  { id: "morning", start: 0.17, holdStart: 0.18, holdEnd: 0.22, end: 0.235 },
-  { id: "noon", start: 0.36, holdStart: 0.37, holdEnd: 0.41, end: 0.425 },
-  { id: "golden", start: 0.55, holdStart: 0.56, holdEnd: 0.6, end: 0.615 },
-  { id: "sunset", start: 0.74, holdStart: 0.75, holdEnd: 0.79, end: 0.805 },
-  { id: "night", start: 0.925, holdStart: 0.94, holdEnd: 1, end: 1 },
-] as const;
-
-function clamp(value: number, min = 0, max = 1) {
-  return Math.min(max, Math.max(min, value));
-}
-
-function phaseForProgress(progress: number): PhaseId {
-  if (progress < 0.1) return "predawn";
-  if (progress < 0.3) return "morning";
-  if (progress < 0.5) return "noon";
-  if (progress < 0.7) return "golden";
-  if (progress < 0.88) return "sunset";
-  return "night";
-}
-
-function chapterOpacity(progress: number, window: ChapterWindow) {
-  if (progress < window.start || progress > window.end) return 0;
-  if (progress < window.holdStart) {
-    return clamp((progress - window.start) / Math.max(0.001, window.holdStart - window.start));
-  }
-  if (progress <= window.holdEnd) return 1;
-  return clamp((window.end - progress) / Math.max(0.001, window.end - window.holdEnd));
-}
-
-function visiblePhaseForProgress(progress: number): PhaseId | null {
-  return chapterWindows.find((window) => chapterOpacity(progress, window) > 0)?.id ?? null;
-}
+type PhaseId = SolarPhaseId;
 
 /**
  * The one client controller for the solar story. Native scroll remains the
@@ -90,13 +49,31 @@ export function SolarExperience({ children }: { children: React.ReactNode }) {
     const root = rootRef.current;
     if (!root) return;
 
-    root.dataset.enhanced = "true";
     const reducedQuery = window.matchMedia("(prefers-reduced-motion: reduce)");
     let frame = 0;
     let visible = true;
     let lastPhase: PhaseId = "predawn";
     let lastVisiblePhase: PhaseId | null = "predawn";
     let wasSettled = false;
+
+    /**
+     * Enhanced mode is what pins the chapters into one stacked, phase-gated
+     * scene. Under reduced motion the controller never animates, so entering
+     * it would leave the chapters overlapping with their supporting copy
+     * hidden by the enhanced-only rules. Staying unenhanced hands those users
+     * the server-rendered static document instead — progressive enhancement
+     * as ADR-014 intends, rather than a second set of overrides fighting the
+     * enhanced cascade on specificity.
+     */
+    const applyEnhancedState = () => {
+      if (reducedQuery.matches) {
+        delete root.dataset.enhanced;
+        delete root.dataset.solarReady;
+        return;
+      }
+      root.dataset.enhanced = "true";
+    };
+    applyEnhancedState();
 
     const render = () => {
       frame = 0;
@@ -120,15 +97,15 @@ export function SolarExperience({ children }: { children: React.ReactNode }) {
       const endpointLift =
         endpointLiftProgress * endpointLiftProgress * (3 - 2 * endpointLiftProgress);
       const sunY = baseY * (1 - endpointLift) + 70 * endpointLift;
-      const nextPhase = phaseForProgress(progress);
-      const nextVisiblePhase = visiblePhaseForProgress(progress);
+      const nextPhase = getSolarEnvironmentPhase(progress);
+      const nextVisiblePhase = getSolarTextPhase(progress);
       const nextSettled = progress >= 0.997;
 
       root.style.setProperty("--solar-progress", progress.toFixed(4));
-      for (const window of chapterWindows) {
+      for (const window of solarChapterWindows) {
         root.style.setProperty(
           `--opacity-${window.id}`,
-          chapterOpacity(progress, window).toFixed(4),
+          getSolarChapterOpacity(progress, window).toFixed(4),
         );
       }
       root.style.setProperty("--sun-x", `${sunX.toFixed(2)}%`);
@@ -163,6 +140,16 @@ export function SolarExperience({ children }: { children: React.ReactNode }) {
       root.style.setProperty("--shadow-reach", `${((0.5 - daylight) * 56).toFixed(2)}vw`);
       root.style.setProperty("--camera-tilt", `${((progress - 0.5) * 7).toFixed(2)}deg`);
 
+      // `data-text-phase` is written synchronously here, but the matching
+      // `aria-current="step"` marker is React-rendered and only lands on the
+      // next commit. Anything that needs the whole scene to agree — the e2e
+      // suite included — waits for `data-solar-ready`, which stays "false"
+      // until that commit has happened.
+      const awaitsCommit =
+        nextPhase !== lastPhase ||
+        nextVisiblePhase !== lastVisiblePhase ||
+        nextSettled !== wasSettled;
+
       if (nextPhase !== lastPhase) {
         lastPhase = nextPhase;
         root.dataset.phase = nextPhase;
@@ -179,9 +166,17 @@ export function SolarExperience({ children }: { children: React.ReactNode }) {
         root.dataset.sunSettled = nextSettled ? "true" : "false";
         setSunSettled(nextSettled);
       }
+
+      // Nothing was queued for React, so what is already in the DOM is the
+      // finished result for this scroll position.
+      if (!awaitsCommit) root.dataset.solarReady = "true";
     };
 
     const requestRender = () => {
+      if (reducedQuery.matches) return;
+      // A frame is outstanding: the DOM no longer reflects the current scroll
+      // position until `render` runs.
+      root.dataset.solarReady = "false";
       if (!frame) frame = requestAnimationFrame(render);
     };
     const observer = new IntersectionObserver(([entry]) => {
@@ -190,18 +185,34 @@ export function SolarExperience({ children }: { children: React.ReactNode }) {
     });
     observer.observe(root);
 
+    const handleReducedChange = () => {
+      applyEnhancedState();
+      requestRender();
+    };
+
     render();
     window.addEventListener("scroll", requestRender, { passive: true });
     window.addEventListener("resize", requestRender, { passive: true });
-    reducedQuery.addEventListener("change", requestRender);
+    reducedQuery.addEventListener("change", handleReducedChange);
     return () => {
       observer.disconnect();
       window.removeEventListener("scroll", requestRender);
       window.removeEventListener("resize", requestRender);
-      reducedQuery.removeEventListener("change", requestRender);
+      reducedQuery.removeEventListener("change", handleReducedChange);
       if (frame) cancelAnimationFrame(frame);
     };
   }, []);
+
+  /**
+   * Runs after every commit that can change the rendered phase, so the marker
+   * only reads "true" once the DOM genuinely reflects the latest computed
+   * phase — including the `aria-current="step"` navigation state.
+   */
+  useEffect(() => {
+    const root = rootRef.current;
+    if (!root || root.dataset.enhanced !== "true") return;
+    root.dataset.solarReady = "true";
+  }, [visiblePhase, phase, sunSettled]);
 
   const selectPhase = (target: (typeof phases)[number]) => {
     setNavOpen(false);
