@@ -486,7 +486,7 @@
 }
 [data-enhanced="true"]
   :is(.solar-chapter--morning, .solar-chapter--noon, .solar-chapter--golden, .solar-chapter--sunset)
-  :is(.solar-time, .solar-kicker, .solar-lede, .solar-text-link),
+  :is(.solar-time, .solar-kicker, .solar-lede),
 [data-enhanced="true"] .solar-chapter--predawn :is(.solar-lede, .solar-actions),
 [data-enhanced="true"] .solar-chapter--night .solar-kicker {
   display: none;

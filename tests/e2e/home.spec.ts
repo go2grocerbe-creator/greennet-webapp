@@ -1,4 +1,56 @@
-import { expect, test } from "@playwright/test";
+import { expect, type Page, test } from "@playwright/test";
+
+async function moveSolarStoryTo(page: Page, progress: number) {
+  await page.evaluate((targetProgress) => {
+    const root = document.querySelector<HTMLElement>('[aria-label="A solar day"]');
+    if (!root) return;
+    document.documentElement.style.scrollBehavior = "auto";
+    const top = window.scrollY + root.getBoundingClientRect().top;
+    window.scrollTo({
+      top: top + targetProgress * (root.offsetHeight - window.innerHeight),
+      behavior: "auto",
+    });
+  }, progress);
+}
+
+async function expectSolarTextPhase(page: Page, phase: string) {
+  await expect
+    .poll(async () =>
+      page.locator('[aria-label="A solar day"]').evaluate((root) => root.dataset.textPhase),
+    )
+    .toBe(phase);
+}
+
+async function openSolarHome(page: Page) {
+  await page.goto("/");
+  await expect(page.locator('[aria-label="A solar day"][data-enhanced="true"]')).toBeAttached();
+  await page.evaluate(() => window.scrollTo({ top: 0, behavior: "auto" }));
+}
+
+async function expectNoCollision(page: Page, linkSelector: string, headingSelector: string) {
+  await expect
+    .poll(async () =>
+      page.evaluate(
+        ({ linkSelector, headingSelector }) => {
+          const link = document.querySelector<HTMLElement>(linkSelector);
+          const heading = document.querySelector<HTMLElement>(headingSelector);
+          const sun = document.querySelector<HTMLElement>(
+            'button[aria-controls="solar-phase-navigation"]',
+          );
+          if (!link || !heading || !sun) return true;
+          const overlaps = (a: DOMRect, b: DOMRect) =>
+            a.left < b.right && a.right > b.left && a.top < b.bottom && a.bottom > b.top;
+          const linkBox = link.getBoundingClientRect();
+          return (
+            overlaps(linkBox, heading.getBoundingClientRect()) ||
+            overlaps(linkBox, sun.getBoundingClientRect())
+          );
+        },
+        { linkSelector, headingSelector },
+      ),
+    )
+    .toBe(false);
+}
 
 test("home page renders the hero with the confirmed brand tagline", async ({ page }) => {
   await page.goto("/");
@@ -207,4 +259,87 @@ test("unknown route renders the not-found page", async ({ page }) => {
   const response = await page.goto("/this-route-does-not-exist");
   expect(response?.status()).toBe(404);
   await expect(page.getByRole("heading", { name: /page not found/i })).toBeVisible();
+});
+
+test.describe("story links", () => {
+  test("show the in-story navigation links in their intended phases without overflow", async ({
+    page,
+  }) => {
+    for (const viewport of [
+      { width: 1440, height: 900 },
+      { width: 390, height: 844 },
+      { width: 320, height: 844 },
+    ]) {
+      await page.setViewportSize(viewport);
+      await openSolarHome(page);
+
+      await moveSolarStoryTo(page, 0.2);
+      await expectSolarTextPhase(page, "morning");
+      const servicesLink = page.getByRole("link", { name: /explore solar solutions/i });
+      await expect(servicesLink).toBeVisible();
+      await expect(servicesLink).toHaveAttribute("href", "/services");
+      await servicesLink.focus();
+      await expect(servicesLink).toBeFocused();
+      await expectNoCollision(page, ".solar-chapter--morning .solar-text-link", "#morning-title");
+
+      await moveSolarStoryTo(page, 0.58);
+      await expectSolarTextPhase(page, "golden");
+      const productsLink = page.getByRole("link", { name: /see products/i });
+      await expect(productsLink).toBeVisible();
+      await expect(productsLink).toHaveAttribute("href", "/products");
+      await productsLink.focus();
+      await expect(productsLink).toBeFocused();
+      await expectNoCollision(page, ".solar-chapter--golden .solar-text-link", "#golden-title");
+
+      const hasHorizontalOverflow = await page.evaluate(
+        () => document.documentElement.scrollWidth > document.documentElement.clientWidth,
+      );
+      expect(hasHorizontalOverflow).toBe(false);
+    }
+  });
+
+  test("navigate to the intended public routes", async ({ page }) => {
+    await openSolarHome(page);
+    await moveSolarStoryTo(page, 0.2);
+    await expectSolarTextPhase(page, "morning");
+    await page.getByRole("link", { name: /explore solar solutions/i }).click();
+    await expect(page).toHaveURL(/\/services$/);
+
+    await openSolarHome(page);
+    await moveSolarStoryTo(page, 0.58);
+    await expectSolarTextPhase(page, "golden");
+    await page.getByRole("link", { name: /see products/i }).click();
+    await expect(page).toHaveURL(/\/products$/);
+  });
+
+  test("preserve sun drag, keyboard phase navigation, and the final night action", async ({
+    page,
+  }) => {
+    await openSolarHome(page);
+    const root = page.locator('[aria-label="A solar day"]');
+    const sun = page.getByRole("button", { name: /open solar day navigation/i });
+    await sun.focus();
+    await page.keyboard.press("ArrowDown");
+    await expect
+      .poll(async () => root.evaluate((element) => element.dataset.phase))
+      .toBe("morning");
+
+    const box = await sun.boundingBox();
+    expect(box).not.toBeNull();
+    if (!box) return;
+    await page.mouse.move(box.x + box.width / 2, box.y + box.height / 2);
+    await page.mouse.down();
+    await page.mouse.move(page.viewportSize()!.width * 0.72, box.y + box.height / 2, { steps: 8 });
+    await page.mouse.up();
+    await expect
+      .poll(async () => root.evaluate((element) => element.dataset.phase))
+      .not.toBe("predawn");
+
+    await sun.focus();
+    await page.keyboard.press("End");
+    const finalSun = page.getByRole("button", { name: /night\. request a quotation/i });
+    await expect(finalSun).toBeVisible();
+    await finalSun.click();
+    await expect(page).toHaveURL(/\/contact$/);
+  });
 });
