@@ -1,16 +1,77 @@
 import { expect, type Page, test } from "@playwright/test";
 
+/**
+ * Scrolls the story to a progress value using the same mapping as the
+ * controller (`getStoryDistance`: total height minus one viewport minus
+ * the 0.9-viewport settled-night hold), then waits until the controller
+ * reports the scene has caught up — the rendered `--solar-progress`
+ * matches the live scroll position and `data-solar-ready` confirms the
+ * React commit (aria-current) has landed.
+ */
 async function moveSolarStoryTo(page: Page, progress: number) {
   await page.evaluate((targetProgress) => {
     const root = document.querySelector<HTMLElement>('[aria-label="A solar day"]');
     if (!root) return;
     document.documentElement.style.scrollBehavior = "auto";
     const top = window.scrollY + root.getBoundingClientRect().top;
-    window.scrollTo({
-      top: top + targetProgress * (root.offsetHeight - window.innerHeight),
-      behavior: "auto",
-    });
+    const distance = Math.max(
+      1,
+      root.offsetHeight - window.innerHeight - Math.round(window.innerHeight * 0.9),
+    );
+    window.scrollTo({ top: top + targetProgress * distance, behavior: "auto" });
   }, progress);
+  await page.waitForFunction(() => {
+    const root = document.querySelector<HTMLElement>('[aria-label="A solar day"]');
+    if (!root || root.dataset.solarReady !== "true") return false;
+    const rect = root.getBoundingClientRect();
+    const distance = Math.max(
+      1,
+      root.offsetHeight - window.innerHeight - Math.round(window.innerHeight * 0.9),
+    );
+    const live = Math.min(1, Math.max(0, -rect.top / distance));
+    const rendered = Number.parseFloat(getComputedStyle(root).getPropertyValue("--solar-progress"));
+    return Number.isFinite(rendered) && Math.abs(live - rendered) < 0.001;
+  });
+}
+
+/**
+ * Waits until an element's bounding box has been unchanged across three
+ * consecutive samples 120ms apart — roughly 240ms of stillness. The sun
+ * animates into its settled position over a 650ms CSS transition, and two
+ * adjacent animation frames can round to the same box mid-flight, so
+ * geometry assertions need sustained stillness rather than a single
+ * frame-to-frame match.
+ */
+async function waitForStableBox(page: Page, selector: string) {
+  await page.waitForFunction(
+    (sel) => {
+      const element = document.querySelector<HTMLElement>(sel);
+      if (!element) return false;
+      const box = element.getBoundingClientRect();
+      const key = `${Math.round(box.left)},${Math.round(box.top)},${Math.round(
+        box.width,
+      )},${Math.round(box.height)}`;
+      const store = window as unknown as {
+        __boxes?: Record<string, { key: string; hits: number }>;
+      };
+      store.__boxes ??= {};
+      const previous = store.__boxes[sel];
+      const hits = previous && previous.key === key ? previous.hits + 1 : 0;
+      store.__boxes[sel] = { key, hits };
+      return hits >= 2;
+    },
+    selector,
+    { polling: 120 },
+  );
+}
+
+async function readSceneVariable(page: Page, name: string): Promise<number> {
+  return page
+    .locator('[aria-label="A solar day"]')
+    .evaluate(
+      (root, variable) => Number.parseFloat(getComputedStyle(root).getPropertyValue(variable)),
+      name,
+    );
 }
 
 async function expectSolarTextPhase(page: Page, phase: string) {
@@ -74,6 +135,7 @@ async function expectStoryLinksSkippedByTab(page: Page) {
 async function openSolarHome(page: Page) {
   await page.goto("/");
   await expect(page.locator('[aria-label="A solar day"][data-enhanced="true"]')).toBeAttached();
+  await page.evaluate(() => document.fonts.ready);
   await page.evaluate(() => window.scrollTo({ top: 0, behavior: "auto" }));
 }
 
@@ -88,12 +150,12 @@ async function expectNoCollision(page: Page, linkSelector: string, headingSelect
             'button[aria-controls="solar-phase-navigation"]',
           );
           if (!link || !heading || !sun) return true;
-          const overlaps = (a: DOMRect, b: DOMRect) =>
+          const overlap = (a: DOMRect, b: DOMRect) =>
             a.left < b.right && a.right > b.left && a.top < b.bottom && a.bottom > b.top;
           const linkBox = link.getBoundingClientRect();
           return (
-            overlaps(linkBox, heading.getBoundingClientRect()) ||
-            overlaps(linkBox, sun.getBoundingClientRect())
+            overlap(linkBox, heading.getBoundingClientRect()) ||
+            overlap(linkBox, sun.getBoundingClientRect())
           );
         },
         { linkSelector, headingSelector },
@@ -138,7 +200,7 @@ test("phase copy windows are exclusive and synchronized on desktop and mobile", 
     ["sunset", 0.76],
     ["night", 1],
   ] as const;
-  const transitions = [0.14, 0.3, 0.49, 0.68, 0.86] as const;
+  const transitions = [0.1175, 0.2975, 0.4875, 0.6775, 0.865] as const;
 
   for (const viewport of [
     { width: 1440, height: 900 },
@@ -146,11 +208,7 @@ test("phase copy windows are exclusive and synchronized on desktop and mobile", 
     { width: 320, height: 844 },
   ]) {
     await page.setViewportSize(viewport);
-    await page.goto("/");
-    await expect(page.locator('[aria-label="A solar day"][data-enhanced="true"]')).toBeAttached();
-    await page.evaluate(() => {
-      document.documentElement.style.scrollBehavior = "auto";
-    });
+    await openSolarHome(page);
 
     const sceneGeometry = await page.locator(".solar-chapter").evaluateAll((chapters) => ({
       topPositions: [
@@ -162,16 +220,7 @@ test("phase copy windows are exclusive and synchronized on desktop and mobile", 
     expect(sceneGeometry.positionModes).toEqual(["absolute"]);
 
     const sample = async (progress: number) => {
-      await page.evaluate((targetProgress) => {
-        const root = document.querySelector<HTMLElement>('[aria-label="A solar day"]');
-        if (!root) return;
-        const top = window.scrollY + root.getBoundingClientRect().top;
-        window.scrollTo({
-          top: top + targetProgress * (root.offsetHeight - window.innerHeight),
-          behavior: "auto",
-        });
-      }, progress);
-      await page.waitForTimeout(80);
+      await moveSolarStoryTo(page, progress);
       return page.evaluate(() => {
         const root = document.querySelector<HTMLElement>('[aria-label="A solar day"]');
         const readable = [
@@ -208,7 +257,10 @@ test("phase copy windows are exclusive and synchronized on desktop and mobile", 
     const root = document.querySelector<HTMLElement>('[aria-label="A solar day"]');
     if (!root) return { maxReadable: 0, readableSamples: 0 };
     const top = window.scrollY + root.getBoundingClientRect().top;
-    const distance = root.offsetHeight - window.innerHeight;
+    const distance = Math.max(
+      1,
+      root.offsetHeight - window.innerHeight - Math.round(window.innerHeight * 0.9),
+    );
     let maxReadable = 0;
     let readableSamples = 0;
 
@@ -233,38 +285,68 @@ test("reduced motion renders every chapter as a static scene", async ({ page }) 
   await page.goto("/");
 
   await expect(page.locator("[data-solar-stage]")).toBeHidden();
+
+  // All six chapters keep their heading and supporting copy.
+  await expect(
+    page.getByRole("heading", { name: /powering homes & businesses with clean solar energy/i }),
+  ).toBeVisible();
   await expect(
     page.getByRole("heading", { name: "Light becomes current.", exact: true }),
   ).toBeVisible();
-  await expect(page.locator(".solar-chapter--morning .solar-lede")).toBeVisible();
   await expect(
     page.getByRole("heading", { name: "Sunlight becomes current.", exact: true }),
   ).toBeVisible();
   await expect(page.getByRole("heading", { name: /energy becomes reserve/i })).toBeVisible();
   await expect(page.getByRole("heading", { name: /light changes hands/i })).toBeVisible();
   await expect(page.getByRole("heading", { name: /the sun is still working/i })).toBeVisible();
+
+  const ledeCount = await page.locator(".solar-lede").count();
+  expect(ledeCount).toBe(6);
+  for (let index = 0; index < ledeCount; index += 1) {
+    await expect(page.locator(".solar-lede").nth(index)).toBeVisible();
+  }
+
+  // Chapters sit in normal document flow instead of being pinned on top
+  // of one another.
+  const layout = await page.locator(".solar-chapter").evaluateAll((chapters) => ({
+    positionModes: [...new Set(chapters.map((chapter) => getComputedStyle(chapter).position))],
+    distinctTops: new Set(
+      chapters.map((chapter) => Math.round(chapter.getBoundingClientRect().top)),
+    ).size,
+    count: chapters.length,
+  }));
+  expect(layout.count).toBe(6);
+  expect(layout.positionModes).toEqual(["relative"]);
+  expect(layout.distinctTops).toBe(layout.count);
+
+  // Story links are usable in their static chapters.
+  await expect(page.locator(".solar-chapter--morning .solar-text-link")).toBeVisible();
+  await expect(page.locator(".solar-chapter--golden .solar-text-link")).toBeVisible();
+
+  // Night: exactly one visible quotation action inside the story, no
+  // phone link anywhere on the page.
+  const nightChapter = page.locator(".solar-chapter--night");
+  await expect(nightChapter.locator(".solar-night-action")).toBeVisible();
+  await expect(nightChapter.getByText(/request a quotation/i)).toHaveCount(1);
+  await expect(nightChapter.locator('a[href="/contact"]')).toHaveCount(1);
+  await expect(page.locator('[aria-label="A solar day"] a[href^="tel:"]')).toHaveCount(0);
+
+  for (const width of [390, 320]) {
+    await page.setViewportSize({ width, height: 844 });
+    await expect(page.locator(".solar-chapter--morning .solar-lede")).toBeVisible();
+    const hasHorizontalOverflow = await page.evaluate(
+      () => document.documentElement.scrollWidth > document.documentElement.clientWidth,
+    );
+    expect(hasHorizontalOverflow).toBe(false);
+  }
 });
 
 test("the landscape responds continuously to the solar day", async ({ page }) => {
   await page.setViewportSize({ width: 1440, height: 900 });
-  await page.goto("/");
-  await expect(page.locator('[aria-label="A solar day"][data-enhanced="true"]')).toBeAttached();
-  await page.evaluate(() => {
-    document.documentElement.style.scrollBehavior = "auto";
-  });
+  await openSolarHome(page);
 
   const sample = async (progress: number) => {
-    await page.evaluate((targetProgress) => {
-      const root = document.querySelector<HTMLElement>('[aria-label="A solar day"]');
-      if (!root) return;
-      const top = window.scrollY + root.getBoundingClientRect().top;
-      window.scrollTo({
-        top: top + targetProgress * (root.offsetHeight - window.innerHeight),
-        behavior: "auto",
-      });
-    }, progress);
-    await page.waitForTimeout(80);
-
+    await moveSolarStoryTo(page, progress);
     return page.locator('[aria-label="A solar day"]').evaluate((root) => {
       const styles = getComputedStyle(root);
       const read = (name: string) => Number.parseFloat(styles.getPropertyValue(name));
@@ -423,5 +505,220 @@ test.describe("story links", () => {
     await expect(finalSun).toBeVisible();
     await finalSun.click();
     await expect(page).toHaveURL(/\/contact$/);
+  });
+});
+
+test.describe("solar story", () => {
+  test("the scene contains the relay objects and none of the removed chrome", async ({ page }) => {
+    await openSolarHome(page);
+    const stage = page.locator("[data-solar-stage]");
+    await expect(stage.locator("[data-solar-panels]")).toHaveCount(1);
+    await expect(stage.locator("[data-solar-energy-path]")).toHaveCount(1);
+    await expect(stage.locator("[data-solar-battery]")).toHaveCount(1);
+    await expect(stage.locator("[data-solar-home]")).toHaveCount(1);
+    // The decorative "SOLAR DAY 05:42 — 19:11" readout is gone.
+    await expect(page.getByText(/05:42 — 19:11/)).toHaveCount(0);
+    // The night phone link is gone from the story (the footer's
+    // site-wide contact link is outside the solar experience).
+    await expect(page.locator('[aria-label="A solar day"] a[href^="tel:"]')).toHaveCount(0);
+  });
+
+  test("morning activates the panels and starts the collection flow", async ({ page }) => {
+    await openSolarHome(page);
+    await moveSolarStoryTo(page, 0);
+    const predawnFocus = await readSceneVariable(page, "--panel-focus");
+    const predawnFlow = await readSceneVariable(page, "--conversion-flow");
+    expect(predawnFocus).toBe(0);
+    expect(predawnFlow).toBe(0);
+
+    await moveSolarStoryTo(page, 0.19);
+    await expectSolarTextPhase(page, "morning");
+    const morningFocus = await readSceneVariable(page, "--panel-focus");
+    const morningFlow = await readSceneVariable(page, "--conversion-flow");
+    expect(morningFocus).toBeGreaterThan(predawnFocus);
+    expect(morningFocus).toBe(1);
+    expect(morningFlow).toBeGreaterThan(0);
+    await expectStoryLinkVisibility(page, "morning", "visible");
+    await expectStoryLinkFocusability(page, "golden", false);
+  });
+
+  test("noon is a measurably stronger conversion state than morning", async ({ page }) => {
+    await openSolarHome(page);
+    await moveSolarStoryTo(page, 0.19);
+    const morningFlow = await readSceneVariable(page, "--conversion-flow");
+
+    await moveSolarStoryTo(page, 0.38);
+    await expectSolarTextPhase(page, "noon");
+    const noonFlow = await readSceneVariable(page, "--conversion-flow");
+    const noonAltitude = await readSceneVariable(page, "--solar-altitude");
+    expect(noonFlow).toBe(1);
+    expect(noonFlow).toBeGreaterThan(morningFlow);
+    expect(noonAltitude).toBeGreaterThan(0.85);
+    await expectStoryLinkFocusability(page, "morning", false);
+    await expectStoryLinkFocusability(page, "golden", false);
+  });
+
+  test("golden hour makes the battery the charged subject", async ({ page }) => {
+    await openSolarHome(page);
+    await moveSolarStoryTo(page, 0.19);
+    const morningBattery = await readSceneVariable(page, "--battery-focus");
+
+    await moveSolarStoryTo(page, 0.57);
+    await expectSolarTextPhase(page, "golden");
+    const goldenBattery = await readSceneVariable(page, "--battery-focus");
+    expect(morningBattery).toBe(0);
+    expect(goldenBattery).toBe(1);
+    for (const variable of ["--charge-low", "--charge-mid", "--charge-high"]) {
+      expect(await readSceneVariable(page, variable)).toBe(1);
+    }
+    expect(await readSceneVariable(page, "--stored-glow")).toBeGreaterThan(0);
+    await expect(page.locator("[data-solar-battery]")).toBeVisible();
+    await expectStoryLinkVisibility(page, "golden", "visible");
+  });
+
+  test("sunset hands collection over to stored power and the home approaches", async ({ page }) => {
+    await openSolarHome(page);
+    await moveSolarStoryTo(page, 0.38);
+    const noonPanels = await readSceneVariable(page, "--panel-focus");
+
+    await moveSolarStoryTo(page, 0.76);
+    await expectSolarTextPhase(page, "sunset");
+    const sunsetPanels = await readSceneVariable(page, "--panel-focus");
+    const handoff = await readSceneVariable(page, "--handoff-flow");
+    const home = await readSceneVariable(page, "--home-focus");
+    const battery = await readSceneVariable(page, "--battery-presence");
+    expect(sunsetPanels).toBeLessThan(noonPanels);
+    expect(handoff).toBeGreaterThan(0);
+    expect(home).toBeGreaterThan(0);
+    expect(battery).toBe(1);
+    await expectStoryLinksSkippedByTab(page);
+  });
+
+  test("night centers the lit home and resolves the journey", async ({ page }) => {
+    for (const viewport of [
+      { width: 1440, height: 900 },
+      { width: 1024, height: 768 },
+      { width: 768, height: 1024 },
+      { width: 390, height: 844 },
+      { width: 320, height: 844 },
+    ]) {
+      await page.setViewportSize(viewport);
+      await openSolarHome(page);
+      await moveSolarStoryTo(page, 1);
+      await expectSolarTextPhase(page, "night");
+
+      expect(await readSceneVariable(page, "--home-focus")).toBe(1);
+      expect(await readSceneVariable(page, "--home-light")).toBeGreaterThan(0.95);
+      expect(await readSceneVariable(page, "--handoff-flow")).toBe(1);
+
+      await waitForStableBox(page, 'button[aria-controls="solar-phase-navigation"]');
+      await waitForStableBox(page, "[data-solar-home]");
+
+      const geometry = await page.evaluate(() => {
+        const home = document.querySelector<HTMLElement>("[data-solar-home]");
+        const heading = document.querySelector<HTMLElement>("#night-title");
+        const sun = document.querySelector<HTMLElement>(
+          'button[aria-controls="solar-phase-navigation"]',
+        );
+        if (!home || !heading || !sun) return null;
+        const homeBox = home.getBoundingClientRect();
+        const overlap = (a: DOMRect, b: DOMRect) =>
+          a.left < b.right && a.right > b.left && a.top < b.bottom && a.bottom > b.top;
+        return {
+          homeCenterOffset:
+            Math.abs(homeBox.left + homeBox.width / 2 - window.innerWidth / 2) / window.innerWidth,
+          homeFullyOnScreen:
+            homeBox.left >= 0 &&
+            homeBox.right <= window.innerWidth &&
+            homeBox.bottom <= window.innerHeight,
+          headingOverlapsHome: overlap(heading.getBoundingClientRect(), homeBox),
+          sunOverlapsHome: overlap(sun.getBoundingClientRect(), homeBox),
+          sunOverlapsHeading: overlap(sun.getBoundingClientRect(), heading.getBoundingClientRect()),
+          overflow: document.documentElement.scrollWidth > document.documentElement.clientWidth,
+        };
+      });
+      expect(geometry).not.toBeNull();
+      // Optical centering: bounding-box center within 12% of viewport center.
+      expect(geometry!.homeCenterOffset).toBeLessThan(0.12);
+      expect(geometry!.homeFullyOnScreen).toBe(true);
+      expect(geometry!.headingOverlapsHome).toBe(false);
+      expect(geometry!.sunOverlapsHome).toBe(false);
+      expect(geometry!.sunOverlapsHeading).toBe(false);
+      expect(geometry!.overflow).toBe(false);
+    }
+  });
+
+  test("settled night shows exactly one quotation action and no phone link", async ({ page }) => {
+    await openSolarHome(page);
+    await moveSolarStoryTo(page, 1);
+    await expect(
+      page.locator('[aria-label="A solar day"][data-sun-settled="true"]'),
+    ).toBeAttached();
+
+    const story = page.locator('[aria-label="A solar day"]');
+    // The morphed sun is the single visible quotation action…
+    await expect(story.getByRole("button", { name: /night\. request a quotation/i })).toBeVisible();
+    // …the in-chapter fallback stays hidden under normal motion…
+    await expect(story.locator(".solar-night-action")).toBeHidden();
+    // …no phone link exists inside the story…
+    await expect(story.locator('a[href^="tel:"]')).toHaveCount(0);
+    // …and the hidden fallback never enters the tab order.
+    await page.locator("body").focus();
+    for (let index = 0; index < 15; index += 1) {
+      await page.keyboard.press("Tab");
+      const onHiddenCta = await page.evaluate(() =>
+        Boolean(document.activeElement?.matches(".solar-night-action")),
+      );
+      expect(onHiddenCta).toBe(false);
+    }
+  });
+
+  test("the settled night scene holds before the next section can enter", async ({ page }) => {
+    for (const viewport of [
+      { width: 1440, height: 900 },
+      { width: 390, height: 844 },
+      { width: 320, height: 844 },
+    ]) {
+      await page.setViewportSize(viewport);
+      await openSolarHome(page);
+      await moveSolarStoryTo(page, 1);
+      await expect(
+        page.locator('[aria-label="A solar day"][data-sun-settled="true"]'),
+      ).toBeAttached();
+
+      // At settle, the next section stays entirely below the viewport.
+      const exitTop = await page
+        .locator("#after-solar-story")
+        .evaluate((element) => element.getBoundingClientRect().top);
+      expect(exitTop).toBeGreaterThanOrEqual(await page.evaluate(() => window.innerHeight));
+
+      // A deliberate scroll beyond the hold reaches it normally — scroll
+      // is not trapped.
+      await page.locator("#after-solar-story").scrollIntoViewIfNeeded();
+      await expect(page.locator("#after-solar-story")).toBeInViewport();
+      await expect(page.getByRole("navigation", { name: /continue exploring/i })).toBeVisible();
+    }
+  });
+
+  test("the phase menu opens intentionally and closes after selection", async ({ page }) => {
+    await openSolarHome(page);
+    const nav = page.locator("#solar-phase-navigation");
+    await expect(nav).toBeHidden();
+
+    const sun = page.getByRole("button", { name: /open solar day navigation/i });
+    await sun.click();
+    await expect(nav).toBeVisible();
+
+    await nav.getByRole("link", { name: "Noon" }).click();
+    await expect
+      .poll(async () =>
+        page.locator('[aria-label="A solar day"]').evaluate((root) => root.dataset.navOpen),
+      )
+      .toBe("false");
+    await expect
+      .poll(async () =>
+        page.locator('[aria-label="A solar day"]').evaluate((root) => root.dataset.textPhase),
+      )
+      .toBe("noon");
   });
 });

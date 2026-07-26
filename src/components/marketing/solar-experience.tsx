@@ -129,7 +129,7 @@ export function SolarExperience({ children }: { children: React.ReactNode }) {
       root.style.setProperty("--charge-low", clamp((progress - 0.44) / 0.08).toFixed(4));
       root.style.setProperty("--charge-mid", clamp((progress - 0.47) / 0.08).toFixed(4));
       root.style.setProperty("--charge-high", clamp((progress - 0.5) / 0.056).toFixed(4));
-      root.style.setProperty("--stored-glow", clamp((progress - 0.58) / 0.28).toFixed(4));
+      root.style.setProperty("--stored-glow", clamp((progress - 0.52) / 0.2).toFixed(4));
       root.style.setProperty("--home-light", clamp((progress - 0.84) / 0.12).toFixed(4));
       root.style.setProperty("--pre-dawn", clamp(1 - progress / 0.12).toFixed(4));
       root.style.setProperty(
@@ -183,7 +183,11 @@ export function SolarExperience({ children }: { children: React.ReactNode }) {
     };
 
     const requestRender = () => {
-      if (reducedQuery.matches) return;
+      // Only claim the scene is out of date when a frame will actually
+      // follow. Marking it stale while the story is scrolled out of view
+      // (where `render` early-returns) would leave the flag stuck at
+      // "false" until the next intersection change.
+      if (reducedQuery.matches || !visible) return;
       root.dataset.solarReady = "false";
       if (!frame) frame = requestAnimationFrame(render);
     };

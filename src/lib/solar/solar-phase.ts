@@ -130,13 +130,13 @@ export function getPanelFocus(progress: number): number {
 /**
  * `--conversion-flow` — the collection segment of the energy path
  * (panels → battery) and its confidence. Starts drawing at 0.14, fully
- * drawn by Noon (0.4), then relaxes: −45% over 0.62–0.8 and a further
- * −60% of the remainder over 0.85–0.97 so it survives at night only as a
- * faint trace.
+ * drawn just before the Noon anchor (0.37), then relaxes: −45% over
+ * 0.62–0.8 and a further −60% of the remainder over 0.85–0.97 so it
+ * survives at night only as a faint trace.
  */
 export function getConversionFlow(progress: number): number {
   const p = clampProgress(progress);
-  return ramp(p, 0.14, 0.4) * (1 - 0.45 * ramp(p, 0.62, 0.8)) * (1 - 0.6 * ramp(p, 0.85, 0.97));
+  return ramp(p, 0.14, 0.37) * (1 - 0.45 * ramp(p, 0.62, 0.8)) * (1 - 0.6 * ramp(p, 0.85, 0.97));
 }
 
 /**
