@@ -486,7 +486,7 @@
 }
 [data-enhanced="true"]
   :is(.solar-chapter--morning, .solar-chapter--noon, .solar-chapter--golden, .solar-chapter--sunset)
-  :is(.solar-time, .solar-kicker, .solar-lede, .solar-text-link),
+  :is(.solar-time, .solar-kicker, .solar-lede),
 [data-enhanced="true"] .solar-chapter--predawn :is(.solar-lede, .solar-actions),
 [data-enhanced="true"] .solar-chapter--night .solar-kicker {
   display: none;
@@ -627,6 +627,15 @@
 }
 .solar-text-link {
   margin-top: 1.7rem;
+}
+@media (prefers-reduced-motion: no-preference) {
+  [data-enhanced="true"] .solar-text-link {
+    visibility: hidden;
+  }
+  [data-enhanced="true"][data-text-phase="morning"] .solar-chapter--morning .solar-text-link,
+  [data-enhanced="true"][data-text-phase="golden"] .solar-chapter--golden .solar-text-link {
+    visibility: visible;
+  }
 }
 .solar-actions .solar-text-link {
   margin-top: 0;
