@@ -22,11 +22,20 @@
   --home-light: 0;
   --sun-morph: 0;
   --cta-reveal: 0;
-  --phone-reveal: 0;
   --shadow-reach: 28vw;
   --camera-tilt: -3.5deg;
+  /* Storytelling emphasis — progress ranges documented in
+     src/lib/solar/solar-phase.ts. */
+  --panel-focus: 0;
+  --conversion-flow: 0;
+  --battery-focus: 0;
+  --handoff-flow: 0;
+  --home-focus: 0;
+  --home-scale: 1;
   position: relative;
-  min-height: 560svh;
+  /* 640svh: the story maps to (height − 100svh − 90svh hold); the last
+     ~90svh of pinned scroll is the settled Night hold before release. */
+  min-height: 640svh;
   overflow: clip;
   color: #063f2a;
   background: #031f17;
@@ -180,6 +189,9 @@
   opacity: 1;
 }
 
+/* The sun is the primary control; the phase list is an intentional
+   popover on every viewport — it opens from the sun (or keyboard focus)
+   and closes after selection, instead of competing with the scene. */
 .phaseNavigation {
   position: absolute;
   top: 6rem;
@@ -253,12 +265,6 @@
 .phaseNavigation a[aria-current="step"] i {
   box-shadow: 0 0 0 0.35rem rgb(245 196 0 / 14%);
   opacity: 1;
-}
-
-.experience[data-text-phase="morning"] .phaseNavigation,
-.experience[data-text-phase="noon"] .phaseNavigation,
-.experience[data-text-phase="golden"] .phaseNavigation {
-  color: #063f2a;
 }
 
 .world,
@@ -371,6 +377,7 @@
   transform-origin: 50% 100%;
 }
 
+/* ── Panel field — the Morning/Noon subject ─────────────────────────── */
 .panelField {
   position: absolute;
   z-index: 5;
@@ -378,10 +385,11 @@
   left: 5vw;
   width: min(43rem, 48vw);
   height: 28vh;
-  filter: brightness(calc(0.62 + var(--panel-light) * 0.5))
-    saturate(calc(0.82 + var(--panel-light) * 0.28));
+  filter: brightness(calc(0.58 + var(--panel-light) * 0.2 + var(--panel-focus) * 0.34))
+    saturate(calc(0.82 + var(--panel-focus) * 0.3));
   transform: translate3d(0, calc(var(--terrain-lift) * 0.35), 0)
-    rotateX(calc(56deg + var(--camera-tilt))) rotateZ(-7deg);
+    rotateX(calc(56deg + var(--camera-tilt))) rotateZ(-7deg)
+    scale(calc(1 + var(--panel-focus) * 0.05));
   transform-origin: 50% 100%;
 }
 .panelPlane {
@@ -391,7 +399,9 @@
   padding: 0.55rem;
   background: #082e30;
   border: 1px solid rgb(255 255 255 / 32%);
-  box-shadow: 0 2.5rem 5rem rgb(2 17 18 / 42%);
+  box-shadow:
+    0 2.5rem 5rem rgb(2 17 18 / 42%),
+    0 0 calc(var(--panel-focus) * 3.2rem) rgb(245 196 0 / calc(var(--panel-focus) * 30%));
   gap: 0.35rem;
   grid-template-columns: repeat(5, 1fr);
 }
@@ -403,13 +413,25 @@
     linear-gradient(145deg, #0a4c50, #071e2c);
   border: 1px solid rgb(169 223 215 / 20%);
 }
+/* Progressive cell activation: --panel-focus sweeps the field on, one
+   cell after another (index staggering), instead of a single filter
+   change on the whole plane. */
+.panelPlane i::before {
+  position: absolute;
+  inset: 0;
+  content: "";
+  background: linear-gradient(120deg, rgb(255 203 64 / 88%) 0%, rgb(232 148 0 / 42%) 78%);
+  opacity: calc(clamp(0, var(--panel-focus) * 17 - var(--cell-i, 0) * 1.05, 1) * 0.8);
+}
+/* The travelling reflection is tied to the conversion flow, so the
+   highlight crosses the field while collection ramps toward Noon. */
 .panelPlane i::after {
   position: absolute;
   inset: 0;
   content: "";
-  background: linear-gradient(110deg, transparent 18%, rgb(245 196 0 / 35%) 48%, transparent 72%);
-  opacity: calc(0.12 + var(--panel-light) * 0.88);
-  transform: translateX(calc(-160% + var(--solar-progress) * 360%));
+  background: linear-gradient(110deg, transparent 18%, rgb(255 255 255 / 42%) 48%, transparent 72%);
+  opacity: calc(var(--panel-focus) * 0.85);
+  transform: translateX(calc(-160% + var(--conversion-flow) * 320%));
 }
 .panelShadow {
   position: absolute;
@@ -424,6 +446,7 @@
   transform-origin: 0 50%;
 }
 
+/* ── Energy relay: collection then delivery ─────────────────────────── */
 .energyPath {
   position: absolute;
   z-index: 7;
@@ -432,45 +455,65 @@
   height: 100%;
   overflow: visible;
   pointer-events: none;
-  opacity: 1;
-  transition: opacity 180ms ease;
 }
-.experience:not([data-text-phase="transition"]) .energyPath {
-  opacity: 0.24;
-}
-.energyPathGhost,
-.energyPathLive {
+.collectGhost,
+.deliverGhost,
+.collectLive,
+.deliverLive {
   fill: none;
   vector-effect: non-scaling-stroke;
 }
-.energyPathEnd {
-  fill: #f5c400;
-  opacity: var(--cta-reveal);
-  filter: drop-shadow(0 0 0.65rem rgb(245 196 0 / 80%));
-}
-.energyPathGhost {
-  stroke: rgb(255 255 255 / 11%);
+.collectGhost,
+.deliverGhost {
+  stroke: rgb(255 255 255 / 9%);
   stroke-width: 1.5;
 }
-.energyPathLive {
+.collectLive {
   stroke: #f5c400;
   stroke-dasharray: 1;
-  stroke-dashoffset: calc(1 - var(--solar-progress));
+  stroke-dashoffset: calc(1 - var(--conversion-flow));
   stroke-linecap: round;
-  stroke-width: 2.5;
+  stroke-width: calc(2 + var(--conversion-flow) * 2.2);
+  opacity: calc(0.15 + var(--conversion-flow) * 0.85);
   filter: drop-shadow(0 0 0.45rem rgb(245 196 0 / 65%));
 }
+.deliverLive {
+  stroke: #ffd94a;
+  stroke-dasharray: 1;
+  stroke-dashoffset: calc(1 - var(--handoff-flow));
+  stroke-linecap: round;
+  stroke-width: calc(1.8 + var(--handoff-flow) * 1.6);
+  opacity: calc(0.15 + var(--handoff-flow) * 0.85);
+  filter: drop-shadow(0 0 0.5rem rgb(255 217 74 / 70%));
+}
+.collectNode {
+  fill: #f5c400;
+  opacity: calc(var(--battery-presence) * 0.9);
+  filter: drop-shadow(0 0 0.55rem rgb(245 196 0 / 75%));
+}
+.deliverNode {
+  fill: #fff3a1;
+  opacity: var(--home-light);
+  filter: drop-shadow(0 0 0.7rem rgb(255 243 161 / 85%));
+}
 
+/* ── Battery — the Golden-hour subject ──────────────────────────────── */
 .battery {
   position: absolute;
-  z-index: 8;
-  right: 17vw;
-  bottom: 7vh;
-  width: 8rem;
-  height: 12rem;
+  z-index: 7;
+  right: 15vw;
+  bottom: 6vh;
+  width: 7.5rem;
+  height: 11rem;
   opacity: var(--battery-presence);
-  transform: translate3d(0, calc((1 - var(--battery-presence)) * 2.5rem), 4rem)
-    rotateY(calc(-14deg + var(--battery-presence) * 4deg));
+  transform: translate3d(
+      calc(var(--battery-focus) * -8vw),
+      calc((1 - var(--battery-presence)) * 3rem - var(--battery-focus) * 6vh),
+      4rem
+    )
+    rotateY(calc(-14deg + var(--battery-focus) * 10deg))
+    scale(calc(0.92 + var(--battery-focus) * 0.3));
+  transform-origin: 50% 100%;
 }
 .batteryBody {
   position: absolute;
@@ -479,9 +522,11 @@
   padding: 0.8rem;
   overflow: hidden;
   background: rgb(3 31 23 / 88%);
-  border: 1px solid rgb(255 255 255 / 30%);
+  border: 1px solid rgb(255 255 255 / calc(30% + var(--battery-focus) * 25%));
   border-radius: 1rem;
-  box-shadow: 1.4rem 1.8rem 2.5rem rgb(3 31 23 / 30%);
+  box-shadow:
+    1.4rem 1.8rem 2.5rem rgb(3 31 23 / 30%),
+    0 0 calc(var(--battery-focus) * 2.6rem) rgb(245 196 0 / calc(var(--battery-focus) * 26%));
   flex-direction: column-reverse;
   gap: 0.45rem;
 }
@@ -492,13 +537,13 @@
   box-shadow: 0 0 calc(var(--stored-glow) * 1.6rem) rgb(245 196 0 / 45%);
 }
 .batteryBody i:nth-child(1) {
-  opacity: calc(0.1 + var(--charge-low) * 0.84);
+  opacity: calc(0.1 + var(--charge-low) * 0.86);
 }
 .batteryBody i:nth-child(2) {
-  opacity: calc(0.1 + var(--charge-mid) * 0.84);
+  opacity: calc(0.1 + var(--charge-mid) * 0.86);
 }
 .batteryBody i:nth-child(3) {
-  opacity: calc(0.1 + var(--charge-high) * 0.84);
+  opacity: calc(0.1 + var(--charge-high) * 0.86);
 }
 .batteryCap {
   position: absolute;
@@ -512,55 +557,57 @@
   transform: translateX(-50%);
 }
 
+/* ── Home — the Night subject, resolving to bottom-center ───────────── */
 .nightHome {
   position: absolute;
-  z-index: 6;
-  right: 7vw;
-  bottom: 4vh;
-  width: 22rem;
-  height: 17rem;
-  opacity: var(--night);
+  z-index: 8;
+  bottom: 2vh;
+  left: 50%;
+  width: 21rem;
+  height: 15rem;
+  margin-left: -10.5rem;
+  opacity: var(--home-focus);
   filter: brightness(calc(0.72 + var(--home-light) * 0.28));
-  transform: translate3d(0, calc((1 - var(--night)) * 6rem), 2rem)
-    scale(calc(0.96 + var(--night) * 0.04));
+  transform: translate3d(calc((1 - var(--home-focus)) * 16vw), calc((1 - var(--home-focus)) * 4rem), 0)
+    scale(calc((0.9 + var(--home-focus) * 0.1) * var(--home-scale)));
   transform-origin: 50% 100%;
 }
 .roof {
   position: absolute;
   z-index: 2;
-  top: 1rem;
-  left: 1rem;
-  width: 18rem;
-  height: 10rem;
+  top: 0.6rem;
+  left: 1.6rem;
+  width: 17.8rem;
+  height: 8.6rem;
   background: #021711;
   clip-path: polygon(50% 0, 100% 72%, 88% 76%, 88% 100%, 12% 100%, 12% 76%, 0 72%);
 }
 .houseBody {
   position: absolute;
-  right: 2.4rem;
+  right: 2.8rem;
   bottom: 0;
-  left: 2.4rem;
-  height: 9.8rem;
+  left: 2.8rem;
+  height: 8.4rem;
   background: #032219;
 }
 .window,
 .door {
   position: absolute;
   z-index: 3;
-  bottom: 3.5rem;
-  width: 3.2rem;
-  height: 3.2rem;
+  bottom: 3.2rem;
+  width: 2.9rem;
+  height: 2.9rem;
   background: #f5c400;
   box-shadow: 0 0 2.5rem rgb(245 196 0 / 60%);
   opacity: var(--home-light);
 }
 .window {
-  left: 4.5rem;
+  left: 4.4rem;
 }
 .door {
-  right: 4rem;
+  right: 4.2rem;
   bottom: 0;
-  height: 6rem;
+  height: 5.4rem;
   background: #fff3a1;
 }
 .shadowLine {
@@ -595,69 +642,6 @@
     filter: blur(0.35rem);
   }
 }
-.solarReadout {
-  position: absolute;
-  z-index: 9;
-  bottom: 1.25rem;
-  left: 1.25rem;
-  margin: 0;
-  color: rgb(255 255 255 / 56%);
-  font-size: 0.62rem;
-  font-weight: 700;
-  letter-spacing: 0.18em;
-}
-.solarReadout span {
-  display: block;
-  margin-top: 0.35rem;
-  font-variant-numeric: tabular-nums;
-  opacity: 0.65;
-}
-
-@media (min-width: 768px) {
-  .phaseNavigation {
-    top: 50%;
-    right: 2rem;
-    width: 13rem;
-    padding: 0;
-    visibility: visible;
-    background: transparent;
-    border: 0;
-    box-shadow: none;
-    opacity: 0.52;
-    backdrop-filter: none;
-    transform: translateY(-50%);
-    transition: opacity 180ms ease;
-  }
-  .phaseNavigation:hover,
-  .phaseNavigation:focus-within {
-    opacity: 1;
-  }
-  .phaseNavigationTitle {
-    text-align: right;
-  }
-  .phaseNavigation ol {
-    gap: 0.4rem;
-  }
-  .phaseNavigation a {
-    min-height: 2.75rem;
-    justify-content: flex-end;
-    gap: 0.75rem;
-  }
-  .phaseNavigation a span {
-    font-size: 0.75rem;
-    opacity: 0;
-    transform: translateX(0.5rem);
-    transition:
-      opacity 180ms ease,
-      transform 180ms ease;
-  }
-  .phaseNavigation:hover a span,
-  .phaseNavigation:focus-within a span,
-  .phaseNavigation a[aria-current="step"] span {
-    opacity: 1;
-    transform: translateX(0);
-  }
-}
 
 @media (max-width: 767px) {
   .sunHandle {
@@ -673,7 +657,9 @@
       0 0 2.4rem 0.85rem rgb(245 196 0 / 29%);
   }
   .experience[data-sun-settled="true"] .sunHandle {
+    top: 70%;
     width: 13rem;
+    transform: translate(-50%, -50%);
   }
   .experience[data-phase="morning"] .sunHandle {
     top: 17%;
@@ -688,25 +674,26 @@
   }
   .panelField {
     bottom: -2vh;
-    left: -24vw;
-    width: 86vw;
-    height: 22vh;
+    left: -12vw;
+    width: 82vw;
+    height: 20vh;
   }
   .battery {
-    right: 8vw;
-    bottom: 10vh;
-    width: 5rem;
-    height: 8rem;
+    right: 6vw;
+    bottom: 8vh;
+    width: 4.6rem;
+    height: 7.6rem;
+    transform: translate3d(
+        calc(var(--battery-focus) * -18vw),
+        calc((1 - var(--battery-presence)) * 2rem - var(--battery-focus) * 4vh),
+        0
+      )
+      rotateY(calc(-14deg + var(--battery-focus) * 10deg))
+      scale(calc(0.92 + var(--battery-focus) * 0.3));
   }
   .nightHome {
-    right: -5rem;
-    width: 19rem;
-    transform: scale(0.78) translateY(calc((1 - var(--night)) * 6rem));
-    transform-origin: 100% 100%;
-  }
-  .energyPath {
-    transform: scaleX(0.9) translateX(75%);
-    transform-origin: center;
+    --home-scale: 0.72;
+    bottom: 1.5vh;
   }
 }
 

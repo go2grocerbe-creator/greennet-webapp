@@ -612,8 +612,7 @@
   background: var(--c-accent);
   border-radius: 999px;
 }
-.solar-text-link,
-.solar-call-link {
+.solar-text-link {
   display: inline-flex;
   min-height: 2.75rem;
   color: inherit;
@@ -647,13 +646,8 @@
 .solar-text-link:hover svg {
   transform: translateX(0.25rem);
 }
-.solar-text-link:focus-visible,
-.solar-call-link:focus-visible {
+.solar-text-link:focus-visible {
   box-shadow: 0 0 0 3px var(--c-accent);
-}
-[data-enhanced="true"] .solar-call-link {
-  opacity: var(--phone-reveal, 0);
-  transform: translateY(calc((1 - var(--phone-reveal, 0)) * 0.65rem));
 }
 .solar-chapter--predawn,
 .solar-chapter--sunset,
@@ -1002,29 +996,33 @@
     top: auto;
     min-height: 78svh;
   }
-  [data-enhanced="true"] .solar-chapter__inner,
+  /* The controller stays unenhanced under reduced motion, so these
+     overrides are a safety net for the instant a viewer flips the OS
+     setting with the page already open. They deliberately mirror the
+     specificity of the enhanced-state rules they undo — one class short
+     and they silently lose the cascade. */
+  [data-enhanced="true"] .solar-chapter {
+    position: relative;
+    inset: auto;
+    min-height: 78svh;
+  }
+  [data-enhanced="true"] .solar-chapter .solar-chapter__inner,
   [data-enhanced="true"] .solar-chapter--night .solar-chapter__inner {
     position: relative;
     inset: auto;
   }
-  [data-enhanced="true"] .solar-time,
-  [data-enhanced="true"] .solar-actions {
+  [data-enhanced="true"] .solar-chapter :is(.solar-time, .solar-actions) {
     display: flex;
   }
-  [data-enhanced="true"] .solar-kicker,
-  [data-enhanced="true"] .solar-lede {
+  [data-enhanced="true"] .solar-chapter :is(.solar-kicker, .solar-lede) {
     display: block;
   }
-  [data-enhanced="true"] :is(.solar-text-link, .solar-call-link) {
+  [data-enhanced="true"] .solar-chapter .solar-text-link {
     display: inline-flex;
   }
-  [data-enhanced="true"] .solar-chapter__inner {
+  [data-enhanced="true"] .solar-chapter .solar-chapter__inner {
     pointer-events: auto;
     opacity: 1;
-  }
-  [data-enhanced="true"] .solar-call-link {
-    opacity: 1;
-    transform: none;
   }
   .solar-chapter--predawn {
     color: var(--first-light);

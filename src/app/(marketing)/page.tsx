@@ -4,7 +4,6 @@ import { ArrowDown, ArrowRight } from "lucide-react";
 import { SolarExperience } from "@/components/marketing/solar-experience";
 import { Button } from "@/components/ui/button";
 import { Container } from "@/components/ui/container";
-import { siteConfig } from "@/lib/config";
 
 /**
  * All business-facing copy below is limited to confirmed taglines, location,
@@ -160,12 +159,6 @@ export default function HomePage() {
                 >
                   Request a quotation <ArrowRight data-icon="inline-end" aria-hidden="true" />
                 </Button>
-                <a
-                  className="solar-call-link"
-                  href={`tel:${siteConfig.contact.phone.replace(/\s+/g, "")}`}
-                >
-                  Call {siteConfig.contact.phone}
-                </a>
               </div>
             </div>
           </Container>
