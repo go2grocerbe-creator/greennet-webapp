@@ -1,3 +1,5 @@
+import type { CSSProperties } from "react";
+
 import styles from "./solar-experience.module.css";
 
 const panelCells = Array.from({ length: 15 }, (_, index) => index);
@@ -6,6 +8,16 @@ const stars = Array.from({ length: 30 }, (_, index) => ({
   y: (index * 23 + 7) % 58,
   size: index % 5 === 0 ? 2 : 1,
 }));
+
+/**
+ * The energy relay is drawn as two explicit journeys so its direction is
+ * legible: collection (panel field → battery) drawn by --conversion-flow
+ * across Morning/Noon, then delivery (battery → the centered night home)
+ * drawn by --handoff-flow across Sunset/Night. Coordinates live in the
+ * 1200×720 stage space and match the CSS object positions.
+ */
+const COLLECT_PATH = "M255 640 C420 560 650 540 905 600";
+const DELIVER_PATH = "M905 600 C820 505 700 510 600 642";
 
 /** Decorative layered environment; never presented as project photography. */
 export function SunScene() {
@@ -27,29 +39,30 @@ export function SunScene() {
       <div className={styles.horizonGlow} />
       <div className={styles.horizon} />
 
-      <div className={styles.panelField}>
+      <div className={styles.panelField} data-solar-panels>
         <div className={styles.panelPlane}>
           {panelCells.map((cell) => (
-            <i key={cell} />
+            <i key={cell} style={{ "--cell-i": cell } as CSSProperties} />
           ))}
         </div>
         <div className={styles.panelShadow} />
       </div>
 
-      <svg className={styles.energyPath} viewBox="0 0 1200 720" preserveAspectRatio="none">
-        <path
-          className={styles.energyPathGhost}
-          d="M80 586 C290 520 360 178 650 140 S1040 330 1110 520 C950 600 760 556 600 504"
-        />
-        <path
-          className={styles.energyPathLive}
-          pathLength="1"
-          d="M80 586 C290 520 360 178 650 140 S1040 330 1110 520 C950 600 760 556 600 504"
-        />
-        <circle className={styles.energyPathEnd} cx="600" cy="504" r="5" />
+      <svg
+        className={styles.energyPath}
+        viewBox="0 0 1200 720"
+        preserveAspectRatio="none"
+        data-solar-energy-path
+      >
+        <path className={styles.collectGhost} d={COLLECT_PATH} />
+        <path className={styles.collectLive} pathLength="1" d={COLLECT_PATH} />
+        <path className={styles.deliverGhost} d={DELIVER_PATH} />
+        <path className={styles.deliverLive} pathLength="1" d={DELIVER_PATH} />
+        <circle className={styles.collectNode} cx="905" cy="600" r="5" />
+        <circle className={styles.deliverNode} cx="600" cy="642" r="6" />
       </svg>
 
-      <div className={styles.battery}>
+      <div className={styles.battery} data-solar-battery>
         <span className={styles.batteryCap} />
         <span className={styles.batteryBody}>
           <i />
@@ -57,16 +70,13 @@ export function SunScene() {
           <i />
         </span>
       </div>
-      <div className={styles.nightHome}>
+      <div className={styles.nightHome} data-solar-home>
         <span className={styles.roof} />
         <span className={styles.houseBody} />
         <span className={styles.window} />
         <span className={styles.door} />
       </div>
       <div className={styles.shadowLine} />
-      <p className={styles.solarReadout}>
-        SOLAR DAY <span>05:42 — 19:11</span>
-      </p>
     </div>
   );
 }
