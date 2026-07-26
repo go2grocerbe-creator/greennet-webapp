@@ -1,64 +1,19 @@
 "use client";
 
+import Link from "next/link";
 import { useCallback, useEffect, useRef, useState } from "react";
 
 import { SunScene } from "@/components/marketing/sun-scene";
+import {
+  chapterOpacity,
+  clamp,
+  getSolarStoryState,
+  solarChapterWindows,
+  solarPhases,
+  type SolarPhaseId,
+} from "@/lib/solar-story";
 
 import styles from "./solar-experience.module.css";
-
-const phases = [
-  { id: "predawn", label: "Pre-dawn", progress: 0 },
-  { id: "morning", label: "Morning", progress: 0.19 },
-  { id: "noon", label: "Noon", progress: 0.38 },
-  { id: "golden", label: "Golden hour", progress: 0.57 },
-  { id: "sunset", label: "Sunset", progress: 0.76 },
-  { id: "night", label: "Night", progress: 1 },
-] as const;
-
-type PhaseId = (typeof phases)[number]["id"];
-
-type ChapterWindow = {
-  id: PhaseId;
-  start: number;
-  holdStart: number;
-  holdEnd: number;
-  end: number;
-};
-
-const chapterWindows: readonly ChapterWindow[] = [
-  { id: "predawn", start: 0, holdStart: 0, holdEnd: 0.045, end: 0.065 },
-  { id: "morning", start: 0.17, holdStart: 0.18, holdEnd: 0.22, end: 0.235 },
-  { id: "noon", start: 0.36, holdStart: 0.37, holdEnd: 0.41, end: 0.425 },
-  { id: "golden", start: 0.55, holdStart: 0.56, holdEnd: 0.6, end: 0.615 },
-  { id: "sunset", start: 0.74, holdStart: 0.75, holdEnd: 0.79, end: 0.805 },
-  { id: "night", start: 0.925, holdStart: 0.94, holdEnd: 1, end: 1 },
-] as const;
-
-function clamp(value: number, min = 0, max = 1) {
-  return Math.min(max, Math.max(min, value));
-}
-
-function phaseForProgress(progress: number): PhaseId {
-  if (progress < 0.1) return "predawn";
-  if (progress < 0.3) return "morning";
-  if (progress < 0.5) return "noon";
-  if (progress < 0.7) return "golden";
-  if (progress < 0.88) return "sunset";
-  return "night";
-}
-
-function chapterOpacity(progress: number, window: ChapterWindow) {
-  if (progress < window.start || progress > window.end) return 0;
-  if (progress < window.holdStart) {
-    return clamp((progress - window.start) / Math.max(0.001, window.holdStart - window.start));
-  }
-  if (progress <= window.holdEnd) return 1;
-  return clamp((window.end - progress) / Math.max(0.001, window.end - window.holdEnd));
-}
-
-function visiblePhaseForProgress(progress: number): PhaseId | null {
-  return chapterWindows.find((window) => chapterOpacity(progress, window) > 0)?.id ?? null;
-}
 
 /**
  * The one client controller for the solar story. Native scroll remains the
@@ -68,8 +23,8 @@ function visiblePhaseForProgress(progress: number): PhaseId | null {
 export function SolarExperience({ children }: { children: React.ReactNode }) {
   const rootRef = useRef<HTMLElement>(null);
   const movedDuringDrag = useRef(false);
-  const [phase, setPhase] = useState<PhaseId>("predawn");
-  const [visiblePhase, setVisiblePhase] = useState<PhaseId | null>("predawn");
+  const [phase, setPhase] = useState<SolarPhaseId>("predawn");
+  const [visiblePhase, setVisiblePhase] = useState<SolarPhaseId>("predawn");
   const [sunSettled, setSunSettled] = useState(false);
   const [navOpen, setNavOpen] = useState(false);
   const [dragging, setDragging] = useState(false);
@@ -93,39 +48,38 @@ export function SolarExperience({ children }: { children: React.ReactNode }) {
     root.dataset.enhanced = "true";
     const reducedQuery = window.matchMedia("(prefers-reduced-motion: reduce)");
     let frame = 0;
-    let visible = true;
-    let lastPhase: PhaseId = "predawn";
-    let lastVisiblePhase: PhaseId | null = "predawn";
+    let lastPhase: SolarPhaseId = "predawn";
+    let lastVisiblePhase: SolarPhaseId = "predawn";
     let wasSettled = false;
 
     const render = () => {
       frame = 0;
-      if (!visible || reducedQuery.matches) return;
+      if (reducedQuery.matches) return;
 
       const rect = root.getBoundingClientRect();
       const distance = Math.max(1, root.offsetHeight - window.innerHeight);
       const progress = clamp(-rect.top / distance);
-      const daylight = clamp(progress / 0.82);
-      const nightMorph = clamp((progress - 0.82) / 0.16);
-      const solarAltitude = Math.sin(Math.PI * daylight);
+      const story = getSolarStoryState(progress);
+      const daylight = story.daylight;
+      const solarAltitude = story.solarAltitude;
       const dawnWarmth = clamp((progress - 0.015) / 0.11) * (1 - clamp((progress - 0.2) / 0.16));
       const duskWarmth = clamp((progress - 0.5) / 0.17) * (1 - clamp((progress - 0.8) / 0.14));
       const shadowStrength =
         (0.2 + Math.abs(daylight - 0.5) * 1.15) * (1 - clamp((progress - 0.84) / 0.16) * 0.55);
-      const panelLight = clamp(solarAltitude * 1.18) * (1 - clamp((progress - 0.72) / 0.24) * 0.72);
-      const baseX = 7 + daylight * 86;
-      const baseY = 80 - Math.sin(Math.PI * daylight) * 68;
-      const sunX = baseX * (1 - nightMorph) + 50 * nightMorph;
-      const endpointLiftProgress = clamp((progress - 0.97) / 0.03);
-      const endpointLift =
-        endpointLiftProgress * endpointLiftProgress * (3 - 2 * endpointLiftProgress);
-      const sunY = baseY * (1 - endpointLift) + 70 * endpointLift;
-      const nextPhase = phaseForProgress(progress);
-      const nextVisiblePhase = visiblePhaseForProgress(progress);
-      const nextSettled = progress >= 0.997;
+      const panelLight = story.panelLight;
+      const isMobile = window.innerWidth < 768;
+      const baseX = isMobile ? 14 + daylight * 72 : 7 + daylight * 86;
+      const baseY = isMobile
+        ? 74 - Math.sin(Math.PI * daylight) * 48
+        : 80 - Math.sin(Math.PI * daylight) * 68;
+      const sunX = baseX * (1 - story.houseContact) + 50 * story.houseContact;
+      const sunY = baseY * (1 - story.houseContact) + (isMobile ? 68 : 74) * story.houseContact;
+      const nextPhase = story.phase;
+      const nextVisiblePhase = story.textPhase;
+      const nextSettled = story.ctaReveal >= 0.95;
 
       root.style.setProperty("--solar-progress", progress.toFixed(4));
-      for (const window of chapterWindows) {
+      for (const window of solarChapterWindows) {
         root.style.setProperty(
           `--opacity-${window.id}`,
           chapterOpacity(progress, window).toFixed(4),
@@ -139,14 +93,22 @@ export function SolarExperience({ children }: { children: React.ReactNode }) {
       root.style.setProperty("--shadow-strength", shadowStrength.toFixed(4));
       root.style.setProperty("--shadow-softness", `${(0.6 + solarAltitude * 1.3).toFixed(3)}rem`);
       root.style.setProperty("--panel-light", panelLight.toFixed(4));
+      root.style.setProperty("--panel-focus", story.panelFocus.toFixed(4));
+      root.style.setProperty("--panel-presence", story.panelPresence.toFixed(4));
+      root.style.setProperty("--current-flow", story.currentFlow.toFixed(4));
       root.style.setProperty("--terrain-lift", `${((1 - solarAltitude) * 1.8).toFixed(3)}vh`);
       root.style.setProperty("--atmosphere-shift", `${((progress - 0.5) * 2.4).toFixed(3)}vw`);
-      root.style.setProperty("--battery-presence", clamp((progress - 0.47) / 0.11).toFixed(4));
-      root.style.setProperty("--charge-low", clamp((progress - 0.39) / 0.13).toFixed(4));
-      root.style.setProperty("--charge-mid", clamp((progress - 0.52) / 0.13).toFixed(4));
-      root.style.setProperty("--charge-high", clamp((progress - 0.65) / 0.13).toFixed(4));
+      root.style.setProperty("--battery-entry", story.batteryEntry.toFixed(4));
+      root.style.setProperty("--battery-focus", story.batteryFocus.toFixed(4));
+      root.style.setProperty("--battery-presence", story.batteryPresence.toFixed(4));
+      root.style.setProperty("--charge-low", clamp((progress - 0.39) / 0.12).toFixed(4));
+      root.style.setProperty("--charge-mid", clamp((progress - 0.48) / 0.12).toFixed(4));
+      root.style.setProperty("--charge-high", clamp((progress - 0.57) / 0.12).toFixed(4));
       root.style.setProperty("--stored-glow", clamp((progress - 0.58) / 0.28).toFixed(4));
-      root.style.setProperty("--home-light", clamp((progress - 0.84) / 0.12).toFixed(4));
+      root.style.setProperty("--home-focus", story.homeFocus.toFixed(4));
+      root.style.setProperty("--handoff-flow", story.handoffFlow.toFixed(4));
+      root.style.setProperty("--house-contact", story.houseContact.toFixed(4));
+      root.style.setProperty("--home-light", story.homeLight.toFixed(4));
       root.style.setProperty("--pre-dawn", clamp(1 - progress / 0.12).toFixed(4));
       root.style.setProperty(
         "--daylight",
@@ -157,11 +119,11 @@ export function SolarExperience({ children }: { children: React.ReactNode }) {
         (clamp((progress - 0.38) / 0.16) * (1 - clamp((progress - 0.69) / 0.13))).toFixed(4),
       );
       root.style.setProperty("--night", clamp((progress - 0.69) / 0.25).toFixed(4));
-      root.style.setProperty("--sun-morph", nightMorph.toFixed(4));
-      root.style.setProperty("--cta-reveal", clamp((progress - 0.992) / 0.008).toFixed(4));
-      root.style.setProperty("--phone-reveal", clamp((progress - 0.97) / 0.015).toFixed(4));
+      root.style.setProperty("--sun-morph", story.houseContact.toFixed(4));
+      root.style.setProperty("--cta-reveal", story.ctaReveal.toFixed(4));
       root.style.setProperty("--shadow-reach", `${((0.5 - daylight) * 56).toFixed(2)}vw`);
       root.style.setProperty("--camera-tilt", `${((progress - 0.5) * 7).toFixed(2)}deg`);
+      root.dataset.currentState = story.currentState;
 
       if (nextPhase !== lastPhase) {
         lastPhase = nextPhase;
@@ -171,7 +133,7 @@ export function SolarExperience({ children }: { children: React.ReactNode }) {
       }
       if (nextVisiblePhase !== lastVisiblePhase) {
         lastVisiblePhase = nextVisiblePhase;
-        root.dataset.textPhase = nextVisiblePhase ?? "transition";
+        root.dataset.textPhase = nextVisiblePhase;
         setVisiblePhase(nextVisiblePhase);
       }
       if (nextSettled !== wasSettled) {
@@ -185,8 +147,7 @@ export function SolarExperience({ children }: { children: React.ReactNode }) {
       if (!frame) frame = requestAnimationFrame(render);
     };
     const observer = new IntersectionObserver(([entry]) => {
-      visible = entry.isIntersecting;
-      if (visible) requestRender();
+      if (entry.isIntersecting) requestRender();
     });
     observer.observe(root);
 
@@ -203,25 +164,25 @@ export function SolarExperience({ children }: { children: React.ReactNode }) {
     };
   }, []);
 
-  const selectPhase = (target: (typeof phases)[number]) => {
+  const selectPhase = (target: (typeof solarPhases)[number]) => {
     setNavOpen(false);
     scrollToProgress(target.progress);
   };
 
   const handleSunKeyDown = (event: React.KeyboardEvent<HTMLButtonElement>) => {
-    const index = phases.findIndex((item) => item.id === phase);
+    const index = solarPhases.findIndex((item) => item.id === phase);
     if (event.key === "ArrowLeft" || event.key === "ArrowUp") {
       event.preventDefault();
-      selectPhase(phases[Math.max(0, index - 1)]);
+      selectPhase(solarPhases[Math.max(0, index - 1)]);
     } else if (event.key === "ArrowRight" || event.key === "ArrowDown") {
       event.preventDefault();
-      selectPhase(phases[Math.min(phases.length - 1, index + 1)]);
+      selectPhase(solarPhases[Math.min(solarPhases.length - 1, index + 1)]);
     } else if (event.key === "Home") {
       event.preventDefault();
-      selectPhase(phases[0]);
+      selectPhase(solarPhases[0]);
     } else if (event.key === "End") {
       event.preventDefault();
-      selectPhase(phases[phases.length - 1]);
+      selectPhase(solarPhases[solarPhases.length - 1]);
     }
   };
 
@@ -235,14 +196,14 @@ export function SolarExperience({ children }: { children: React.ReactNode }) {
     scrollToProgress(((normalized - 0.07) / 0.86) * 0.78, "auto");
   };
 
-  const currentLabel = phases.find((item) => item.id === phase)?.label ?? "Pre-dawn";
+  const currentLabel = solarPhases.find((item) => item.id === phase)?.label ?? "Pre-dawn";
 
   return (
     <section
       ref={rootRef}
       className={styles.experience}
       data-phase={phase}
-      data-text-phase={visiblePhase ?? "transition"}
+      data-text-phase={visiblePhase}
       data-sun-settled={sunSettled ? "true" : "false"}
       data-nav-open={navOpen ? "true" : "false"}
       aria-label="A solar day"
@@ -252,7 +213,7 @@ export function SolarExperience({ children }: { children: React.ReactNode }) {
       </a>
       <noscript>
         <nav className={styles.noScriptNavigation} aria-label="Solar day phases">
-          {phases.map((item) => (
+          {solarPhases.map((item) => (
             <a key={item.id} href={`#solar-${item.id}`}>
               {item.label}
             </a>
@@ -267,16 +228,18 @@ export function SolarExperience({ children }: { children: React.ReactNode }) {
           aria-controls="solar-phase-navigation"
           aria-label={
             sunSettled
-              ? "Night. Request a quotation"
+              ? "Night. The sun has entered the house."
               : `${currentLabel}. Open solar day navigation. Use arrow keys to move through time.`
           }
+          tabIndex={sunSettled ? -1 : undefined}
+          aria-hidden={sunSettled ? "true" : undefined}
           onClick={() => {
             if (movedDuringDrag.current) {
               movedDuringDrag.current = false;
               return;
             }
             if (sunSettled) {
-              window.location.assign("/contact");
+              scrollToProgress(1);
               return;
             }
             if (phase === "night") {
@@ -301,8 +264,47 @@ export function SolarExperience({ children }: { children: React.ReactNode }) {
           onPointerCancel={() => setDragging(false)}
         >
           <span className={styles.sunCore} aria-hidden="true" />
-          <span className={styles.sunCtaLabel}>Request a quotation</span>
         </button>
+
+        <div className={styles.progressRail} data-testid="solar-progress-rail" aria-hidden="true">
+          <span className={styles.progressRailTrack}>
+            <span className={styles.progressRailFill} data-testid="solar-progress-rail-fill" />
+          </span>
+          {solarPhases.map((item) => (
+            <i
+              key={item.id}
+              className={visiblePhase === item.id ? styles.progressRailMarkerActive : undefined}
+              style={{ top: `${item.progress * 100}%` }}
+            />
+          ))}
+        </div>
+
+        <Link
+          href="/services"
+          className={styles.panelSemanticLink}
+          data-testid="solar-panel-link"
+          aria-label="Open Solar Solutions from the solar panel"
+        >
+          <span>Explore Solar Solutions</span>
+        </Link>
+
+        <Link
+          href="/products"
+          className={styles.batterySemanticLink}
+          data-testid="solar-battery-link"
+          aria-label="Open Products for batteries and inverters"
+        >
+          <span>See Products</span>
+        </Link>
+
+        <Link
+          href="/contact"
+          className={styles.houseSemanticLink}
+          data-testid="solar-house-link"
+          aria-label="Request a quotation from the illuminated house"
+        >
+          <span>Request a quotation</span>
+        </Link>
 
         <nav
           id="solar-phase-navigation"
@@ -311,7 +313,7 @@ export function SolarExperience({ children }: { children: React.ReactNode }) {
         >
           <p className={styles.phaseNavigationTitle}>Solar time</p>
           <ol>
-            {phases.map((item) => (
+            {solarPhases.map((item) => (
               <li key={item.id}>
                 <a
                   href={`#solar-${item.id}`}

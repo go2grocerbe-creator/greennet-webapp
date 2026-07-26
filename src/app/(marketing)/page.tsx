@@ -24,7 +24,6 @@ export default function HomePage() {
             <div className="solar-chapter__copy solar-chapter__copy--hero">
               <div className="solar-time">
                 <span>Pre-dawn</span>
-                <time>05:42</time>
               </div>
               <p className="solar-kicker">Harness the Power of the Sun Today</p>
               <h1 id="solar-title">Powering Homes &amp; Businesses with Clean Solar Energy</h1>
@@ -55,7 +54,6 @@ export default function HomePage() {
             <div className="solar-chapter__copy">
               <div className="solar-time">
                 <span>Morning</span>
-                <time>06:30</time>
               </div>
               <p className="solar-kicker">01 / Collection</p>
               <h2 id="morning-title">Light becomes current.</h2>
@@ -78,7 +76,6 @@ export default function HomePage() {
             <div className="solar-chapter__copy">
               <div className="solar-time">
                 <span>Noon</span>
-                <time>12:08</time>
               </div>
               <p className="solar-kicker">02 / Conversion</p>
               <h2 id="noon-title">Sunlight becomes current.</h2>
@@ -98,7 +95,6 @@ export default function HomePage() {
             <div className="solar-chapter__copy">
               <div className="solar-time">
                 <span>Golden hour</span>
-                <time>17:21</time>
               </div>
               <p className="solar-kicker">03 / Storage</p>
               <h2 id="golden-title">Energy becomes reserve.</h2>
@@ -122,7 +118,6 @@ export default function HomePage() {
             <div className="solar-chapter__copy">
               <div className="solar-time">
                 <span>Sunset</span>
-                <time>18:47</time>
               </div>
               <p className="solar-kicker">04 / Handoff</p>
               <h2 id="sunset-title">Light changes hands.</h2>
@@ -143,7 +138,6 @@ export default function HomePage() {
             <div className="solar-chapter__copy solar-chapter__copy--night">
               <div className="solar-time">
                 <span>Night</span>
-                <time>19:11</time>
               </div>
               <p className="solar-kicker">05 / Stored power</p>
               <h2 id="night-title">The sun is still working.</h2>

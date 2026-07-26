@@ -50,6 +50,9 @@ export function SunScene() {
       </svg>
 
       <div className={styles.battery}>
+        <span className={styles.batteryLabel} aria-hidden="true">
+          Energy reserved
+        </span>
         <span className={styles.batteryCap} />
         <span className={styles.batteryBody}>
           <i />
@@ -64,9 +67,7 @@ export function SunScene() {
         <span className={styles.door} />
       </div>
       <div className={styles.shadowLine} />
-      <p className={styles.solarReadout}>
-        SOLAR DAY <span>05:42 — 19:11</span>
-      </p>
+      <p className={styles.solarReadout}>SOLAR DAY</p>
     </div>
   );
 }
