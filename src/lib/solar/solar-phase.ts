@@ -40,12 +40,12 @@ export type SolarChapterWindow = {
 };
 
 export const solarChapterWindows: readonly SolarChapterWindow[] = [
-  { id: "predawn", start: 0, holdStart: 0, holdEnd: 0.045, end: 0.065 },
-  { id: "morning", start: 0.17, holdStart: 0.18, holdEnd: 0.22, end: 0.235 },
-  { id: "noon", start: 0.36, holdStart: 0.37, holdEnd: 0.41, end: 0.425 },
-  { id: "golden", start: 0.55, holdStart: 0.56, holdEnd: 0.6, end: 0.615 },
-  { id: "sunset", start: 0.74, holdStart: 0.75, holdEnd: 0.79, end: 0.805 },
-  { id: "night", start: 0.925, holdStart: 0.94, holdEnd: 1, end: 1 },
+  { id: "predawn", start: 0, holdStart: 0, holdEnd: 0.105, end: 0.135 },
+  { id: "morning", start: 0.105, holdStart: 0.135, holdEnd: 0.26, end: 0.305 },
+  { id: "noon", start: 0.275, holdStart: 0.315, holdEnd: 0.445, end: 0.49 },
+  { id: "golden", start: 0.455, holdStart: 0.515, holdEnd: 0.645, end: 0.695 },
+  { id: "sunset", start: 0.665, holdStart: 0.715, holdEnd: 0.82, end: 0.875 },
+  { id: "night", start: 0.84, holdStart: 0.91, holdEnd: 1, end: 1 },
 ] as const;
 
 /** A chapter counts as readable once its opacity clears this value. */
@@ -61,6 +61,11 @@ export const clampProgress = (progress: number): number => clamp(progress);
 /** Linear 0→1 ramp between `from` and `to`, clamped outside. */
 export function ramp(progress: number, from: number, to: number): number {
   return clamp((progress - from) / Math.max(0.0001, to - from));
+}
+
+/** The sun's normalized altitude for the continuous daylight arc. */
+export function getSolarAltitude(progress: number): number {
+  return Math.sin(Math.PI * clamp(clampProgress(progress) / 0.82));
 }
 
 /** The environment phase (sky, light, shadow) for a scroll position. */
@@ -111,6 +116,9 @@ export const solarTransitionMidpoints: readonly number[] = solarChapterWindows
     const next = solarChapterWindows[index + 1];
     return Number(((window.end + next.start) / 2).toFixed(4));
   });
+
+export const BATTERY_ENTRY_START = 0.42;
+export const BATTERY_ENTRY_COMPLETE = 0.54;
 
 /* ── Storytelling emphasis variables ─────────────────────────────────────
    Each function maps scroll progress to one CSS custom property. The
@@ -175,13 +183,33 @@ export function getBatteryFocus(progress: number): number {
 }
 
 /**
+ * The canonical entry signal for the physical battery. The rendered
+ * battery, decorative "Energy Reserved" label, products connector and pulse
+ * activation all read this same output so they appear on the same frame.
+ */
+export function getBatteryEntry(progress: number): number {
+  return ramp(clampProgress(progress), BATTERY_ENTRY_START, BATTERY_ENTRY_COMPLETE);
+}
+
+export type SolarBatteryState = "inactive" | "entering" | "reserved" | "handoff" | "gone";
+
+export function getSolarBatteryState(progress: number): SolarBatteryState {
+  const p = clampProgress(progress);
+  if (getBatteryEntry(p) <= 0) return "inactive";
+  if (p < BATTERY_ENTRY_COMPLETE) return "entering";
+  if (p < 0.66) return "reserved";
+  if (getBatteryPresence(p) > 0) return "handoff";
+  return "gone";
+}
+
+/**
  * `--battery-presence` — physical entry/exit of the battery. It appears
  * before Golden Hour, stays available through the storage cue, and reaches
  * zero at settled Night after the handoff has done its job.
  */
 export function getBatteryPresence(progress: number): number {
   const p = clampProgress(progress);
-  return ramp(p, 0.42, 0.54) * (1 - ramp(p, 0.76, 0.94));
+  return getBatteryEntry(p) * (1 - ramp(p, 0.76, 0.94));
 }
 
 /**

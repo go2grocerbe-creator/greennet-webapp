@@ -6,6 +6,7 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import { SunScene } from "@/components/marketing/sun-scene";
 import {
   clamp,
+  getBatteryEntry,
   getBatteryPresence,
   getBatteryFocus,
   getConversionFlow,
@@ -16,6 +17,8 @@ import {
   getHouseContact,
   getPanelPresence,
   getPanelFocus,
+  getSolarAltitude,
+  getSolarBatteryState,
   getSolarChapterOpacity,
   getSolarCurrentState,
   getSolarEnvironmentPhase,
@@ -39,7 +42,11 @@ type PhaseId = SolarPhaseId;
  */
 export function SolarExperience({ children }: { children: React.ReactNode }) {
   const rootRef = useRef<HTMLElement>(null);
+  const houseLinkRef = useRef<HTMLAnchorElement>(null);
+  const sunButtonRef = useRef<HTMLButtonElement>(null);
   const movedDuringDrag = useRef(false);
+  const keyboardSettlementPending = useRef(false);
+  const restoreSunFocusPending = useRef(false);
   const [phase, setPhase] = useState<PhaseId>("predawn");
   const [visiblePhase, setVisiblePhase] = useState<PhaseId | null>("predawn");
   const [sunSettled, setSunSettled] = useState(false);
@@ -95,7 +102,7 @@ export function SolarExperience({ children }: { children: React.ReactNode }) {
       const distance = getStoryDistance(root.offsetHeight, window.innerHeight);
       const progress = clamp(-rect.top / distance);
       const daylight = clamp(progress / 0.82);
-      const solarAltitude = Math.sin(Math.PI * daylight);
+      const solarAltitude = getSolarAltitude(progress);
       const dawnWarmth = clamp((progress - 0.015) / 0.11) * (1 - clamp((progress - 0.2) / 0.16));
       const duskWarmth = clamp((progress - 0.5) / 0.17) * (1 - clamp((progress - 0.8) / 0.14));
       const shadowStrength =
@@ -113,6 +120,7 @@ export function SolarExperience({ children }: { children: React.ReactNode }) {
       const finalCtaActivation = getFinalCtaActivation(progress);
       const nextSettled = finalCtaActivation >= 0.95;
       const panelPresence = getPanelPresence(progress);
+      const batteryEntry = getBatteryEntry(progress);
       const batteryPresence = getBatteryPresence(progress);
       const homeLight = getHomeLight(progress);
 
@@ -135,6 +143,7 @@ export function SolarExperience({ children }: { children: React.ReactNode }) {
       root.style.setProperty("--terrain-lift", `${((1 - solarAltitude) * 1.8).toFixed(3)}vh`);
       root.style.setProperty("--atmosphere-shift", `${((progress - 0.5) * 2.4).toFixed(3)}vw`);
       root.style.setProperty("--battery-presence", batteryPresence.toFixed(4));
+      root.style.setProperty("--battery-entry", batteryEntry.toFixed(4));
       root.style.setProperty("--charge-low", clamp((progress - 0.44) / 0.08).toFixed(4));
       root.style.setProperty("--charge-mid", clamp((progress - 0.47) / 0.08).toFixed(4));
       root.style.setProperty("--charge-high", clamp((progress - 0.5) / 0.056).toFixed(4));
@@ -162,6 +171,7 @@ export function SolarExperience({ children }: { children: React.ReactNode }) {
       root.style.setProperty("--home-focus", getHomeFocus(progress).toFixed(4));
       root.style.setProperty("--house-contact", houseContact.toFixed(4));
       root.dataset.currentState = getSolarCurrentState(progress);
+      root.dataset.batteryState = getSolarBatteryState(progress);
 
       // `data-text-phase` is written synchronously here, but the matching
       // `aria-current="step"` marker is React-rendered and lands on the next
@@ -237,7 +247,37 @@ export function SolarExperience({ children }: { children: React.ReactNode }) {
     root.dataset.solarReady = "true";
   }, [visiblePhase, phase, sunSettled]);
 
-  const selectPhase = (target: (typeof phases)[number]) => {
+  useEffect(() => {
+    if (sunSettled) {
+      if (keyboardSettlementPending.current) {
+        requestAnimationFrame(() => {
+          const house = houseLinkRef.current;
+          if (!house || house.getAttribute("aria-hidden") === "true") return;
+          house.focus({ preventScroll: true });
+          restoreSunFocusPending.current = true;
+        });
+      }
+      return;
+    }
+
+    const house = houseLinkRef.current;
+    if (house && document.activeElement === house) {
+      const sun = sunButtonRef.current;
+      if (restoreSunFocusPending.current && sun && sun.tabIndex !== -1) {
+        sun.focus({ preventScroll: true });
+      } else {
+        (rootRef.current as HTMLElement | null)?.focus({ preventScroll: true });
+      }
+    }
+    keyboardSettlementPending.current = false;
+    restoreSunFocusPending.current = false;
+  }, [sunSettled]);
+
+  const selectPhase = (
+    target: (typeof phases)[number],
+    source: "keyboard" | "pointer" = "pointer",
+  ) => {
+    if (target.id === "night" && source === "keyboard") keyboardSettlementPending.current = true;
     setNavOpen(false);
     scrollToProgress(target.progress);
   };
@@ -252,10 +292,11 @@ export function SolarExperience({ children }: { children: React.ReactNode }) {
       selectPhase(phases[Math.min(phases.length - 1, index + 1)]);
     } else if (event.key === "Home") {
       event.preventDefault();
-      selectPhase(phases[0]);
+      selectPhase(phases[0], "keyboard");
     } else if (event.key === "End") {
       event.preventDefault();
-      selectPhase(phases[phases.length - 1]);
+      keyboardSettlementPending.current = true;
+      selectPhase(phases[phases.length - 1], "keyboard");
     }
   };
 
@@ -280,6 +321,7 @@ export function SolarExperience({ children }: { children: React.ReactNode }) {
       data-sun-settled={sunSettled ? "true" : "false"}
       data-nav-open={navOpen ? "true" : "false"}
       aria-label="A solar day"
+      tabIndex={-1}
     >
       <a href="#after-solar-story" className={styles.skipStory}>
         Skip the solar story
@@ -295,6 +337,7 @@ export function SolarExperience({ children }: { children: React.ReactNode }) {
       </noscript>
       <div className={styles.solarControl}>
         <button
+          ref={sunButtonRef}
           type="button"
           className={styles.sunHandle}
           aria-expanded={navOpen}
@@ -339,6 +382,19 @@ export function SolarExperience({ children }: { children: React.ReactNode }) {
           <span className={styles.sunCore} aria-hidden="true" />
         </button>
 
+        <div className={styles.progressRail} data-testid="solar-progress-rail" aria-hidden="true">
+          <span className={styles.progressRailTrack}>
+            <span className={styles.progressRailFill} />
+          </span>
+          <ol>
+            {phases.map((item) => (
+              <li key={item.id} data-phase-marker={item.id}>
+                <span />
+              </li>
+            ))}
+          </ol>
+        </div>
+
         <Link
           href="/services"
           className={styles.panelSemanticLink}
@@ -362,6 +418,7 @@ export function SolarExperience({ children }: { children: React.ReactNode }) {
         </Link>
 
         <Link
+          ref={houseLinkRef}
           href="/contact"
           className={styles.houseSemanticLink}
           data-testid="solar-house-link"
@@ -386,7 +443,7 @@ export function SolarExperience({ children }: { children: React.ReactNode }) {
                   aria-current={visiblePhase === item.id ? "step" : undefined}
                   onClick={(event) => {
                     event.preventDefault();
-                    selectPhase(item);
+                    selectPhase(item, event.detail === 0 ? "keyboard" : "pointer");
                   }}
                 >
                   <span>{item.label}</span>
