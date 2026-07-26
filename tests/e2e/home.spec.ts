@@ -21,6 +21,56 @@ async function expectSolarTextPhase(page: Page, phase: string) {
     .toBe(phase);
 }
 
+function storyLink(page: Page, phase: "morning" | "golden") {
+  return page.locator(`.solar-chapter--${phase} .solar-text-link`);
+}
+
+async function expectStoryLinkVisibility(
+  page: Page,
+  phase: "morning" | "golden",
+  visibility: "hidden" | "visible",
+) {
+  const link = storyLink(page, phase);
+  await expect
+    .poll(async () => link.evaluate((element) => getComputedStyle(element).visibility))
+    .toBe(visibility);
+  if (visibility === "visible") {
+    await expect(link).toBeVisible();
+  } else {
+    await expect(link).toBeHidden();
+  }
+}
+
+async function expectStoryLinkFocusability(
+  page: Page,
+  phase: "morning" | "golden",
+  canFocus: boolean,
+) {
+  const link = storyLink(page, phase);
+  const focused = await link.evaluate((element) => {
+    const target = element as HTMLElement;
+    target.focus();
+    return document.activeElement === target;
+  });
+  expect(focused).toBe(canFocus);
+}
+
+async function expectStoryLinksSkippedByTab(page: Page) {
+  await page.locator("body").focus();
+  for (let index = 0; index < 12; index += 1) {
+    await page.keyboard.press("Tab");
+    const activeStoryLink = await page.evaluate(() => {
+      const active = document.activeElement;
+      return Boolean(
+        active?.matches(
+          ".solar-chapter--morning .solar-text-link, .solar-chapter--golden .solar-text-link",
+        ),
+      );
+    });
+    expect(activeStoryLink).toBe(false);
+  }
+}
+
 async function openSolarHome(page: Page) {
   await page.goto("/");
   await expect(page.locator('[aria-label="A solar day"][data-enhanced="true"]')).toBeAttached();
@@ -262,6 +312,30 @@ test("unknown route renders the not-found page", async ({ page }) => {
 });
 
 test.describe("story links", () => {
+  test("hide inactive story links from keyboard focus", async ({ page }) => {
+    await openSolarHome(page);
+    await expectSolarTextPhase(page, "predawn");
+    await expectStoryLinkVisibility(page, "morning", "hidden");
+    await expectStoryLinkVisibility(page, "golden", "hidden");
+    await expectStoryLinkFocusability(page, "morning", false);
+    await expectStoryLinkFocusability(page, "golden", false);
+    await expectStoryLinksSkippedByTab(page);
+
+    for (const [phase, progress] of [
+      ["noon", 0.38],
+      ["sunset", 0.76],
+      ["night", 1],
+    ] as const) {
+      await moveSolarStoryTo(page, progress);
+      await expectSolarTextPhase(page, phase);
+      await expectStoryLinkVisibility(page, "morning", "hidden");
+      await expectStoryLinkVisibility(page, "golden", "hidden");
+      await expectStoryLinkFocusability(page, "morning", false);
+      await expectStoryLinkFocusability(page, "golden", false);
+      await expectStoryLinksSkippedByTab(page);
+    }
+  });
+
   test("show the in-story navigation links in their intended phases without overflow", async ({
     page,
   }) => {
@@ -277,18 +351,26 @@ test.describe("story links", () => {
       await expectSolarTextPhase(page, "morning");
       const servicesLink = page.getByRole("link", { name: /explore solar solutions/i });
       await expect(servicesLink).toBeVisible();
+      await expectStoryLinkVisibility(page, "morning", "visible");
       await expect(servicesLink).toHaveAttribute("href", "/services");
       await servicesLink.focus();
       await expect(servicesLink).toBeFocused();
+      await expectStoryLinkFocusability(page, "morning", true);
+      await expectStoryLinkVisibility(page, "golden", "hidden");
+      await expectStoryLinkFocusability(page, "golden", false);
       await expectNoCollision(page, ".solar-chapter--morning .solar-text-link", "#morning-title");
 
       await moveSolarStoryTo(page, 0.58);
       await expectSolarTextPhase(page, "golden");
       const productsLink = page.getByRole("link", { name: /see products/i });
       await expect(productsLink).toBeVisible();
+      await expectStoryLinkVisibility(page, "golden", "visible");
       await expect(productsLink).toHaveAttribute("href", "/products");
       await productsLink.focus();
       await expect(productsLink).toBeFocused();
+      await expectStoryLinkFocusability(page, "golden", true);
+      await expectStoryLinkVisibility(page, "morning", "hidden");
+      await expectStoryLinkFocusability(page, "morning", false);
       await expectNoCollision(page, ".solar-chapter--golden .solar-text-link", "#golden-title");
 
       const hasHorizontalOverflow = await page.evaluate(
