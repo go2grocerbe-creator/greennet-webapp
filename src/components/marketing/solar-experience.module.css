@@ -385,6 +385,7 @@
   left: 5vw;
   width: min(43rem, 48vw);
   height: 28vh;
+  opacity: calc(0.08 + var(--pre-dawn) * 0.38 + var(--panel-focus) * 0.7);
   filter: brightness(calc(0.58 + var(--panel-light) * 0.2 + var(--panel-focus) * 0.34))
     saturate(calc(0.82 + var(--panel-focus) * 0.3));
   transform: translate3d(0, calc(var(--terrain-lift) * 0.35), 0)

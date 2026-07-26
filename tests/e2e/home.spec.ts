@@ -518,6 +518,9 @@ test.describe("solar story", () => {
     await expect(stage.locator("[data-solar-home]")).toHaveCount(1);
     // The decorative "SOLAR DAY 05:42 — 19:11" readout is gone.
     await expect(page.getByText(/05:42 — 19:11/)).toHaveCount(0);
+    // Individual chapter timestamps are gone too; phase labels can
+    // orient the story without creating a technical readout.
+    await expect(page.locator(".solar-time time")).toHaveCount(0);
     // The night phone link is gone from the story (the footer's
     // site-wide contact link is outside the solar experience).
     await expect(page.locator('[aria-label="A solar day"] a[href^="tel:"]')).toHaveCount(0);
