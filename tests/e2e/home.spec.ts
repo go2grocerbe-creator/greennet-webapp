@@ -86,6 +86,10 @@ function storyLink(page: Page, phase: "morning" | "golden") {
   return page.locator(`.solar-chapter--${phase} .solar-text-link`);
 }
 
+function semanticStoryLink(page: Page, target: "panel" | "battery" | "house") {
+  return page.getByTestId(`solar-${target}-link`);
+}
+
 async function expectStoryLinkVisibility(
   page: Page,
   phase: "morning" | "golden",
@@ -174,7 +178,7 @@ test("home page renders the hero with the confirmed brand tagline", async ({ pag
   await expect(page.getByRole("link", { name: "Projects", exact: true })).toHaveCount(0);
 });
 
-test("the sun is a keyboard-operable phase navigator and becomes the final action", async ({
+test("the sun is a keyboard-operable phase navigator before the house becomes the final action", async ({
   page,
 }) => {
   await page.goto("/");
@@ -182,10 +186,13 @@ test("the sun is a keyboard-operable phase navigator and becomes the final actio
   await sun.focus();
   await page.keyboard.press("End");
 
-  const finalSun = page.getByRole("button", { name: /night\. request a quotation/i });
-  await expect(finalSun).toBeVisible();
   await expect(page.getByRole("heading", { name: /the sun is still working/i })).toBeVisible();
-  await finalSun.click();
+  await expect(page.getByRole("button", { name: /night\./i })).toHaveCount(0);
+  const houseCta = page.getByRole("link", {
+    name: /request a quotation from the illuminated house/i,
+  });
+  await expect(houseCta).toBeVisible();
+  await houseCta.click();
   await expect(page).toHaveURL(/\/contact$/);
 });
 
@@ -354,7 +361,9 @@ test("the landscape responds continuously to the solar day", async ({ page }) =>
         altitude: read("--solar-altitude"),
         shadow: read("--shadow-strength"),
         panelLight: read("--panel-light"),
+        panelPresence: read("--panel-presence"),
         battery: read("--battery-presence"),
+        houseContact: read("--house-contact"),
         homeLight: read("--home-light"),
       };
     });
@@ -371,6 +380,9 @@ test("the landscape responds continuously to the solar day", async ({ page }) =>
   expect(predawn.battery).toBe(0);
   expect(golden.battery).toBeGreaterThan(0.95);
   expect(golden.homeLight).toBe(0);
+  expect(night.panelPresence).toBe(0);
+  expect(night.battery).toBe(0);
+  expect(night.houseContact).toBeGreaterThan(0.95);
   expect(night.homeLight).toBeGreaterThan(0.95);
 });
 
@@ -431,29 +443,29 @@ test.describe("story links", () => {
 
       await moveSolarStoryTo(page, 0.2);
       await expectSolarTextPhase(page, "morning");
-      const servicesLink = page.getByRole("link", { name: /explore solar solutions/i });
+      const servicesLink = semanticStoryLink(page, "panel");
       await expect(servicesLink).toBeVisible();
-      await expectStoryLinkVisibility(page, "morning", "visible");
+      await expectStoryLinkVisibility(page, "morning", "hidden");
       await expect(servicesLink).toHaveAttribute("href", "/services");
       await servicesLink.focus();
       await expect(servicesLink).toBeFocused();
-      await expectStoryLinkFocusability(page, "morning", true);
+      await expectStoryLinkFocusability(page, "morning", false);
       await expectStoryLinkVisibility(page, "golden", "hidden");
       await expectStoryLinkFocusability(page, "golden", false);
-      await expectNoCollision(page, ".solar-chapter--morning .solar-text-link", "#morning-title");
+      await expectNoCollision(page, '[data-testid="solar-panel-link"]', "#morning-title");
 
       await moveSolarStoryTo(page, 0.58);
       await expectSolarTextPhase(page, "golden");
-      const productsLink = page.getByRole("link", { name: /see products/i });
+      const productsLink = semanticStoryLink(page, "battery");
       await expect(productsLink).toBeVisible();
-      await expectStoryLinkVisibility(page, "golden", "visible");
+      await expectStoryLinkVisibility(page, "golden", "hidden");
       await expect(productsLink).toHaveAttribute("href", "/products");
       await productsLink.focus();
       await expect(productsLink).toBeFocused();
-      await expectStoryLinkFocusability(page, "golden", true);
+      await expectStoryLinkFocusability(page, "golden", false);
       await expectStoryLinkVisibility(page, "morning", "hidden");
       await expectStoryLinkFocusability(page, "morning", false);
-      await expectNoCollision(page, ".solar-chapter--golden .solar-text-link", "#golden-title");
+      await expectNoCollision(page, '[data-testid="solar-battery-link"]', "#golden-title");
 
       const hasHorizontalOverflow = await page.evaluate(
         () => document.documentElement.scrollWidth > document.documentElement.clientWidth,
@@ -466,13 +478,13 @@ test.describe("story links", () => {
     await openSolarHome(page);
     await moveSolarStoryTo(page, 0.2);
     await expectSolarTextPhase(page, "morning");
-    await page.getByRole("link", { name: /explore solar solutions/i }).click();
+    await semanticStoryLink(page, "panel").click();
     await expect(page).toHaveURL(/\/services$/);
 
     await openSolarHome(page);
     await moveSolarStoryTo(page, 0.58);
     await expectSolarTextPhase(page, "golden");
-    await page.getByRole("link", { name: /see products/i }).click();
+    await semanticStoryLink(page, "battery").click();
     await expect(page).toHaveURL(/\/products$/);
   });
 
@@ -501,9 +513,10 @@ test.describe("story links", () => {
 
     await sun.focus();
     await page.keyboard.press("End");
-    const finalSun = page.getByRole("button", { name: /night\. request a quotation/i });
-    await expect(finalSun).toBeVisible();
-    await finalSun.click();
+    await expect(page.getByRole("button", { name: /night\./i })).toHaveCount(0);
+    const houseCta = semanticStoryLink(page, "house");
+    await expect(houseCta).toBeVisible();
+    await houseCta.click();
     await expect(page).toHaveURL(/\/contact$/);
   });
 });
@@ -541,7 +554,8 @@ test.describe("solar story", () => {
     expect(morningFocus).toBeGreaterThan(predawnFocus);
     expect(morningFocus).toBe(1);
     expect(morningFlow).toBeGreaterThan(0);
-    await expectStoryLinkVisibility(page, "morning", "visible");
+    await expectStoryLinkVisibility(page, "morning", "hidden");
+    await expect(semanticStoryLink(page, "panel")).toBeVisible();
     await expectStoryLinkFocusability(page, "golden", false);
   });
 
@@ -576,7 +590,8 @@ test.describe("solar story", () => {
     }
     expect(await readSceneVariable(page, "--stored-glow")).toBeGreaterThan(0);
     await expect(page.locator("[data-solar-battery]")).toBeVisible();
-    await expectStoryLinkVisibility(page, "golden", "visible");
+    await expectStoryLinkVisibility(page, "golden", "hidden");
+    await expect(semanticStoryLink(page, "battery")).toBeVisible();
   });
 
   test("sunset hands collection over to stored power and the home approaches", async ({ page }) => {
@@ -612,19 +627,20 @@ test.describe("solar story", () => {
 
       expect(await readSceneVariable(page, "--home-focus")).toBe(1);
       expect(await readSceneVariable(page, "--home-light")).toBeGreaterThan(0.95);
+      expect(await readSceneVariable(page, "--house-contact")).toBeGreaterThan(0.95);
       expect(await readSceneVariable(page, "--handoff-flow")).toBe(1);
+      expect(await readSceneVariable(page, "--panel-presence")).toBe(0);
+      expect(await readSceneVariable(page, "--battery-presence")).toBe(0);
 
-      await waitForStableBox(page, 'button[aria-controls="solar-phase-navigation"]');
       await waitForStableBox(page, "[data-solar-home]");
 
       const geometry = await page.evaluate(() => {
         const home = document.querySelector<HTMLElement>("[data-solar-home]");
         const heading = document.querySelector<HTMLElement>("#night-title");
-        const sun = document.querySelector<HTMLElement>(
-          'button[aria-controls="solar-phase-navigation"]',
-        );
-        if (!home || !heading || !sun) return null;
+        const houseCta = document.querySelector<HTMLElement>('[data-testid="solar-house-link"]');
+        if (!home || !heading || !houseCta) return null;
         const homeBox = home.getBoundingClientRect();
+        const ctaBox = houseCta.getBoundingClientRect();
         const overlap = (a: DOMRect, b: DOMRect) =>
           a.left < b.right && a.right > b.left && a.top < b.bottom && a.bottom > b.top;
         return {
@@ -635,8 +651,7 @@ test.describe("solar story", () => {
             homeBox.right <= window.innerWidth &&
             homeBox.bottom <= window.innerHeight,
           headingOverlapsHome: overlap(heading.getBoundingClientRect(), homeBox),
-          sunOverlapsHome: overlap(sun.getBoundingClientRect(), homeBox),
-          sunOverlapsHeading: overlap(sun.getBoundingClientRect(), heading.getBoundingClientRect()),
+          ctaOverlapsHeading: overlap(ctaBox, heading.getBoundingClientRect()),
           overflow: document.documentElement.scrollWidth > document.documentElement.clientWidth,
         };
       });
@@ -645,13 +660,14 @@ test.describe("solar story", () => {
       expect(geometry!.homeCenterOffset).toBeLessThan(0.12);
       expect(geometry!.homeFullyOnScreen).toBe(true);
       expect(geometry!.headingOverlapsHome).toBe(false);
-      expect(geometry!.sunOverlapsHome).toBe(false);
-      expect(geometry!.sunOverlapsHeading).toBe(false);
+      expect(geometry!.ctaOverlapsHeading).toBe(false);
       expect(geometry!.overflow).toBe(false);
     }
   });
 
-  test("settled night shows exactly one quotation action and no phone link", async ({ page }) => {
+  test("settled night shows exactly one house quotation action and no phone link", async ({
+    page,
+  }) => {
     await openSolarHome(page);
     await moveSolarStoryTo(page, 1);
     await expect(
@@ -659,13 +675,18 @@ test.describe("solar story", () => {
     ).toBeAttached();
 
     const story = page.locator('[aria-label="A solar day"]');
-    // The morphed sun is the single visible quotation action…
-    await expect(story.getByRole("button", { name: /night\. request a quotation/i })).toBeVisible();
-    // …the in-chapter fallback stays hidden under normal motion…
+    // The illuminated house is the single visible quotation action.
+    const houseCta = story.getByRole("link", {
+      name: /request a quotation from the illuminated house/i,
+    });
+    await expect(houseCta).toBeVisible();
+    await expect(houseCta).toHaveAttribute("href", "/contact");
+    await expect(story.getByRole("button", { name: /night\./i })).toHaveCount(0);
+    // The in-chapter fallback stays hidden under normal motion.
     await expect(story.locator(".solar-night-action")).toBeHidden();
-    // …no phone link exists inside the story…
+    // No phone link exists inside the story.
     await expect(story.locator('a[href^="tel:"]')).toHaveCount(0);
-    // …and the hidden fallback never enters the tab order.
+    // The hidden fallback never enters the tab order.
     await page.locator("body").focus();
     for (let index = 0; index < 15; index += 1) {
       await page.keyboard.press("Tab");
@@ -723,5 +744,120 @@ test.describe("solar story", () => {
         page.locator('[aria-label="A solar day"]').evaluate((root) => root.dataset.textPhase),
       )
       .toBe("noon");
+  });
+});
+
+test.describe("solar story refinement", () => {
+  test("semantic artwork links are outside aria-hidden stage and phase-gated", async ({ page }) => {
+    await openSolarHome(page);
+
+    const focusableInsideHiddenStage = await page.locator("[aria-hidden='true'] a").count();
+    expect(focusableInsideHiddenStage).toBe(0);
+
+    await moveSolarStoryTo(page, 0);
+    await expect(semanticStoryLink(page, "panel")).toBeHidden();
+    await expect(semanticStoryLink(page, "battery")).toBeHidden();
+    await expect(semanticStoryLink(page, "house")).toBeHidden();
+
+    await moveSolarStoryTo(page, 0.2);
+    await expect(semanticStoryLink(page, "panel")).toBeVisible();
+    await expect(semanticStoryLink(page, "panel")).toHaveAttribute("href", "/services");
+    await expect(semanticStoryLink(page, "battery")).toBeHidden();
+    await expect(semanticStoryLink(page, "house")).toBeHidden();
+
+    await moveSolarStoryTo(page, 0.58);
+    await expect(semanticStoryLink(page, "battery")).toBeVisible();
+    await expect(semanticStoryLink(page, "battery")).toHaveAttribute("href", "/products");
+    await expect(semanticStoryLink(page, "panel")).toBeHidden();
+
+    await moveSolarStoryTo(page, 1);
+    await expect(semanticStoryLink(page, "house")).toBeVisible();
+    await expect(semanticStoryLink(page, "house")).toHaveAttribute("href", "/contact");
+    await expect(semanticStoryLink(page, "panel")).toBeHidden();
+    await expect(semanticStoryLink(page, "battery")).toBeHidden();
+  });
+
+  test("current transformation, house contact and settled assets are deterministic", async ({
+    page,
+  }) => {
+    await openSolarHome(page);
+
+    for (const [progress, state] of [
+      [0.05, "off"],
+      [0.2, "forming"],
+      [0.38, "active"],
+      [0.58, "arriving"],
+      [0.76, "complete"],
+    ] as const) {
+      await moveSolarStoryTo(page, progress);
+      await expect
+        .poll(async () =>
+          page.locator('[aria-label="A solar day"]').evaluate((root) => root.dataset.currentState),
+        )
+        .toBe(state);
+    }
+
+    await moveSolarStoryTo(page, 0.9);
+    expect(await readSceneVariable(page, "--house-contact")).toBeLessThan(0.95);
+    expect(await readSceneVariable(page, "--home-light")).toBe(0);
+
+    await moveSolarStoryTo(page, 1);
+    expect(await readSceneVariable(page, "--house-contact")).toBeGreaterThan(0.95);
+    expect(await readSceneVariable(page, "--home-light")).toBeGreaterThan(0.95);
+    expect(await readSceneVariable(page, "--panel-presence")).toBe(0);
+    expect(await readSceneVariable(page, "--battery-presence")).toBe(0);
+  });
+
+  test("sun coordinates have no scroll-driven transition lag", async ({ page }) => {
+    await openSolarHome(page);
+
+    for (const progress of [0.12, 0.48, 0.9, 0.2, 1]) {
+      await moveSolarStoryTo(page, progress);
+      const delta = await page.evaluate(() => {
+        const root = document.querySelector<HTMLElement>('[aria-label="A solar day"]');
+        const sun = document.querySelector<HTMLElement>(
+          'button[aria-controls="solar-phase-navigation"]',
+        );
+        if (!root || !sun) return { x: 0, y: 0 };
+        const rootStyles = getComputedStyle(root);
+        const sunStyles = getComputedStyle(sun);
+        const viewportWidth = window.innerWidth;
+        const viewportHeight = window.innerHeight;
+        return {
+          x: Math.abs(
+            (Number.parseFloat(rootStyles.getPropertyValue("--sun-x")) / 100) * viewportWidth -
+              Number.parseFloat(sunStyles.left),
+          ),
+          y: Math.abs(
+            (Number.parseFloat(rootStyles.getPropertyValue("--sun-y")) / 100) * viewportHeight -
+              Number.parseFloat(sunStyles.top),
+          ),
+        };
+      });
+      expect(delta.x).toBeLessThan(0.2);
+      expect(delta.y).toBeLessThan(0.2);
+    }
+  });
+
+  test("survives 50 rapid direction changes without readiness deadlock", async ({ page }) => {
+    await openSolarHome(page);
+
+    for (let index = 0; index < 50; index += 1) {
+      const progress = index % 2 === 0 ? 0.18 + (index % 5) * 0.04 : 0.94 - (index % 5) * 0.04;
+      await moveSolarStoryTo(page, progress);
+      await expect
+        .poll(async () =>
+          page.locator('[aria-label="A solar day"]').evaluate((root) => root.dataset.solarReady),
+        )
+        .toBe("true");
+    }
+
+    await moveSolarStoryTo(page, 0.19);
+    await expectSolarTextPhase(page, "morning");
+    await expect(semanticStoryLink(page, "panel")).toBeVisible();
+
+    await moveSolarStoryTo(page, 1);
+    await expectSolarTextPhase(page, "night");
+    await expect(semanticStoryLink(page, "house")).toBeVisible();
   });
 });

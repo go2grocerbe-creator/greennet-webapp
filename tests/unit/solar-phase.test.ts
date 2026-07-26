@@ -3,12 +3,18 @@ import { describe, expect, it } from "vitest";
 import {
   clampProgress,
   getActiveSolarPhase,
+  getBatteryPresence,
   getBatteryFocus,
   getConversionFlow,
+  getFinalCtaActivation,
   getHandoffFlow,
+  getHomeLight,
   getHomeFocus,
+  getHouseContact,
+  getPanelPresence,
   getPanelFocus,
   getSolarChapterOpacity,
+  getSolarCurrentState,
   getSolarEnvironmentPhase,
   getSolarTextPhase,
   getSolarTextPhaseAttribute,
@@ -114,6 +120,13 @@ describe("storytelling emphasis variables", () => {
     expect(getPanelFocus(anchor("night"))).toBe(0);
   });
 
+  it("panel presence: the physical panels leave the settled night frame", () => {
+    expect(getPanelPresence(anchor("morning"))).toBe(1);
+    expect(getPanelPresence(anchor("noon"))).toBe(1);
+    expect(getPanelPresence(anchor("sunset"))).toBeGreaterThan(0);
+    expect(getPanelPresence(anchor("night"))).toBe(0);
+  });
+
   it("conversion flow: begins in Morning, peaks at Noon, only a trace remains at Night", () => {
     expect(getConversionFlow(anchor("predawn"))).toBe(0);
     expect(getConversionFlow(anchor("morning"))).toBeGreaterThan(0);
@@ -122,13 +135,18 @@ describe("storytelling emphasis variables", () => {
     expect(getConversionFlow(anchor("night"))).toBeLessThan(0.35);
   });
 
-  it("battery focus: absent through Noon, dominant at Golden, supporting at Night", () => {
+  it("battery focus: absent through Noon, dominant at Golden, gone by settled Night", () => {
     expect(getBatteryFocus(anchor("morning"))).toBe(0);
     expect(getBatteryFocus(anchor("noon"))).toBe(0);
     expect(getBatteryFocus(anchor("golden"))).toBe(1);
-    const night = getBatteryFocus(anchor("night"));
-    expect(night).toBeGreaterThan(0.3);
-    expect(night).toBeLessThan(getBatteryFocus(anchor("golden")));
+    expect(getBatteryFocus(anchor("night"))).toBe(0);
+  });
+
+  it("battery presence: enters for storage and fades after the handoff", () => {
+    expect(getBatteryPresence(anchor("noon"))).toBe(0);
+    expect(getBatteryPresence(anchor("golden"))).toBe(1);
+    expect(getBatteryPresence(anchor("sunset"))).toBe(1);
+    expect(getBatteryPresence(anchor("night"))).toBe(0);
   });
 
   it("handoff flow: draws across Sunset and completes for Night", () => {
@@ -148,8 +166,36 @@ describe("storytelling emphasis variables", () => {
     expect(getHomeFocus(anchor("night"))).toBe(1);
   });
 
+  it("house contact gates home light and final CTA activation", () => {
+    expect(getHouseContact(0.86)).toBe(0);
+    expect(getHomeLight(0.9)).toBe(0);
+    expect(getFinalCtaActivation(0.9)).toBe(0);
+    expect(getHouseContact(0.97)).toBe(1);
+    expect(getHomeLight(0.97)).toBe(1);
+    expect(getFinalCtaActivation(0.97)).toBe(1);
+  });
+
+  it("names the current transformation reversibly", () => {
+    expect(getSolarCurrentState(0.05)).toBe("off");
+    expect(getSolarCurrentState(0.2)).toBe("forming");
+    expect(getSolarCurrentState(anchor("noon"))).toBe("active");
+    expect(getSolarCurrentState(anchor("golden"))).toBe("arriving");
+    expect(getSolarCurrentState(anchor("sunset"))).toBe("complete");
+  });
+
   it("every emphasis variable stays inside 0..1 for any input", () => {
-    const fns = [getPanelFocus, getConversionFlow, getBatteryFocus, getHandoffFlow, getHomeFocus];
+    const fns = [
+      getPanelFocus,
+      getPanelPresence,
+      getConversionFlow,
+      getBatteryFocus,
+      getBatteryPresence,
+      getHandoffFlow,
+      getHomeFocus,
+      getHouseContact,
+      getHomeLight,
+      getFinalCtaActivation,
+    ];
     for (let step = -20; step <= 120; step += 1) {
       for (const fn of fns) {
         const value = fn(step / 100);

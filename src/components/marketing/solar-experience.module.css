@@ -12,6 +12,7 @@
   --shadow-strength: 0.75;
   --shadow-softness: 0.6rem;
   --panel-light: 0;
+  --panel-presence: 1;
   --terrain-lift: 1.8vh;
   --atmosphere-shift: -1.2vw;
   --battery-presence: 0;
@@ -31,6 +32,7 @@
   --battery-focus: 0;
   --handoff-flow: 0;
   --home-focus: 0;
+  --house-contact: 0;
   --home-scale: 1;
   position: relative;
   /* 640svh: the story maps to (height − 100svh − 90svh hold); the last
@@ -131,8 +133,6 @@
   place-items: center;
   transform: translate(-50%, -50%) translateZ(0);
   transition:
-    top 650ms cubic-bezier(0.16, 1, 0.3, 1),
-    left 650ms cubic-bezier(0.16, 1, 0.3, 1),
     width 700ms cubic-bezier(0.16, 1, 0.3, 1),
     border-radius 700ms cubic-bezier(0.16, 1, 0.3, 1);
   touch-action: none;
@@ -174,9 +174,10 @@
   transition: opacity 260ms ease 220ms;
 }
 .experience[data-sun-settled="true"] .sunHandle {
-  width: 14rem;
-  cursor: pointer;
-  border-radius: 3.5rem;
+  visibility: hidden;
+  width: 7rem;
+  pointer-events: none;
+  opacity: 0;
 }
 .experience[data-sun-settled="true"] .sunCore {
   background: radial-gradient(circle at 68% 32%, #fff3a1 0, #f5c400 48%, #e8a900 100%);
@@ -187,6 +188,137 @@
 .experience[data-sun-settled="true"] .sunCtaLabel {
   max-width: 12rem;
   opacity: 1;
+}
+
+.panelSemanticLink,
+.batterySemanticLink,
+.houseSemanticLink {
+  position: absolute;
+  z-index: 24;
+  display: grid;
+  min-width: 44px;
+  min-height: 44px;
+  color: #063f2a;
+  font-family: var(--font-heading-brand), sans-serif;
+  font-weight: 760;
+  line-height: 1;
+  text-decoration: none;
+  pointer-events: none;
+  visibility: hidden;
+  opacity: 0;
+  outline: none;
+  place-items: center;
+}
+.panelSemanticLink:focus-visible,
+.batterySemanticLink:focus-visible,
+.houseSemanticLink:focus-visible {
+  outline: 3px solid #fff3a1;
+  outline-offset: 0.4rem;
+  filter: drop-shadow(0 0 1.4rem rgb(245 196 0 / 52%));
+}
+.panelSemanticLink {
+  bottom: 2vh;
+  left: 5vw;
+  width: min(43rem, 48vw);
+  height: 30vh;
+  transform: rotateZ(-7deg) scale(calc(1 + var(--panel-focus) * 0.05));
+  transform-origin: 50% 100%;
+}
+.panelSemanticLink span {
+  position: absolute;
+  right: 43%;
+  bottom: 86%;
+  text-shadow: 0 0.9rem 2.2rem rgb(255 243 196 / 54%);
+  white-space: nowrap;
+  transform: rotate(7deg);
+}
+.panelSemanticLink::before {
+  position: absolute;
+  right: 49%;
+  bottom: 63%;
+  width: 1px;
+  height: 4.6rem;
+  content: "";
+  background: #f5c400;
+  box-shadow: 0 0 1.4rem rgb(245 196 0 / 42%);
+  transform: rotate(2deg);
+}
+.experience:is([data-text-phase="morning"], [data-text-phase="noon"]) .panelSemanticLink {
+  pointer-events: auto;
+  visibility: visible;
+  opacity: var(--panel-presence);
+}
+.experience:is([data-text-phase="morning"], [data-text-phase="noon"]) .panelSemanticLink:hover,
+.experience:is([data-text-phase="morning"], [data-text-phase="noon"])
+  .panelSemanticLink:focus-visible {
+  filter: drop-shadow(0 0 1.6rem rgb(245 196 0 / 52%));
+  transform: rotateZ(-7deg) scale(calc(1.035 + var(--panel-focus) * 0.05));
+}
+.batterySemanticLink {
+  right: 12vw;
+  bottom: 18vh;
+  width: min(16rem, 24vw);
+  height: 10rem;
+  color: #063f2a;
+  opacity: var(--battery-focus);
+}
+.batterySemanticLink span {
+  position: absolute;
+  right: 0;
+  bottom: 100%;
+  max-width: 16rem;
+  text-align: right;
+  text-shadow: 0 0.9rem 2.2rem rgb(255 243 196 / 42%);
+}
+.batterySemanticLink::before {
+  position: absolute;
+  right: 1rem;
+  bottom: calc(100% - 0.65rem);
+  width: 4.5rem;
+  height: 1px;
+  content: "";
+  background: currentColor;
+  opacity: 0.45;
+}
+.experience[data-text-phase="golden"] .batterySemanticLink {
+  pointer-events: auto;
+  visibility: visible;
+}
+.experience[data-text-phase="golden"] .batterySemanticLink:hover,
+.experience[data-text-phase="golden"] .batterySemanticLink:focus-visible {
+  filter: drop-shadow(0 0 1.5rem rgb(245 196 0 / 42%));
+}
+.houseSemanticLink {
+  bottom: 5.5vh;
+  left: 50%;
+  width: 21rem;
+  height: 15rem;
+  color: #fff3a1;
+  transform: translateX(-50%) scale(calc((0.9 + var(--home-focus) * 0.1) * var(--home-scale)));
+  transform-origin: 50% 100%;
+}
+.houseSemanticLink span {
+  position: absolute;
+  bottom: 0.5rem;
+  left: 50%;
+  padding: 0.85rem 1.2rem 0.78rem;
+  color: #063f2a;
+  background: linear-gradient(90deg, #f5c400, #fff3a1);
+  border-radius: 999px;
+  box-shadow:
+    0 0 0 0.6rem rgb(245 196 0 / 12%),
+    0 0 2.8rem rgb(245 196 0 / 30%);
+  opacity: var(--cta-reveal);
+  transform: translate(-50%, calc((1 - var(--cta-reveal)) * 0.9rem));
+}
+.experience[data-sun-settled="true"] .houseSemanticLink {
+  pointer-events: auto;
+  visibility: visible;
+  opacity: 1;
+}
+.experience[data-sun-settled="true"] .houseSemanticLink:hover span,
+.experience[data-sun-settled="true"] .houseSemanticLink:focus-visible span {
+  transform: translate(-50%, 0) scale(1.025);
 }
 
 /* The sun is the primary control; the phase list is an intentional
@@ -385,7 +517,7 @@
   left: 5vw;
   width: min(43rem, 48vw);
   height: 28vh;
-  opacity: calc(0.08 + var(--pre-dawn) * 0.38 + var(--panel-focus) * 0.7);
+  opacity: calc(var(--panel-presence) * (0.08 + var(--pre-dawn) * 0.38 + var(--panel-focus) * 0.7));
   filter: brightness(calc(0.58 + var(--panel-light) * 0.2 + var(--panel-focus) * 0.34))
     saturate(calc(0.82 + var(--panel-focus) * 0.3));
   transform: translate3d(0, calc(var(--terrain-lift) * 0.35), 0)
@@ -515,6 +647,9 @@
     rotateY(calc(-14deg + var(--battery-focus) * 10deg))
     scale(calc(0.92 + var(--battery-focus) * 0.3));
   transform-origin: 50% 100%;
+}
+.experience[data-text-phase="golden"] .battery {
+  animation: batteryBreath 2.1s ease-in-out infinite alternate;
 }
 .batteryBody {
   position: absolute;
@@ -648,6 +783,27 @@
   }
 }
 
+@keyframes batteryBreath {
+  from {
+    transform: translate3d(
+        calc(var(--battery-focus) * -8vw),
+        calc((1 - var(--battery-presence)) * 3rem - var(--battery-focus) * 6vh),
+        4rem
+      )
+      rotateY(calc(-14deg + var(--battery-focus) * 10deg))
+      scale(calc(0.92 + var(--battery-focus) * 0.285));
+  }
+  to {
+    transform: translate3d(
+        calc(var(--battery-focus) * -8vw),
+        calc((1 - var(--battery-presence)) * 3rem - var(--battery-focus) * 6vh),
+        4rem
+      )
+      rotateY(calc(-14deg + var(--battery-focus) * 10deg))
+      scale(calc(0.92 + var(--battery-focus) * 0.315));
+  }
+}
+
 /* Short landscape viewports (e.g. 1024×768) squeeze the night column;
    a smaller home keeps the settled sun, lede and roofline apart. */
 @media (min-width: 768px) and (max-height: 820px) {
@@ -661,7 +817,7 @@
     left: max(12%, var(--sun-x));
     width: 5.25rem;
     height: 5.25rem;
-    transform: translate(-50%, -50%) translateY(1.75rem);
+    transform: translate(-50%, -50%) translateY(-1rem);
     touch-action: auto;
   }
   .sunCore {
@@ -670,26 +826,33 @@
       0 0 2.4rem 0.85rem rgb(245 196 0 / 29%);
   }
   .experience[data-sun-settled="true"] .sunHandle {
-    top: 70%;
-    width: 13rem;
-    transform: translate(-50%, -50%);
-  }
-  .experience[data-phase="morning"] .sunHandle {
-    top: 17%;
-    left: 84%;
-  }
-  .experience[data-phase="golden"] .sunHandle {
-    top: 32%;
-    left: 86%;
-  }
-  .experience[data-phase="sunset"] .sunHandle {
-    top: 77%;
+    width: 5.25rem;
   }
   .panelField {
     bottom: -2vh;
     left: -12vw;
     width: 82vw;
     height: 20vh;
+  }
+  .panelSemanticLink {
+    bottom: 0;
+    left: -12vw;
+    width: 82vw;
+    height: 22vh;
+  }
+  .panelSemanticLink span {
+    right: auto;
+    bottom: 106%;
+    left: 68%;
+    max-width: 11rem;
+    font-size: 0.86rem;
+    text-align: center;
+    white-space: normal;
+    transform: translateX(-50%) rotate(7deg);
+  }
+  .panelSemanticLink::before {
+    right: 48%;
+    height: 3rem;
   }
   .battery {
     right: 6vw;
@@ -704,9 +867,30 @@
       rotateY(calc(-14deg + var(--battery-focus) * 10deg))
       scale(calc(0.92 + var(--battery-focus) * 0.3));
   }
+  .batterySemanticLink {
+    right: 3vw;
+    bottom: 14vh;
+    width: 9rem;
+    height: 8rem;
+  }
+  .batterySemanticLink span {
+    bottom: 105%;
+    max-width: 10rem;
+    font-size: 0.9rem;
+  }
   .nightHome {
     --home-scale: 0.72;
     bottom: 1.5vh;
+  }
+  .houseSemanticLink {
+    bottom: 5vh;
+    width: 21rem;
+    height: 15rem;
+  }
+  .houseSemanticLink span {
+    bottom: 0.2rem;
+    min-width: 11rem;
+    font-size: 0.9rem;
   }
 }
 
@@ -736,6 +920,11 @@
   .world * {
     animation: none !important;
     transition: none !important;
+  }
+  .panelSemanticLink,
+  .batterySemanticLink,
+  .houseSemanticLink {
+    display: none;
   }
 }
 

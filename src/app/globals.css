@@ -631,10 +631,6 @@
   [data-enhanced="true"] .solar-text-link {
     visibility: hidden;
   }
-  [data-enhanced="true"][data-text-phase="morning"] .solar-chapter--morning .solar-text-link,
-  [data-enhanced="true"][data-text-phase="golden"] .solar-chapter--golden .solar-text-link {
-    visibility: visible;
-  }
 }
 .solar-actions .solar-text-link {
   margin-top: 0;
