@@ -1,0 +1,253 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  body{margin:0;background:#F5F2EA;font-family:Inter,sans-serif;color:#0D1B24}
+  a{color:#0C5A56}
+  a:hover{color:#147A74}
+  input,select,textarea{font-family:Inter,sans-serif}
+  input:focus-visible,select:focus-visible,textarea:focus-visible,button:focus-visible,a:focus-visible{outline:2px solid #0C5A56;outline-offset:2px}
+  @media (prefers-reduced-motion: reduce){*{transition-duration:0.01ms !important;animation-duration:0.01ms !important}}
+</style>
+</helmet>
+<dc-import name="Header" current="quote" hint-size="100%,78px"></dc-import>
+
+<section style="background:#0D1B24;padding:64px 24px 48px">
+  <div style="max-width:1280px;margin:0 auto">
+    <p style="font-family:Inter,sans-serif;font-size:13px;font-weight:600;letter-spacing:0.14em;text-transform:uppercase;color:#F3B23F;margin:0 0 14px">Request a Quotation</p>
+    <h1 style="font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:clamp(28px,3.6vw,42px);letter-spacing:-0.02em;line-height:1.1;margin:0;color:#F5F2EA;max-width:700px">Tell us about your project. We&rsquo;ll come back with a considered recommendation.</h1>
+    <p style="margin:18px 0 0;font-family:Inter,sans-serif;font-size:15.5px;line-height:1.7;color:#9AA5A9;max-width:600px">This starts a conversation, not a checkout. A member of our team reviews every submission before responding.</p>
+  </div>
+</section>
+
+<section style="padding:64px 24px 96px">
+  <div style="max-width:1280px;margin:0 auto;display:grid;grid-template-columns:1.5fr 1fr;gap:56px;align-items:start">
+
+    <sc-if value="{{showForm}}" hint-placeholder-val="{{true}}">
+      <form onsubmit="{{handleSubmit}}" novalidate="" style="background:#FFFFFF;border:1px solid rgba(13,27,36,0.1);border-radius:2px;padding:40px;display:flex;flex-direction:column;gap:32px">
+
+        <fieldset style="border:none;margin:0;padding:0;display:flex;flex-direction:column;gap:18px">
+          <legend style="font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:16px;color:#0D1B24;padding:0 0 6px">Contact details</legend>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:18px">
+            <div>
+              <label for="fullName" style="display:block;font-family:Inter,sans-serif;font-size:13px;font-weight:600;color:#374045;margin-bottom:6px">Full name<span style="color:#0C5A56"> *</span></label>
+              <input id="fullName" type="text" required="" value="{{fields.fullName}}" oninput="{{setField.fullName}}" style="width:100%;box-sizing:border-box;min-height:44px;padding:10px 14px;border:1px solid rgba(13,27,36,0.2);border-radius:2px;font-size:15px;color:#0D1B24;background:#F5F2EA"/>
+            </div>
+            <div>
+              <label for="companyName" style="display:block;font-family:Inter,sans-serif;font-size:13px;font-weight:600;color:#374045;margin-bottom:6px">Company (if applicable)</label>
+              <input id="companyName" type="text" value="{{fields.companyName}}" oninput="{{setField.companyName}}" style="width:100%;box-sizing:border-box;min-height:44px;padding:10px 14px;border:1px solid rgba(13,27,36,0.2);border-radius:2px;font-size:15px;color:#0D1B24;background:#F5F2EA"/>
+            </div>
+          </div>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:18px">
+            <div>
+              <label for="email" style="display:block;font-family:Inter,sans-serif;font-size:13px;font-weight:600;color:#374045;margin-bottom:6px">Email<span style="color:#0C5A56"> *</span></label>
+              <input id="email" type="email" required="" value="{{fields.email}}" oninput="{{setField.email}}" style="width:100%;box-sizing:border-box;min-height:44px;padding:10px 14px;border:1px solid rgba(13,27,36,0.2);border-radius:2px;font-size:15px;color:#0D1B24;background:#F5F2EA"/>
+            </div>
+            <div>
+              <label for="phone" style="display:block;font-family:Inter,sans-serif;font-size:13px;font-weight:600;color:#374045;margin-bottom:6px">Phone<span style="color:#0C5A56"> *</span></label>
+              <input id="phone" type="tel" required="" value="{{fields.phone}}" oninput="{{setField.phone}}" style="width:100%;box-sizing:border-box;min-height:44px;padding:10px 14px;border:1px solid rgba(13,27,36,0.2);border-radius:2px;font-size:15px;color:#0D1B24;background:#F5F2EA"/>
+            </div>
+          </div>
+          <div>
+            <label for="location" style="display:block;font-family:Inter,sans-serif;font-size:13px;font-weight:600;color:#374045;margin-bottom:6px">Location (city / state)</label>
+            <input id="location" type="text" value="{{fields.location}}" oninput="{{setField.location}}" style="width:100%;box-sizing:border-box;min-height:44px;padding:10px 14px;border:1px solid rgba(13,27,36,0.2);border-radius:2px;font-size:15px;color:#0D1B24;background:#F5F2EA"/>
+          </div>
+        </fieldset>
+
+        <fieldset style="border:none;margin:0;padding:0;padding-top:24px;border-top:1px solid rgba(13,27,36,0.1);display:flex;flex-direction:column;gap:18px">
+          <legend style="font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:16px;color:#0D1B24;padding:0 0 6px">Project details</legend>
+
+          <div>
+            <span style="display:block;font-family:Inter,sans-serif;font-size:13px;font-weight:600;color:#374045;margin-bottom:8px">Classification</span>
+            <div style="display:flex;gap:20px">
+              <label style="display:flex;align-items:center;gap:8px;font-family:Inter,sans-serif;font-size:14.5px;color:#0D1B24;min-height:44px"><input type="radio" name="classification" value="Commercial" checked="{{fields.classificationCommercial}}" onchange="{{setClassification.commercial}}"/>Commercial / Industrial</label>
+              <label style="display:flex;align-items:center;gap:8px;font-family:Inter,sans-serif;font-size:14.5px;color:#0D1B24;min-height:44px"><input type="radio" name="classification" value="Residential" checked="{{fields.classificationResidential}}" onchange="{{setClassification.residential}}"/>Residential / Estate</label>
+            </div>
+          </div>
+
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:18px">
+            <div>
+              <label for="propertyType" style="display:block;font-family:Inter,sans-serif;font-size:13px;font-weight:600;color:#374045;margin-bottom:6px">Property / site type</label>
+              <select id="propertyType" value="{{fields.propertyType}}" onchange="{{setField.propertyType}}" style="width:100%;box-sizing:border-box;min-height:44px;padding:10px 14px;border:1px solid rgba(13,27,36,0.2);border-radius:2px;font-size:15px;color:#0D1B24;background:#F5F2EA">
+                <option value="">Select&hellip;</option>
+                <option value="Factory / industrial">Factory / industrial</option>
+                <option value="Hotel">Hotel</option>
+                <option value="Office / commercial building">Office / commercial building</option>
+                <option value="Residential estate">Residential estate</option>
+                <option value="Single residential property">Single residential property</option>
+                <option value="Other">Other</option>
+              </select>
+            </div>
+            <div>
+              <label for="projectType" style="display:block;font-family:Inter,sans-serif;font-size:13px;font-weight:600;color:#374045;margin-bottom:6px">Project type</label>
+              <select id="projectType" value="{{fields.projectType}}" onchange="{{setField.projectType}}" style="width:100%;box-sizing:border-box;min-height:44px;padding:10px 14px;border:1px solid rgba(13,27,36,0.2);border-radius:2px;font-size:15px;color:#0D1B24;background:#F5F2EA">
+                <option value="">Select&hellip;</option>
+                <option value="New installation">New installation</option>
+                <option value="System upgrade">System upgrade</option>
+                <option value="Storage addition">Storage addition</option>
+                <option value="Monitoring only">Monitoring only</option>
+                <option value="EV charging">EV charging</option>
+                <option value="Other">Other</option>
+              </select>
+            </div>
+          </div>
+
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:18px">
+            <div>
+              <label for="currentPower" style="display:block;font-family:Inter,sans-serif;font-size:13px;font-weight:600;color:#374045;margin-bottom:6px">Current power situation</label>
+              <select id="currentPower" value="{{fields.currentPower}}" onchange="{{setField.currentPower}}" style="width:100%;box-sizing:border-box;min-height:44px;padding:10px 14px;border:1px solid rgba(13,27,36,0.2);border-radius:2px;font-size:15px;color:#0D1B24;background:#F5F2EA">
+                <option value="">Select&hellip;</option>
+                <option value="Grid only">Grid only</option>
+                <option value="Generator-dependent">Generator-dependent</option>
+                <option value="Existing solar, underperforming">Existing solar, underperforming</option>
+                <option value="Existing solar, expanding">Existing solar, expanding</option>
+                <option value="No power infrastructure yet">No power infrastructure yet</option>
+              </select>
+            </div>
+            <div>
+              <label for="estimatedLoad" style="display:block;font-family:Inter,sans-serif;font-size:13px;font-weight:600;color:#374045;margin-bottom:6px">Estimated load / usage (if known)</label>
+              <input id="estimatedLoad" type="text" placeholder="e.g. 40kW average" value="{{fields.estimatedLoad}}" oninput="{{setField.estimatedLoad}}" style="width:100%;box-sizing:border-box;min-height:44px;padding:10px 14px;border:1px solid rgba(13,27,36,0.2);border-radius:2px;font-size:15px;color:#0D1B24;background:#F5F2EA"/>
+            </div>
+          </div>
+
+          <div>
+            <span style="display:block;font-family:Inter,sans-serif;font-size:13px;font-weight:600;color:#374045;margin-bottom:8px">Product interest</span>
+            <div style="display:flex;flex-wrap:wrap;gap:10px">
+              <sc-for list="{{systemOptions}}" as="opt" hint-placeholder-count="7">
+                <label style="display:flex;align-items:center;gap:8px;font-family:Inter,sans-serif;font-size:13.5px;color:#0D1B24;background:#F5F2EA;border:1px solid rgba(13,27,36,0.15);border-radius:2px;padding:9px 14px;min-height:44px">
+                  <input type="checkbox" checked="{{opt.checked}}" onchange="{{opt.toggle}}"/>{{opt.label}}
+                </label>
+              </sc-for>
+            </div>
+          </div>
+        </fieldset>
+
+        <fieldset style="border:none;margin:0;padding:0;padding-top:24px;border-top:1px solid rgba(13,27,36,0.1);display:flex;flex-direction:column;gap:18px">
+          <legend style="font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:16px;color:#0D1B24;padding:0 0 6px">Message &amp; preference</legend>
+          <div>
+            <span style="display:block;font-family:Inter,sans-serif;font-size:13px;font-weight:600;color:#374045;margin-bottom:8px">Preferred contact method</span>
+            <div style="display:flex;gap:20px;flex-wrap:wrap">
+              <label style="display:flex;align-items:center;gap:8px;font-family:Inter,sans-serif;font-size:14.5px;color:#0D1B24;min-height:44px"><input type="radio" name="contactMethod" checked="{{fields.contactEmail}}" onchange="{{setContactMethod.email}}"/>Email</label>
+              <label style="display:flex;align-items:center;gap:8px;font-family:Inter,sans-serif;font-size:14.5px;color:#0D1B24;min-height:44px"><input type="radio" name="contactMethod" checked="{{fields.contactPhone}}" onchange="{{setContactMethod.phone}}"/>Phone call</label>
+              <label style="display:flex;align-items:center;gap:8px;font-family:Inter,sans-serif;font-size:14.5px;color:#0D1B24;min-height:44px"><input type="radio" name="contactMethod" checked="{{fields.contactWhatsapp}}" onchange="{{setContactMethod.whatsapp}}"/>WhatsApp</label>
+            </div>
+          </div>
+          <div>
+            <label for="message" style="display:block;font-family:Inter,sans-serif;font-size:13px;font-weight:600;color:#374045;margin-bottom:6px">Anything else we should know?</label>
+            <textarea id="message" rows="4" value="{{fields.message}}" oninput="{{setField.message}}" style="width:100%;box-sizing:border-box;padding:12px 14px;border:1px solid rgba(13,27,36,0.2);border-radius:2px;font-size:15px;color:#0D1B24;background:#F5F2EA;resize:vertical"></textarea>
+          </div>
+        </fieldset>
+
+        <sc-if value="{{showError}}" hint-placeholder-val="{{false}}">
+          <p role="alert" style="margin:0;font-family:Inter,sans-serif;font-size:13.5px;color:#8A2A1F">Please complete your name, email and phone number so we can respond.</p>
+        </sc-if>
+
+        <button type="submit" style="align-self:flex-start;font-family:Inter,sans-serif;font-size:15px;font-weight:600;color:#0D1B24;background:#F3B23F;border:none;padding:15px 32px;border-radius:2px;cursor:pointer;min-height:44px" style-hover="background:#F5C76A">Submit Request</button>
+      </form>
+    </sc-if>
+
+    <sc-if value="{{showSuccess}}" hint-placeholder-val="{{false}}">
+      <div style="background:#FFFFFF;border:1px solid rgba(13,27,36,0.1);border-radius:2px;padding:48px;text-align:left">
+        <h2 style="margin:0 0 12px;font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:24px;color:#0D1B24">Thank you, {{submittedName}}.</h2>
+        <p style="margin:0;font-family:Inter,sans-serif;font-size:15.5px;line-height:1.75;color:#5B6469">Your request has been received. A member of the GreenNet team will contact you via your preferred method within one business day to discuss next steps.</p>
+      </div>
+    </sc-if>
+
+    <aside style="position:sticky;top:100px;display:flex;flex-direction:column;gap:24px">
+      <div style="background:#0D1B24;border-radius:2px;padding:32px">
+        <h2 style="margin:0 0 20px;font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:17px;color:#F5F2EA">What happens next</h2>
+        <ol style="margin:0;padding:0;list-style:none;display:flex;flex-direction:column;gap:16px">
+          <li style="display:flex;gap:12px"><span style="font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:13px;color:#F3B23F">01</span><span style="font-family:Inter,sans-serif;font-size:13.5px;line-height:1.6;color:#C9CFD1">Our team reviews your submission</span></li>
+          <li style="display:flex;gap:12px"><span style="font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:13px;color:#F3B23F">02</span><span style="font-family:Inter,sans-serif;font-size:13.5px;line-height:1.6;color:#C9CFD1">We contact you to confirm details and, where useful, arrange a site assessment</span></li>
+          <li style="display:flex;gap:12px"><span style="font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:13px;color:#F3B23F">03</span><span style="font-family:Inter,sans-serif;font-size:13.5px;line-height:1.6;color:#C9CFD1">You receive a written proposal with system recommendation and timeline</span></li>
+        </ol>
+      </div>
+      <div style="border:1px solid rgba(13,27,36,0.1);border-radius:2px;padding:32px;background:#FFFFFF">
+        <h2 style="margin:0 0 12px;font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:16px;color:#0D1B24">Prefer to talk directly?</h2>
+        <p style="margin:0 0 16px;font-family:Inter,sans-serif;font-size:14px;color:#5B6469">Call or message us on WhatsApp during business hours.</p>
+        <p style="margin:0;font-family:Inter,sans-serif;font-size:14px;color:#0D1B24">[Phone number pending approval]<br/>[WhatsApp number pending approval]</p>
+      </div>
+    </aside>
+  </div>
+</section>
+
+<dc-import name="Footer" hint-size="100%,320px"></dc-import>
+</x-dc>
+<script type="text/x-dc" data-dc-script>
+class Component extends DCLogic {
+  state = {
+    fields: {
+      fullName: '', companyName: '', email: '', phone: '', location: '',
+      classificationCommercial: true, classificationResidential: false,
+      propertyType: '', projectType: '', currentPower: '', estimatedLoad: '',
+      contactEmail: true, contactPhone: false, contactWhatsapp: false,
+      message: '',
+    },
+    systems: { 'Solar Panels': false, 'Inverters': false, 'Battery Storage': false, 'Monitoring Systems': false, 'EV Charging': false, 'Solar Carports': false, 'Commercial Energy Systems': false },
+    submitted: false,
+    showError: false,
+  };
+
+  setFieldValue(name, value) {
+    this.setState((s) => ({ fields: { ...s.fields, [name]: value } }));
+  }
+
+  renderVals() {
+    const fieldNames = ['fullName', 'companyName', 'email', 'phone', 'location', 'propertyType', 'projectType', 'currentPower', 'estimatedLoad', 'message'];
+    const setField = {};
+    fieldNames.forEach((name) => {
+      setField[name] = (e) => this.setFieldValue(name, e.target.value);
+    });
+
+    const setClassification = {
+      commercial: () => this.setState((s) => ({ fields: { ...s.fields, classificationCommercial: true, classificationResidential: false } })),
+      residential: () => this.setState((s) => ({ fields: { ...s.fields, classificationCommercial: false, classificationResidential: true } })),
+    };
+    const setContactMethod = {
+      email: () => this.setState((s) => ({ fields: { ...s.fields, contactEmail: true, contactPhone: false, contactWhatsapp: false } })),
+      phone: () => this.setState((s) => ({ fields: { ...s.fields, contactEmail: false, contactPhone: true, contactWhatsapp: false } })),
+      whatsapp: () => this.setState((s) => ({ fields: { ...s.fields, contactEmail: false, contactPhone: false, contactWhatsapp: true } })),
+    };
+
+    const systemOptions = Object.keys(this.state.systems).map((label) => ({
+      label,
+      checked: this.state.systems[label],
+      toggle: () => this.setState((s) => ({ systems: { ...s.systems, [label]: !s.systems[label] } })),
+    }));
+
+    const handleSubmit = (e) => {
+      e.preventDefault();
+      const f = this.state.fields;
+      if (!f.fullName.trim() || !f.email.trim() || !f.phone.trim()) {
+        this.setState({ showError: true });
+        return;
+      }
+      this.setState({ submitted: true, showError: false });
+    };
+
+    return {
+      fields: this.state.fields,
+      setField,
+      setClassification,
+      setContactMethod,
+      systemOptions,
+      showForm: !this.state.submitted,
+      showSuccess: this.state.submitted,
+      showError: this.state.showError,
+      handleSubmit,
+      submittedName: this.state.fields.fullName || 'there',
+    };
+  }
+}
+</script>
+</body>
+</html>

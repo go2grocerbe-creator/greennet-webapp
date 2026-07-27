@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<script src="./image-slot.js"></script>
+<style>
+  body{margin:0;background:#F5F2EA;font-family:Inter,sans-serif;color:#0D1B24}
+  a{color:#0C5A56}
+  a:hover{color:#147A74}
+  @media (prefers-reduced-motion: reduce){*{transition-duration:0.01ms !important;animation-duration:0.01ms !important}}
+</style>
+</helmet>
+<dc-import name="Header" current="home" hint-size="100%,78px"></dc-import>
+
+<section style="background:#0D1B24;padding:88px 24px 96px">
+  <div style="max-width:1280px;margin:0 auto;display:grid;grid-template-columns:1.05fr 0.95fr;gap:64px;align-items:center">
+    <div>
+      <p style="font-family:Inter,sans-serif;font-size:13px;font-weight:600;letter-spacing:0.14em;text-transform:uppercase;color:#F3B23F;margin:0 0 20px">Renewable Energy Infrastructure &mdash; Nigeria</p>
+      <h1 style="font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:clamp(36px,5vw,64px);line-height:1.06;letter-spacing:-0.02em;color:#F5F2EA;margin:0">Engineered energy systems for businesses that can&rsquo;t afford downtime.</h1>
+      <p style="margin:28px 0 0;font-family:Inter,sans-serif;font-size:18px;line-height:1.7;color:#9AA5A9;max-width:540px">GreenNet designs, installs and supports solar, storage and monitoring systems for Nigerian factories, hotels, offices, developers and serious property owners &mdash; backed by European-linked engineering discipline and long-term local support.</p>
+      <div style="margin-top:36px;display:flex;flex-wrap:wrap;gap:14px">
+        <a href="Quote.dc.html" style="font-family:Inter,sans-serif;font-size:15px;font-weight:600;color:#0D1B24;background:#F3B23F;padding:15px 28px;border-radius:2px;text-decoration:none;min-height:44px;display:flex;align-items:center" style-hover="background:#F5C76A">Request a Quotation</a>
+        <a href="Solutions.dc.html" style="font-family:Inter,sans-serif;font-size:15px;font-weight:600;color:#F5F2EA;background:transparent;border:1px solid rgba(245,242,234,0.35);padding:15px 28px;border-radius:2px;text-decoration:none;min-height:44px;display:flex;align-items:center" style-hover="border-color:#F5F2EA">Discuss a Project</a>
+      </div>
+      <p style="margin:44px 0 0;font-family:'Space Grotesk',sans-serif;font-size:14px;font-weight:600;color:#69757A;letter-spacing:0.02em">Powering Smarter Futures.</p>
+    </div>
+    <div style="position:relative">
+      <div style="position:relative;border-radius:2px;overflow:hidden;aspect-ratio:4/5">
+        <image-slot id="hero-install" shape="rect" src="images/rooftop-array-technician.png" placeholder="Drop a commercial rooftop or installation photograph"></image-slot>
+      </div>
+      <div style="position:absolute;left:-1px;right:-1px;bottom:-1px;background:rgba(13,27,36,0.82);padding:16px 20px;pointer-events:none">
+        <p style="margin:0;font-family:Inter,sans-serif;font-size:13px;color:#F5F2EA">Commercial rooftop installation, commissioned and monitored end-to-end.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section aria-label="System categories" style="padding:64px 24px;border-bottom:1px solid rgba(13,27,36,0.08)">
+  <div style="max-width:1280px;margin:0 auto">
+    <div style="display:flex;flex-wrap:wrap;gap:12px;justify-content:space-between;align-items:flex-end;margin-bottom:32px">
+      <h2 style="font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:clamp(24px,3vw,32px);letter-spacing:-0.01em;margin:0;color:#0D1B24">Systems, by application</h2>
+      <a href="Products.dc.html" style="font-family:Inter,sans-serif;font-size:14px;font-weight:600;color:#0C5A56;text-decoration:none">View the full catalogue &rarr;</a>
+    </div>
+    <div style="display:flex;flex-wrap:wrap;gap:16px">
+      <a href="Products.dc.html" style="flex:1 1 220px;min-width:220px;background:#FFFFFF;border:1px solid rgba(13,27,36,0.1);border-radius:2px;padding:24px;text-decoration:none;color:#0D1B24;display:flex;flex-direction:column;gap:14px" style-hover="border-color:#0C5A56">
+        <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="#0C5A56" stroke-width="1.6"><rect x="3" y="3" width="8" height="8"></rect><rect x="13" y="3" width="8" height="8"></rect><rect x="3" y="13" width="8" height="8"></rect><rect x="13" y="13" width="8" height="8"></rect></svg>
+        <span style="font-family:Inter,sans-serif;font-size:15px;font-weight:600">Solar Panels</span>
+      </a>
+      <a href="Products.dc.html" style="flex:1 1 220px;min-width:220px;background:#FFFFFF;border:1px solid rgba(13,27,36,0.1);border-radius:2px;padding:24px;text-decoration:none;color:#0D1B24;display:flex;flex-direction:column;gap:14px" style-hover="border-color:#0C5A56">
+        <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="#0C5A56" stroke-width="1.6"><polyline points="2,14 7,14 9,7 13,19 16,14 22,14"></polyline></svg>
+        <span style="font-family:Inter,sans-serif;font-size:15px;font-weight:600">Inverters</span>
+      </a>
+      <a href="Products.dc.html" style="flex:1 1 220px;min-width:220px;background:#FFFFFF;border:1px solid rgba(13,27,36,0.1);border-radius:2px;padding:24px;text-decoration:none;color:#0D1B24;display:flex;flex-direction:column;gap:14px" style-hover="border-color:#0C5A56">
+        <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="#0C5A56" stroke-width="1.6"><rect x="3" y="7" width="16" height="10" rx="1"></rect><line x1="21" y1="10" x2="21" y2="14"></line><line x1="7" y1="10" x2="7" y2="14"></line><line x1="11" y1="10" x2="11" y2="14"></line></svg>
+        <span style="font-family:Inter,sans-serif;font-size:15px;font-weight:600">Battery Storage</span>
+      </a>
+      <a href="Products.dc.html" style="flex:1 1 220px;min-width:220px;background:#FFFFFF;border:1px solid rgba(13,27,36,0.1);border-radius:2px;padding:24px;text-decoration:none;color:#0D1B24;display:flex;flex-direction:column;gap:14px" style-hover="border-color:#0C5A56">
+        <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="#0C5A56" stroke-width="1.6"><circle cx="12" cy="12" r="9"></circle><line x1="12" y1="12" x2="16" y2="9"></line><line x1="12" y1="12" x2="12" y2="7"></line></svg>
+        <span style="font-family:Inter,sans-serif;font-size:15px;font-weight:600">Monitoring Systems</span>
+      </a>
+      <a href="Products.dc.html" style="flex:1 1 220px;min-width:220px;background:#FFFFFF;border:1px solid rgba(13,27,36,0.1);border-radius:2px;padding:24px;text-decoration:none;color:#0D1B24;display:flex;flex-direction:column;gap:14px" style-hover="border-color:#0C5A56">
+        <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="#0C5A56" stroke-width="1.6"><path d="M13 2 5 14h6l-1 8 9-13h-7z"></path></svg>
+        <span style="font-family:Inter,sans-serif;font-size:15px;font-weight:600">EV Charging</span>
+      </a>
+      <a href="Products.dc.html" style="flex:1 1 220px;min-width:220px;background:#FFFFFF;border:1px solid rgba(13,27,36,0.1);border-radius:2px;padding:24px;text-decoration:none;color:#0D1B24;display:flex;flex-direction:column;gap:14px" style-hover="border-color:#0C5A56">
+        <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="#0C5A56" stroke-width="1.6"><path d="M2 10 12 4l10 6"></path><rect x="4" y="10" width="16" height="9"></rect></svg>
+        <span style="font-family:Inter,sans-serif;font-size:15px;font-weight:600">Solar Carports</span>
+      </a>
+      <a href="Products.dc.html" style="flex:1 1 220px;min-width:220px;background:#FFFFFF;border:1px solid rgba(13,27,36,0.1);border-radius:2px;padding:24px;text-decoration:none;color:#0D1B24;display:flex;flex-direction:column;gap:14px" style-hover="border-color:#0C5A56">
+        <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="#0C5A56" stroke-width="1.6"><rect x="4" y="3" width="16" height="18"></rect><line x1="8" y1="8" x2="8" y2="8.01"></line><line x1="12" y1="8" x2="12" y2="8.01"></line><line x1="16" y1="8" x2="16" y2="8.01"></line><line x1="8" y1="13" x2="8" y2="13.01"></line><line x1="12" y1="13" x2="12" y2="13.01"></line><line x1="16" y1="13" x2="16" y2="13.01"></line></svg>
+        <span style="font-family:Inter,sans-serif;font-size:15px;font-weight:600">Commercial Systems</span>
+      </a>
+    </div>
+  </div>
+</section>
+
+<section aria-label="Why GreenNet" style="padding:96px 24px;background:#FFFFFF">
+  <div style="max-width:1280px;margin:0 auto;display:grid;grid-template-columns:0.85fr 1.15fr;gap:64px;align-items:start">
+    <div style="position:sticky;top:100px">
+      <p style="font-family:Inter,sans-serif;font-size:13px;font-weight:600;letter-spacing:0.14em;text-transform:uppercase;color:#0C5A56;margin:0 0 16px">Why GreenNet</p>
+      <h2 style="font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:clamp(28px,3.4vw,38px);line-height:1.15;letter-spacing:-0.01em;margin:0;color:#0D1B24">Six commitments that separate infrastructure from installation.</h2>
+    </div>
+    <div style="display:flex;flex-direction:column">
+      <sc-for list="{{pillars}}" as="p" hint-placeholder-count="6">
+        <div style="display:grid;grid-template-columns:56px 1fr;gap:20px;padding:28px 0;border-top:1px solid rgba(13,27,36,0.1)">
+          <span style="font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:20px;color:#F3B23F">{{p.index}}</span>
+          <div>
+            <h3 style="margin:0 0 8px;font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:19px;color:#0D1B24">{{p.title}}</h3>
+            <p style="margin:0;font-family:Inter,sans-serif;font-size:15px;line-height:1.7;color:#5B6469">{{p.description}}</p>
+          </div>
+        </div>
+      </sc-for>
+    </div>
+  </div>
+</section>
+
+<section aria-label="Monitoring and visibility" style="padding:96px 24px;background:#0D1B24">
+  <div style="max-width:1280px;margin:0 auto;display:grid;grid-template-columns:1fr 1fr;gap:64px;align-items:center">
+    <div style="border-radius:2px;overflow:hidden;aspect-ratio:16/11">
+      <image-slot id="monitoring-dashboard" shape="rect" src="images/monitoring-dashboard.png" placeholder="Drop a monitoring dashboard / control room screenshot"></image-slot>
+    </div>
+    <div>
+      <p style="font-family:Inter,sans-serif;font-size:13px;font-weight:600;letter-spacing:0.14em;text-transform:uppercase;color:#F3B23F;margin:0 0 16px">Visibility</p>
+      <h2 style="font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:clamp(26px,3.2vw,34px);line-height:1.2;letter-spacing:-0.01em;margin:0;color:#F5F2EA">Every system reports back. Nothing is a black box.</h2>
+      <p style="margin:20px 0 0;font-family:Inter,sans-serif;font-size:16px;line-height:1.75;color:#9AA5A9;max-width:520px">Generation, consumption, storage and system health are monitored continuously, so decisions about your energy infrastructure are based on data, not assumption. Our support team sees what you see &mdash; and acts on it before it becomes your problem.</p>
+      <a href="Monitoring.dc.html" style="margin-top:24px;display:inline-block;font-family:Inter,sans-serif;font-size:14px;font-weight:600;color:#F3B23F;text-decoration:none">See how monitoring &amp; support works &rarr;</a>
+    </div>
+  </div>
+</section>
+
+<section aria-label="Customer journey" style="padding:96px 24px;background:#F5F2EA">
+  <div style="max-width:1280px;margin:0 auto">
+    <p style="font-family:Inter,sans-serif;font-size:13px;font-weight:600;letter-spacing:0.14em;text-transform:uppercase;color:#0C5A56;margin:0 0 16px;text-align:center">How we work together</p>
+    <h2 style="font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:clamp(26px,3.2vw,34px);letter-spacing:-0.01em;margin:0 0 48px;color:#0D1B24;text-align:center">A structured path from first call to ongoing support.</h2>
+    <div style="display:flex;flex-wrap:wrap;gap:0">
+      <sc-for list="{{journey}}" as="step" hint-placeholder-count="6">
+        <div style="flex:1 1 150px;min-width:150px;padding:24px 20px 0;border-top:3px solid {{step.barColor}}">
+          <span style="font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:14px;color:#69757A">0{{step.num}}</span>
+          <h3 style="margin:10px 0 8px;font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:17px;color:#0D1B24">{{step.title}}</h3>
+          <p style="margin:0;font-family:Inter,sans-serif;font-size:13.5px;line-height:1.6;color:#5B6469">{{step.description}}</p>
+        </div>
+      </sc-for>
+    </div>
+  </div>
+</section>
+
+<section aria-label="Applications" style="padding:96px 24px;background:#FFFFFF">
+  <div style="max-width:1280px;margin:0 auto">
+    <p style="font-family:Inter,sans-serif;font-size:13px;font-weight:600;letter-spacing:0.14em;text-transform:uppercase;color:#0C5A56;margin:0 0 16px">Applications</p>
+    <h2 style="font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:clamp(26px,3.2vw,34px);letter-spacing:-0.01em;margin:0 0 40px;color:#0D1B24;max-width:640px">Built for operations where power failure has a real cost.</h2>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:24px">
+      <a href="Solutions.dc.html" style="text-decoration:none;color:inherit;display:block;border:1px solid rgba(13,27,36,0.1);border-radius:2px;overflow:hidden">
+        <div style="aspect-ratio:4/3"><image-slot id="app-commercial" shape="rect" src="images/factory-rooftop-solar.png" placeholder="Drop a factory, hotel or office photograph"></image-slot></div>
+        <div style="padding:24px">
+          <h3 style="margin:0 0 8px;font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:20px;color:#0D1B24">Commercial &amp; Industrial</h3>
+          <p style="margin:0;font-family:Inter,sans-serif;font-size:14.5px;line-height:1.7;color:#5B6469">Factories, hotels, offices and developments where uptime and monitored capacity are non-negotiable.</p>
+        </div>
+      </a>
+      <a href="Solutions.dc.html" style="text-decoration:none;color:inherit;display:block;border:1px solid rgba(13,27,36,0.1);border-radius:2px;overflow:hidden">
+        <div style="aspect-ratio:4/3"><image-slot id="app-residential" shape="rect" src="images/residential-estate-house.png" placeholder="Drop a large residence or estate photograph"></image-slot></div>
+        <div style="padding:24px">
+          <h3 style="margin:0 0 8px;font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:20px;color:#0D1B24">Residential &amp; Estates</h3>
+          <p style="margin:0;font-family:Inter,sans-serif;font-size:14.5px;line-height:1.7;color:#5B6469">Large residential properties and estates that require a quality system, not a quick fix.</p>
+        </div>
+      </a>
+    </div>
+  </div>
+</section>
+
+<section aria-label="Call to action" style="padding:72px 24px;background:#F3B23F">
+  <div style="max-width:1280px;margin:0 auto;display:flex;flex-wrap:wrap;gap:24px;align-items:center;justify-content:space-between">
+    <div>
+      <h2 style="margin:0 0 6px;font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:clamp(24px,3vw,30px);letter-spacing:-0.01em;color:#0D1B24">Powering Smarter Futures.</h2>
+      <p style="margin:0;font-family:Inter,sans-serif;font-size:15px;color:#3A2E12">Speak with our team about your site, load and timeline.</p>
+    </div>
+    <div style="display:flex;flex-wrap:wrap;gap:12px">
+      <a href="Quote.dc.html" style="font-family:Inter,sans-serif;font-size:15px;font-weight:600;color:#F5F2EA;background:#0D1B24;padding:15px 28px;border-radius:2px;text-decoration:none;min-height:44px;display:flex;align-items:center">Request a Quotation</a>
+      <a href="Contact.dc.html" style="font-family:Inter,sans-serif;font-size:15px;font-weight:600;color:#0D1B24;background:transparent;border:1px solid rgba(13,27,36,0.4);padding:15px 28px;border-radius:2px;text-decoration:none;min-height:44px;display:flex;align-items:center">Contact Us</a>
+    </div>
+  </div>
+</section>
+
+<dc-import name="Footer" hint-size="100%,320px"></dc-import>
+</x-dc>
+<script type="text/x-dc" data-dc-script>
+class Component extends DCLogic {
+  renderVals() {
+    const pillars = [
+      { title: 'Quality', description: 'Approved components and engineering standards, applied consistently regardless of project size.' },
+      { title: 'Performance', description: 'Systems sized and configured for your actual load profile, not a generic package.' },
+      { title: 'Visibility', description: 'Continuous monitoring of generation, storage and consumption, visible to you and to us.' },
+      { title: 'Support', description: 'A dependable after-sales relationship, not a one-time installation and a goodbye.' },
+      { title: 'Progress', description: 'Practical steps toward energy resilience, sequenced to your budget and priorities.' },
+      { title: 'Trust', description: 'Clear specifications, honest timelines and documentation you can hand to your own engineers.' },
+    ].map((p, i) => ({ ...p, index: String(i + 1).padStart(2, '0') }));
+
+    const journeyLabels = ['Discover', 'Evaluate', 'Assess', 'Quote', 'Install', 'Support'];
+    const journeyDesc = [
+      'Understand your site, load and priorities.',
+      'Review system options against your requirements.',
+      'A technical site assessment of your property.',
+      'A clear, itemised proposal and timeline.',
+      'Professional installation and commissioning.',
+      'Ongoing monitoring and after-sales care.',
+    ];
+    const journey = journeyLabels.map((title, i) => ({
+      num: i + 1,
+      title,
+      description: journeyDesc[i],
+      barColor: i === 3 ? '#F3B23F' : '#0C5A56',
+    }));
+
+    return { pillars, journey };
+  }
+}
+</script>
+</body>
+</html>

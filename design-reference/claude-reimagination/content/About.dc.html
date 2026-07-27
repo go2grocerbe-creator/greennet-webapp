@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<script src="./image-slot.js"></script>
+<style>
+  body{margin:0;background:#F5F2EA;font-family:Inter,sans-serif;color:#0D1B24}
+  a{color:#0C5A56}
+  a:hover{color:#147A74}
+  @media (prefers-reduced-motion: reduce){*{transition-duration:0.01ms !important;animation-duration:0.01ms !important}}
+</style>
+</helmet>
+<dc-import name="Header" current="about" hint-size="100%,78px"></dc-import>
+
+<section style="background:#0D1B24;padding:64px 24px 48px">
+  <div style="max-width:1280px;margin:0 auto">
+    <p style="font-family:Inter,sans-serif;font-size:13px;font-weight:600;letter-spacing:0.14em;text-transform:uppercase;color:#F3B23F;margin:0 0 14px">About GreenNet</p>
+    <h1 style="font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:clamp(30px,4vw,46px);letter-spacing:-0.02em;line-height:1.1;margin:0;color:#F5F2EA;max-width:760px">A renewable-energy infrastructure partner, built for how Nigerian businesses actually operate.</h1>
+  </div>
+</section>
+
+<section style="padding:80px 24px">
+  <div style="max-width:1280px;margin:0 auto;display:grid;grid-template-columns:1fr 1fr;gap:56px;align-items:center">
+    <div>
+      <p style="font-family:Inter,sans-serif;font-size:13px;font-weight:600;letter-spacing:0.14em;text-transform:uppercase;color:#0C5A56;margin:0 0 16px">Positioning</p>
+      <h2 style="margin:0 0 20px;font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:clamp(24px,3vw,30px);line-height:1.25;letter-spacing:-0.01em;color:#0D1B24">We work with businesses and property owners who need a quality system, professional installation and support that continues after commissioning &mdash; not a low-cost transaction.</h2>
+      <p style="margin:0;font-family:Inter,sans-serif;font-size:16px;line-height:1.75;color:#5B6469">GreenNet Energy designs, installs and supports solar, storage and monitoring systems for commercial, industrial and premium residential properties across Nigeria, combining European-linked engineering discipline with a practical understanding of the Nigerian market.</p>
+    </div>
+    <div style="border-radius:2px;overflow:hidden;aspect-ratio:4/3">
+      <image-slot id="about-team" shape="rect" src="images/engineers-onsite-review.png" placeholder="Drop a photograph of the technical team on site"></image-slot>
+    </div>
+  </div>
+</section>
+
+<section style="padding:80px 24px;background:#FFFFFF">
+  <div style="max-width:1280px;margin:0 auto">
+    <p style="font-family:Inter,sans-serif;font-size:13px;font-weight:600;letter-spacing:0.14em;text-transform:uppercase;color:#0C5A56;margin:0 0 16px">How we work</p>
+    <h2 style="margin:0 0 40px;font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:clamp(24px,3vw,30px);letter-spacing:-0.01em;color:#0D1B24;max-width:640px">Three disciplines that shape every project.</h2>
+    <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:32px">
+      <div style="border-top:3px solid #0C5A56;padding-top:20px">
+        <h3 style="margin:0 0 10px;font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:18px;color:#0D1B24">Engineering discipline</h3>
+        <p style="margin:0;font-family:Inter,sans-serif;font-size:14.5px;line-height:1.7;color:#5B6469">Specification, sizing and installation practices informed by European engineering standards, applied consistently on every site.</p>
+      </div>
+      <div style="border-top:3px solid #0C5A56;padding-top:20px">
+        <h3 style="margin:0 0 10px;font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:18px;color:#0D1B24">Local market understanding</h3>
+        <p style="margin:0;font-family:Inter,sans-serif;font-size:14.5px;line-height:1.7;color:#5B6469">Systems designed around real Nigerian grid conditions, site constraints and operating environments &mdash; not adapted from a different market.</p>
+      </div>
+      <div style="border-top:3px solid #0C5A56;padding-top:20px">
+        <h3 style="margin:0 0 10px;font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:18px;color:#0D1B24">Long-term accountability</h3>
+        <p style="margin:0;font-family:Inter,sans-serif;font-size:14.5px;line-height:1.7;color:#5B6469">Monitoring and support continue after commissioning &mdash; we remain accountable for how a system performs over time.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section style="padding:80px 24px">
+  <div style="max-width:1280px;margin:0 auto">
+    <p style="font-family:Inter,sans-serif;font-size:13px;font-weight:600;letter-spacing:0.14em;text-transform:uppercase;color:#0C5A56;margin:0 0 16px">What we focus on</p>
+    <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:16px">
+      <span style="font-family:Inter,sans-serif;font-size:14px;font-weight:500;color:#0D1B24;background:#FFFFFF;border:1px solid rgba(13,27,36,0.1);border-radius:2px;padding:16px 18px">Quality</span>
+      <span style="font-family:Inter,sans-serif;font-size:14px;font-weight:500;color:#0D1B24;background:#FFFFFF;border:1px solid rgba(13,27,36,0.1);border-radius:2px;padding:16px 18px">Performance</span>
+      <span style="font-family:Inter,sans-serif;font-size:14px;font-weight:500;color:#0D1B24;background:#FFFFFF;border:1px solid rgba(13,27,36,0.1);border-radius:2px;padding:16px 18px">Visibility</span>
+      <span style="font-family:Inter,sans-serif;font-size:14px;font-weight:500;color:#0D1B24;background:#FFFFFF;border:1px solid rgba(13,27,36,0.1);border-radius:2px;padding:16px 18px">Support</span>
+      <span style="font-family:Inter,sans-serif;font-size:14px;font-weight:500;color:#0D1B24;background:#FFFFFF;border:1px solid rgba(13,27,36,0.1);border-radius:2px;padding:16px 18px">Progress</span>
+      <span style="font-family:Inter,sans-serif;font-size:14px;font-weight:500;color:#0D1B24;background:#FFFFFF;border:1px solid rgba(13,27,36,0.1);border-radius:2px;padding:16px 18px">Trust</span>
+    </div>
+  </div>
+</section>
+
+<section style="padding:64px 24px;background:#F3B23F">
+  <div style="max-width:1280px;margin:0 auto;display:flex;flex-wrap:wrap;gap:24px;align-items:center;justify-content:space-between">
+    <h2 style="margin:0;font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:clamp(22px,3vw,28px);letter-spacing:-0.01em;color:#0D1B24">Powering Smarter Futures.</h2>
+    <a href="Quote.dc.html" style="font-family:Inter,sans-serif;font-size:15px;font-weight:600;color:#F5F2EA;background:#0D1B24;padding:15px 28px;border-radius:2px;text-decoration:none;min-height:44px;display:flex;align-items:center">Request a Quotation</a>
+  </div>
+</section>
+
+<dc-import name="Footer" hint-size="100%,320px"></dc-import>
+</x-dc>
+</body>
+</html>

@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<script src="./image-slot.js"></script>
+<style>
+  body{margin:0;background:#F5F2EA;font-family:Inter,sans-serif;color:#0D1B24}
+  a{color:#0C5A56}
+  a:hover{color:#147A74}
+  @media (prefers-reduced-motion: reduce){*{transition-duration:0.01ms !important;animation-duration:0.01ms !important}}
+</style>
+</helmet>
+<dc-import name="Header" current="products" hint-size="100%,78px"></dc-import>
+
+<section style="background:#0D1B24;padding:64px 24px 48px">
+  <div style="max-width:1280px;margin:0 auto">
+    <p style="font-family:Inter,sans-serif;font-size:13px;font-weight:600;letter-spacing:0.14em;text-transform:uppercase;color:#F3B23F;margin:0 0 14px">Products &amp; Systems</p>
+    <h1 style="font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:clamp(30px,4vw,46px);letter-spacing:-0.02em;line-height:1.1;margin:0;color:#F5F2EA;max-width:760px">Engineered systems, evaluated on specification &mdash; not on price alone.</h1>
+    <p style="margin:20px 0 0;font-family:Inter,sans-serif;font-size:16px;line-height:1.7;color:#9AA5A9;max-width:620px">Every system below is available with a documented specification, compatibility notes and a monitoring option. Where an approved specification is not yet published, the field is marked for follow-up.</p>
+  </div>
+</section>
+
+<section style="padding:40px 24px 96px">
+  <div style="max-width:1280px;margin:0 auto">
+    <div role="tablist" aria-label="Filter by category" style="display:flex;flex-wrap:wrap;gap:10px;margin-bottom:40px;border-bottom:1px solid rgba(13,27,36,0.1);padding-bottom:24px">
+      <sc-for list="{{categoryTabs}}" as="cat" hint-placeholder-count="8">
+        <sc-if value="{{cat.active}}" hint-placeholder-val="{{false}}">
+          <button type="button" onclick="{{cat.select}}" aria-pressed="true" style="font-family:Inter,sans-serif;font-size:13.5px;font-weight:600;color:#F5F2EA;background:#0C5A56;border:1px solid #0C5A56;padding:10px 18px;border-radius:2px;cursor:pointer;min-height:44px">{{cat.label}}</button>
+        </sc-if>
+        <sc-if value="{{cat.notActive}}" hint-placeholder-val="{{true}}">
+          <button type="button" onclick="{{cat.select}}" aria-pressed="false" style="font-family:Inter,sans-serif;font-size:13.5px;font-weight:500;color:#0D1B24;background:#FFFFFF;border:1px solid rgba(13,27,36,0.15);padding:10px 18px;border-radius:2px;cursor:pointer;min-height:44px" style-hover="border-color:#0C5A56">{{cat.label}}</button>
+        </sc-if>
+      </sc-for>
+    </div>
+
+    <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:24px">
+      <sc-for list="{{visibleProducts}}" as="product" hint-placeholder-count="6">
+        <a href="ProductDetail.dc.html" style="text-decoration:none;color:inherit;display:flex;flex-direction:column;border:1px solid rgba(13,27,36,0.1);border-radius:2px;overflow:hidden;background:#FFFFFF" style-hover="border-color:#0C5A56">
+          <div style="aspect-ratio:4/3"><image-slot id="{{product.imgId}}" shape="rect" src="{{product.img}}" placeholder="Drop a product / system photograph"></image-slot></div>
+          <div style="padding:22px;display:flex;flex-direction:column;gap:8px;flex:1">
+            <span style="font-family:Inter,sans-serif;font-size:11.5px;font-weight:600;letter-spacing:0.06em;text-transform:uppercase;color:#0C5A56">{{product.category}}</span>
+            <h3 style="margin:0;font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:18px;color:#0D1B24">{{product.name}}</h3>
+            <p style="margin:0;font-family:Inter,sans-serif;font-size:13.5px;color:#5B6469">{{product.eyebrow}}</p>
+            <p style="margin:6px 0 0;font-family:Inter,sans-serif;font-size:14px;line-height:1.6;color:#5B6469;flex:1">{{product.shortDescription}}</p>
+            <span style="margin-top:10px;font-family:Inter,sans-serif;font-size:13.5px;font-weight:600;color:#0C5A56">View system &rarr;</span>
+          </div>
+        </a>
+      </sc-for>
+    </div>
+
+    <sc-if value="{{noResults}}" hint-placeholder-val="{{false}}">
+      <p style="font-family:Inter,sans-serif;font-size:15px;color:#5B6469;padding:48px 0;text-align:center">No systems in this category yet &mdash; contact us to discuss a custom configuration.</p>
+    </sc-if>
+  </div>
+</section>
+
+<section style="padding:64px 24px;background:#0C5A56">
+  <div style="max-width:1280px;margin:0 auto;display:flex;flex-wrap:wrap;gap:24px;align-items:center;justify-content:space-between">
+    <div>
+      <h2 style="margin:0 0 6px;font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:22px;color:#F5F2EA">Not sure which system fits your site?</h2>
+      <p style="margin:0;font-family:Inter,sans-serif;font-size:15px;color:#CFE3E0">Tell us about your property and load, and we&rsquo;ll recommend a configuration.</p>
+    </div>
+    <a href="Quote.dc.html" style="font-family:Inter,sans-serif;font-size:15px;font-weight:600;color:#0D1B24;background:#F3B23F;padding:15px 28px;border-radius:2px;text-decoration:none;min-height:44px;display:flex;align-items:center" style-hover="background:#F5C76A">Request a Quotation</a>
+  </div>
+</section>
+
+<dc-import name="Footer" hint-size="100%,320px"></dc-import>
+</x-dc>
+<script type="text/x-dc" data-dc-script>
+class Component extends DCLogic {
+  state = { selected: 'all' };
+
+  renderVals() {
+    const products = [
+      { slug: 'monocrystalline-rooftop-array', name: 'Monocrystalline Rooftop Panel Array', category: 'Solar Panels', eyebrow: 'High-density rooftop generation', shortDescription: 'Rooftop panel arrays configured for commercial and industrial roof profiles.', imgId: 'p-panels-1', img: 'images/rooftop-panels-closeup.png' },
+      { slug: 'ground-mount-array', name: 'Ground-Mount Solar Array', category: 'Solar Panels', eyebrow: 'Utility-scale generation on available land', shortDescription: 'Ground-mounted arrays for sites with available land and higher capacity needs.', imgId: 'p-panels-2', img: 'images/ground-mount-solar-field.png' },
+      { slug: 'three-phase-inverter', name: 'Three-Phase Commercial Inverter', category: 'Inverters', eyebrow: 'Grid-tied and hybrid configurations', shortDescription: 'Inverter platforms sized for three-phase commercial and industrial loads.', imgId: 'p-inverter', img: 'images/inverter-wall-units.png' },
+      { slug: 'lithium-storage-bank', name: 'Lithium Battery Storage Bank', category: 'Battery Storage', eyebrow: 'Dispatchable backup and load-shifting', shortDescription: 'Battery banks for backup power, peak shaving and time-of-use load shifting.', imgId: 'p-storage-1', img: 'images/battery-storage-room.png' },
+      { slug: 'modular-storage-cabinet', name: 'Modular Storage Cabinet', category: 'Battery Storage', eyebrow: 'Scalable storage for growing sites', shortDescription: 'Cabinet-based storage that scales in modules as demand grows.', imgId: 'p-storage-2', img: 'images/battery-storage-room.png' },
+      { slug: 'remote-monitoring-platform', name: 'Remote Monitoring Platform', category: 'Monitoring Systems', eyebrow: 'Real-time visibility and diagnostics', shortDescription: 'Dashboard and alerting platform covering generation, storage and consumption.', imgId: 'p-monitoring', img: 'images/monitoring-dashboard.png' },
+      { slug: 'ev-charging-station', name: 'Commercial EV Charging Station', category: 'EV Charging', eyebrow: 'Fleet and visitor charging infrastructure', shortDescription: 'Charging infrastructure for fleets, staff parking and visitor bays.', imgId: 'p-ev', img: 'images/ev-charging-station.png' },
+      { slug: 'solar-carport-structure', name: 'Solar Carport Structure', category: 'Solar Carports', eyebrow: 'Generation over parking infrastructure', shortDescription: 'Structural carports that generate power while covering vehicle parking.', imgId: 'p-carport', img: 'images/solar-carport-structure.png' },
+      { slug: 'integrated-commercial-system', name: 'Integrated Commercial Energy System', category: 'Commercial Energy Systems', eyebrow: 'Panels, storage and monitoring as one system', shortDescription: 'A fully specified system combining generation, storage and monitoring.', imgId: 'p-commercial', img: 'images/integrated-commercial-system.png' },
+    ];
+
+    const categoryNames = ['Solar Panels', 'Inverters', 'Battery Storage', 'Monitoring Systems', 'EV Charging', 'Solar Carports', 'Commercial Energy Systems'];
+    const selected = this.state.selected;
+
+    const categoryTabs = ['All systems', ...categoryNames].map((label) => {
+      const key = label === 'All systems' ? 'all' : label;
+      const active = key === selected;
+      return { label, active, notActive: !active, select: () => this.setState({ selected: key }) };
+    });
+
+    const visibleProducts = selected === 'all' ? products : products.filter((p) => p.category === selected);
+
+    return { categoryTabs, visibleProducts, noResults: visibleProducts.length === 0 };
+  }
+}
+</script>
+</body>
+</html>

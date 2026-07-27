@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<script src="./image-slot.js"></script>
+<style>
+  body{margin:0;background:#F5F2EA;font-family:Inter,sans-serif;color:#0D1B24}
+  a{color:#0C5A56}
+  a:hover{color:#147A74}
+  input,textarea{font-family:Inter,sans-serif}
+  input:focus-visible,textarea:focus-visible,a:focus-visible{outline:2px solid #0C5A56;outline-offset:2px}
+  @media (prefers-reduced-motion: reduce){*{transition-duration:0.01ms !important;animation-duration:0.01ms !important}}
+</style>
+</helmet>
+<dc-import name="Header" current="contact" hint-size="100%,78px"></dc-import>
+
+<section style="background:#0D1B24;padding:64px 24px 48px">
+  <div style="max-width:1280px;margin:0 auto">
+    <p style="font-family:Inter,sans-serif;font-size:13px;font-weight:600;letter-spacing:0.14em;text-transform:uppercase;color:#F3B23F;margin:0 0 14px">Contact</p>
+    <h1 style="font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:clamp(30px,4vw,46px);letter-spacing:-0.02em;line-height:1.1;margin:0;color:#F5F2EA;max-width:700px">Speak with our team.</h1>
+  </div>
+</section>
+
+<section style="padding:72px 24px 96px">
+  <div style="max-width:1280px;margin:0 auto;display:grid;grid-template-columns:1fr 1fr;gap:56px;align-items:start">
+    <div style="display:flex;flex-direction:column;gap:32px">
+      <div>
+        <h2 style="margin:0 0 8px;font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:18px;color:#0D1B24">Head office</h2>
+        <p style="margin:0;font-family:Inter,sans-serif;font-size:15px;line-height:1.75;color:#5B6469">[Office address pending approval]<br/>Lagos, Nigeria</p>
+      </div>
+      <div>
+        <h2 style="margin:0 0 8px;font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:18px;color:#0D1B24">Phone &amp; WhatsApp</h2>
+        <p style="margin:0;font-family:Inter,sans-serif;font-size:15px;line-height:1.75;color:#5B6469">[Phone number pending approval]<br/>[WhatsApp number pending approval]</p>
+      </div>
+      <div>
+        <h2 style="margin:0 0 8px;font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:18px;color:#0D1B24">Email</h2>
+        <p style="margin:0;font-family:Inter,sans-serif;font-size:15px;line-height:1.75;color:#5B6469">[Email address pending approval]</p>
+      </div>
+      <div>
+        <h2 style="margin:0 0 8px;font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:18px;color:#0D1B24">Business hours</h2>
+        <p style="margin:0;font-family:Inter,sans-serif;font-size:15px;line-height:1.75;color:#5B6469">Monday &ndash; Friday, [hours pending approval]</p>
+      </div>
+      <a href="Quote.dc.html" style="align-self:flex-start;margin-top:8px;font-family:Inter,sans-serif;font-size:15px;font-weight:600;color:#F5F2EA;background:#0C5A56;padding:15px 28px;border-radius:2px;text-decoration:none;min-height:44px;display:flex;align-items:center" style-hover="background:#147A74">Prefer a structured brief? Request a Quotation</a>
+    </div>
+
+    <form onsubmit="{{handleSubmit}}" style="background:#FFFFFF;border:1px solid rgba(13,27,36,0.1);border-radius:2px;padding:36px;display:flex;flex-direction:column;gap:18px">
+      <h2 style="margin:0;font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:17px;color:#0D1B24">Send a general enquiry</h2>
+      <sc-if value="{{submitted}}" hint-placeholder-val="{{false}}">
+        <p style="margin:0;font-family:Inter,sans-serif;font-size:14.5px;color:#0C5A56">Thanks &mdash; your message has been received. We&rsquo;ll respond shortly.</p>
+      </sc-if>
+      <sc-if value="{{notSubmitted}}" hint-placeholder-val="{{true}}">
+        <div>
+          <label for="c-name" style="display:block;font-family:Inter,sans-serif;font-size:13px;font-weight:600;color:#374045;margin-bottom:6px">Name<span style="color:#0C5A56"> *</span></label>
+          <input id="c-name" type="text" required="" value="{{name}}" oninput="{{setName}}" style="width:100%;box-sizing:border-box;min-height:44px;padding:10px 14px;border:1px solid rgba(13,27,36,0.2);border-radius:2px;font-size:15px;color:#0D1B24;background:#F5F2EA"/>
+        </div>
+        <div>
+          <label for="c-email" style="display:block;font-family:Inter,sans-serif;font-size:13px;font-weight:600;color:#374045;margin-bottom:6px">Email<span style="color:#0C5A56"> *</span></label>
+          <input id="c-email" type="email" required="" value="{{email}}" oninput="{{setEmail}}" style="width:100%;box-sizing:border-box;min-height:44px;padding:10px 14px;border:1px solid rgba(13,27,36,0.2);border-radius:2px;font-size:15px;color:#0D1B24;background:#F5F2EA"/>
+        </div>
+        <div>
+          <label for="c-message" style="display:block;font-family:Inter,sans-serif;font-size:13px;font-weight:600;color:#374045;margin-bottom:6px">Message<span style="color:#0C5A56"> *</span></label>
+          <textarea id="c-message" rows="5" required="" value="{{message}}" oninput="{{setMessage}}" style="width:100%;box-sizing:border-box;padding:12px 14px;border:1px solid rgba(13,27,36,0.2);border-radius:2px;font-size:15px;color:#0D1B24;background:#F5F2EA;resize:vertical"></textarea>
+        </div>
+        <sc-if value="{{showError}}" hint-placeholder-val="{{false}}">
+          <p role="alert" style="margin:0;font-family:Inter,sans-serif;font-size:13.5px;color:#8A2A1F">Please complete all fields.</p>
+        </sc-if>
+        <button type="submit" style="align-self:flex-start;font-family:Inter,sans-serif;font-size:15px;font-weight:600;color:#0D1B24;background:#F3B23F;border:none;padding:14px 28px;border-radius:2px;cursor:pointer;min-height:44px" style-hover="background:#F5C76A">Send Message</button>
+      </sc-if>
+    </form>
+  </div>
+</section>
+
+<section style="padding:0 24px 96px">
+  <div style="max-width:1280px;margin:0 auto;border-radius:2px;overflow:hidden;aspect-ratio:21/8">
+    <image-slot id="contact-map" shape="rect" src="images/office-building-wide-banner.png" placeholder="Drop a map or office-location image"></image-slot>
+  </div>
+</section>
+
+<dc-import name="Footer" hint-size="100%,320px"></dc-import>
+</x-dc>
+<script type="text/x-dc" data-dc-script>
+class Component extends DCLogic {
+  state = { name: '', email: '', message: '', submitted: false, showError: false };
+
+  renderVals() {
+    const handleSubmit = (e) => {
+      e.preventDefault();
+      if (!this.state.name.trim() || !this.state.email.trim() || !this.state.message.trim()) {
+        this.setState({ showError: true });
+        return;
+      }
+      this.setState({ submitted: true, showError: false });
+    };
+    return {
+      name: this.state.name,
+      email: this.state.email,
+      message: this.state.message,
+      setName: (e) => this.setState({ name: e.target.value }),
+      setEmail: (e) => this.setState({ email: e.target.value }),
+      setMessage: (e) => this.setState({ message: e.target.value }),
+      submitted: this.state.submitted,
+      notSubmitted: !this.state.submitted,
+      showError: this.state.showError,
+      handleSubmit,
+    };
+  }
+}
+</script>
+</body>
+</html>

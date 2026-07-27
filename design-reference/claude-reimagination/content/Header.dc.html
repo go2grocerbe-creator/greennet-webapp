@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<style id="__om-edit-overrides"></style>
+</helmet>
+<header style="position:sticky;top:0;z-index:50;background:#0D1B24;border-bottom:1px solid rgba(245,242,234,0.1)">
+  <div style="max-width:1280px;margin:0 auto;padding:0 24px;display:flex;align-items:center;justify-content:space-between;height:78px;gap:24px">
+    <a href="Home.dc.html" style="font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:20px;color:#F5F2EA;text-decoration:none;letter-spacing:-0.01em;white-space:nowrap">GreenNet <span style="color:#69757A;font-weight:500">Energy</span></a>
+
+    <sc-if value="{{showDesktopNav}}" hint-placeholder-val="{{true}}">
+      <nav aria-label="Primary navigation" style="display:flex;align-items:center;gap:30px;flex:1;justify-content:center">
+        <sc-for list="{{navItems}}" as="item" hint-placeholder-count="5">
+          <sc-if value="{{item.active}}" hint-placeholder-val="{{false}}">
+            <a href="{{item.href}}" style="font-family:Inter,sans-serif;font-size:14px;font-weight:600;color:#F3B23F;text-decoration:none;white-space:nowrap;padding-bottom:4px;border-bottom:2px solid #F3B23F">{{item.label}}</a>
+          </sc-if>
+          <sc-if value="{{item.notActive}}" hint-placeholder-val="{{true}}">
+            <a href="{{item.href}}" style="font-family:Inter,sans-serif;font-size:14px;font-weight:500;color:#C9CFD1;text-decoration:none;white-space:nowrap;padding-bottom:4px;border-bottom:2px solid transparent" style-hover="color:#F5F2EA">{{item.label}}</a>
+          </sc-if>
+        </sc-for>
+      </nav>
+      <a href="Quote.dc.html" style="font-family:Inter,sans-serif;font-size:14px;font-weight:600;color:#0D1B24;background:#F3B23F;padding:11px 22px;border-radius:2px;text-decoration:none;white-space:nowrap" style-hover="background:#F5C76A">Request a Quotation</a>
+    </sc-if>
+
+    <sc-if value="{{showMobileNav}}" hint-placeholder-val="{{false}}">
+      <button type="button" onclick="{{toggleMobile}}" aria-expanded="{{mobileOpen}}" aria-label="Toggle menu" style="background:transparent;border:1px solid rgba(245,242,234,0.3);color:#F5F2EA;width:44px;height:44px;border-radius:2px;display:flex;align-items:center;justify-content:center;flex:none">
+        <svg width="20" height="20" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"><line x1="2" y1="5" x2="18" y2="5"></line><line x1="2" y1="10" x2="18" y2="10"></line><line x1="2" y1="15" x2="18" y2="15"></line></svg>
+      </button>
+    </sc-if>
+  </div>
+
+  <sc-if value="{{mobileOpen}}" hint-placeholder-val="{{false}}">
+    <nav aria-label="Mobile navigation" style="background:#0D1B24;border-top:1px solid rgba(245,242,234,0.1);padding:8px 24px 24px;display:flex;flex-direction:column">
+      <sc-for list="{{navItems}}" as="item" hint-placeholder-count="5">
+        <a href="{{item.href}}" onclick="{{closeMobile}}" style="font-family:Inter,sans-serif;font-size:16px;color:#F5F2EA;text-decoration:none;padding:14px 0;border-bottom:1px solid rgba(245,242,234,0.08);min-height:44px;display:flex;align-items:center">{{item.label}}</a>
+      </sc-for>
+      <a href="Quote.dc.html" style="margin-top:16px;font-family:Inter,sans-serif;font-size:15px;font-weight:600;color:#0D1B24;background:#F3B23F;padding:14px 22px;border-radius:2px;text-decoration:none;text-align:center;min-height:44px;display:flex;align-items:center;justify-content:center">Request a Quotation</a>
+    </nav>
+  </sc-if>
+</header>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;current&quot;:{&quot;editor&quot;:null,&quot;default&quot;:&quot;home&quot;,&quot;tsType&quot;:&quot;string&quot;}}">
+class Component extends DCLogic {
+  state = { mobileOpen: false, isMobile: false, ready: false };
+
+  componentDidMount() {
+    this.mq = window.matchMedia('(max-width: 880px)');
+    this.update = () => this.setState({ isMobile: this.mq.matches, ready: true });
+    this.update();
+    this.mq.addEventListener('change', this.update);
+  }
+
+  componentWillUnmount() {
+    this.mq.removeEventListener('change', this.update);
+  }
+
+  renderVals() {
+    const raw = [
+      { label: 'Products', href: 'Products.dc.html', key: 'products' },
+      { label: 'Solutions', href: 'Solutions.dc.html', key: 'solutions' },
+      { label: 'Projects', href: 'Projects.dc.html', key: 'projects' },
+      { label: 'Monitoring & Support', href: 'Monitoring.dc.html', key: 'monitoring' },
+      { label: 'About', href: 'About.dc.html', key: 'about' },
+    ];
+    const current = this.props.current ?? '';
+    const navItems = raw.map((n) => {
+      const active = n.key === current;
+      return { ...n, active, notActive: !active };
+    });
+    const isMobile = this.state.ready ? this.state.isMobile : false;
+    return {
+      navItems,
+      showDesktopNav: !isMobile,
+      showMobileNav: isMobile,
+      mobileOpen: isMobile && this.state.mobileOpen,
+      toggleMobile: () => this.setState((s) => ({ mobileOpen: !s.mobileOpen })),
+      closeMobile: () => this.setState({ mobileOpen: false }),
+    };
+  }
+}
+</script>
+</body>
+</html>

@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<script src="./image-slot.js"></script>
+<style>
+  body{margin:0;background:#F5F2EA;font-family:Inter,sans-serif;color:#0D1B24}
+  a{color:#0C5A56}
+  a:hover{color:#147A74}
+  @media (prefers-reduced-motion: reduce){*{transition-duration:0.01ms !important;animation-duration:0.01ms !important}}
+</style>
+</helmet>
+<dc-import name="Header" current="products" hint-size="100%,78px"></dc-import>
+
+<div style="max-width:1280px;margin:0 auto;padding:24px 24px 0">
+  <nav aria-label="Breadcrumb" style="font-family:Inter,sans-serif;font-size:13px;color:#69757A">
+    <a href="Products.dc.html" style="color:#69757A;text-decoration:none">Products</a> / <span style="color:#0D1B24">Commercial Energy Systems</span>
+  </nav>
+</div>
+
+<section style="padding:32px 24px 64px">
+  <div style="max-width:1280px;margin:0 auto;display:grid;grid-template-columns:1.1fr 0.9fr;gap:56px;align-items:start">
+    <div style="border-radius:2px;overflow:hidden;aspect-ratio:4/3">
+      <image-slot id="detail-hero" shape="rect" src="images/integrated-commercial-system.png" placeholder="Drop the primary system photograph"></image-slot>
+    </div>
+    <div>
+      <span style="font-family:Inter,sans-serif;font-size:12px;font-weight:600;letter-spacing:0.08em;text-transform:uppercase;color:#0C5A56">Commercial Energy Systems</span>
+      <h1 style="margin:12px 0 0;font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:clamp(28px,3.4vw,38px);letter-spacing:-0.01em;line-height:1.15;color:#0D1B24">Integrated Commercial Energy System</h1>
+      <p style="margin:18px 0 0;font-family:Inter,sans-serif;font-size:16px;line-height:1.75;color:#5B6469">A specified combination of generation, storage and monitoring for commercial and industrial sites, sized to your load profile and installed as one coordinated system rather than separately sourced parts.</p>
+      <div style="margin-top:28px;display:flex;flex-wrap:wrap;gap:12px">
+        <a href="Quote.dc.html" style="font-family:Inter,sans-serif;font-size:15px;font-weight:600;color:#F5F2EA;background:#0C5A56;padding:15px 26px;border-radius:2px;text-decoration:none;min-height:44px;display:flex;align-items:center" style-hover="background:#147A74">Request a Quotation</a>
+        <a href="Contact.dc.html" style="font-family:Inter,sans-serif;font-size:15px;font-weight:600;color:#0D1B24;background:transparent;border:1px solid rgba(13,27,36,0.2);padding:15px 26px;border-radius:2px;text-decoration:none;min-height:44px;display:flex;align-items:center">Discuss with an engineer</a>
+      </div>
+      <div style="margin-top:32px;padding-top:28px;border-top:1px solid rgba(13,27,36,0.1)">
+        <p style="margin:0 0 12px;font-family:Inter,sans-serif;font-size:13px;font-weight:600;letter-spacing:0.06em;text-transform:uppercase;color:#69757A">Relevant applications</p>
+        <div style="display:flex;flex-wrap:wrap;gap:8px">
+          <span style="font-family:Inter,sans-serif;font-size:13px;color:#0D1B24;background:#EDEAE0;border-radius:2px;padding:6px 12px">Factories</span>
+          <span style="font-family:Inter,sans-serif;font-size:13px;color:#0D1B24;background:#EDEAE0;border-radius:2px;padding:6px 12px">Hotels</span>
+          <span style="font-family:Inter,sans-serif;font-size:13px;color:#0D1B24;background:#EDEAE0;border-radius:2px;padding:6px 12px">Offices</span>
+          <span style="font-family:Inter,sans-serif;font-size:13px;color:#0D1B24;background:#EDEAE0;border-radius:2px;padding:6px 12px">Estates &amp; developments</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section style="padding:0 24px 64px">
+  <div style="max-width:1280px;margin:0 auto;display:grid;grid-template-columns:1fr 1fr;gap:48px">
+    <div>
+      <h2 style="margin:0 0 20px;font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:22px;color:#0D1B24">Benefits</h2>
+      <ul style="margin:0;padding:0;list-style:none;display:flex;flex-direction:column;gap:14px">
+        <li style="display:flex;gap:12px;font-family:Inter,sans-serif;font-size:15px;line-height:1.6;color:#374045"><span style="color:#F3B23F;font-weight:700">&mdash;</span>Sized to measured or estimated load, not a standard package</li>
+        <li style="display:flex;gap:12px;font-family:Inter,sans-serif;font-size:15px;line-height:1.6;color:#374045"><span style="color:#F3B23F;font-weight:700">&mdash;</span>Generation, storage and monitoring specified as one coordinated system</li>
+        <li style="display:flex;gap:12px;font-family:Inter,sans-serif;font-size:15px;line-height:1.6;color:#374045"><span style="color:#F3B23F;font-weight:700">&mdash;</span>Professional installation and commissioning by GreenNet engineers</li>
+        <li style="display:flex;gap:12px;font-family:Inter,sans-serif;font-size:15px;line-height:1.6;color:#374045"><span style="color:#F3B23F;font-weight:700">&mdash;</span>Ongoing monitoring and after-sales support included in the proposal</li>
+      </ul>
+    </div>
+    <div>
+      <h2 style="margin:0 0 20px;font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:22px;color:#0D1B24">Specifications</h2>
+      <table style="width:100%;border-collapse:collapse">
+        <tbody>
+          <tr style="border-top:1px solid rgba(13,27,36,0.1)"><td style="padding:12px 0;font-family:Inter,sans-serif;font-size:13.5px;color:#69757A">Configuration</td><td style="padding:12px 0;font-family:Inter,sans-serif;font-size:14px;color:#0D1B24;text-align:right">Modular, site-specific</td></tr>
+          <tr style="border-top:1px solid rgba(13,27,36,0.1)"><td style="padding:12px 0;font-family:Inter,sans-serif;font-size:13.5px;color:#69757A">Capacity range</td><td style="padding:12px 0;font-family:Inter,sans-serif;font-size:14px;color:#0D1B24;text-align:right">[Approved specification required]</td></tr>
+          <tr style="border-top:1px solid rgba(13,27,36,0.1)"><td style="padding:12px 0;font-family:Inter,sans-serif;font-size:13.5px;color:#69757A">Battery chemistry</td><td style="padding:12px 0;font-family:Inter,sans-serif;font-size:14px;color:#0D1B24;text-align:right">[Approved specification required]</td></tr>
+          <tr style="border-top:1px solid rgba(13,27,36,0.1)"><td style="padding:12px 0;font-family:Inter,sans-serif;font-size:13.5px;color:#69757A">Monitoring</td><td style="padding:12px 0;font-family:Inter,sans-serif;font-size:14px;color:#0D1B24;text-align:right">Included, remote &amp; on-site</td></tr>
+          <tr style="border-top:1px solid rgba(13,27,36,0.1);border-bottom:1px solid rgba(13,27,36,0.1)"><td style="padding:12px 0;font-family:Inter,sans-serif;font-size:13.5px;color:#69757A">Warranty</td><td style="padding:12px 0;font-family:Inter,sans-serif;font-size:14px;color:#0D1B24;text-align:right">[Approved warranty terms required]</td></tr>
+        </tbody>
+      </table>
+      <p style="margin-top:16px;font-family:Inter,sans-serif;font-size:13px;color:#69757A">Documentation: [Datasheet pending approval] &middot; [Installation guide pending approval]</p>
+    </div>
+  </div>
+</section>
+
+<section style="padding:64px 24px;background:#FFFFFF;border-top:1px solid rgba(13,27,36,0.08)">
+  <div style="max-width:1280px;margin:0 auto">
+    <h2 style="margin:0 0 24px;font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:22px;color:#0D1B24">Related systems</h2>
+    <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:20px">
+      <a href="ProductDetail.dc.html" style="text-decoration:none;color:inherit;border:1px solid rgba(13,27,36,0.1);border-radius:2px;overflow:hidden;display:block">
+        <div style="aspect-ratio:4/3"><image-slot id="related-1" shape="rect" src="images/battery-storage-room.png" placeholder="Related system"></image-slot></div>
+        <div style="padding:16px"><h3 style="margin:0 0 4px;font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:15px;color:#0D1B24">Lithium Battery Storage Bank</h3><p style="margin:0;font-family:Inter,sans-serif;font-size:13px;color:#69757A">Battery Storage</p></div>
+      </a>
+      <a href="ProductDetail.dc.html" style="text-decoration:none;color:inherit;border:1px solid rgba(13,27,36,0.1);border-radius:2px;overflow:hidden;display:block">
+        <div style="aspect-ratio:4/3"><image-slot id="related-2" shape="rect" src="images/monitoring-dashboard.png" placeholder="Related system"></image-slot></div>
+        <div style="padding:16px"><h3 style="margin:0 0 4px;font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:15px;color:#0D1B24">Remote Monitoring Platform</h3><p style="margin:0;font-family:Inter,sans-serif;font-size:13px;color:#69757A">Monitoring Systems</p></div>
+      </a>
+      <a href="ProductDetail.dc.html" style="text-decoration:none;color:inherit;border:1px solid rgba(13,27,36,0.1);border-radius:2px;overflow:hidden;display:block">
+        <div style="aspect-ratio:4/3"><image-slot id="related-3" shape="rect" src="images/inverter-wall-units.png" placeholder="Related system"></image-slot></div>
+        <div style="padding:16px"><h3 style="margin:0 0 4px;font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:15px;color:#0D1B24">Three-Phase Commercial Inverter</h3><p style="margin:0;font-family:Inter,sans-serif;font-size:13px;color:#69757A">Inverters</p></div>
+      </a>
+    </div>
+  </div>
+</section>
+
+<dc-import name="Footer" hint-size="100%,320px"></dc-import>
+</x-dc>
+</body>
+</html>

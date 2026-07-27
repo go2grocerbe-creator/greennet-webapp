@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<script src="./image-slot.js"></script>
+<style>
+  body{margin:0;background:#F5F2EA;font-family:Inter,sans-serif;color:#0D1B24}
+  a{color:#0C5A56}
+  a:hover{color:#147A74}
+  @media (prefers-reduced-motion: reduce){*{transition-duration:0.01ms !important;animation-duration:0.01ms !important}}
+</style>
+</helmet>
+<dc-import name="Header" current="solutions" hint-size="100%,78px"></dc-import>
+
+<section style="background:#0D1B24;padding:64px 24px 48px">
+  <div style="max-width:1280px;margin:0 auto">
+    <p style="font-family:Inter,sans-serif;font-size:13px;font-weight:600;letter-spacing:0.14em;text-transform:uppercase;color:#F3B23F;margin:0 0 14px">Solutions &amp; Applications</p>
+    <h1 style="font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:clamp(30px,4vw,46px);letter-spacing:-0.02em;line-height:1.1;margin:0;color:#F5F2EA;max-width:760px">The right system depends on how your property actually operates.</h1>
+    <p style="margin:20px 0 0;font-family:Inter,sans-serif;font-size:16px;line-height:1.7;color:#9AA5A9;max-width:620px">We group applications into two categories, because the priorities &mdash; uptime, monitoring, scale, budget &mdash; differ meaningfully between them.</p>
+  </div>
+</section>
+
+<section style="padding:80px 24px 0">
+  <div style="max-width:1280px;margin:0 auto">
+    <div style="display:flex;align-items:baseline;gap:16px;margin-bottom:36px">
+      <span style="font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:28px;color:#0C5A56">01</span>
+      <h2 style="margin:0;font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:clamp(24px,3vw,32px);letter-spacing:-0.01em;color:#0D1B24">Commercial &amp; Industrial</h2>
+    </div>
+    <p style="margin:0 0 40px;font-family:Inter,sans-serif;font-size:16px;line-height:1.7;color:#5B6469;max-width:680px">Operations where downtime carries a direct cost, and where monitored, scalable capacity matters as much as the initial installation.</p>
+
+    <div style="display:grid;grid-template-columns:repeat(2,1fr);gap:24px">
+      <sc-for list="{{commercialUses}}" as="use" hint-placeholder-count="4">
+        <div style="display:grid;grid-template-columns:140px 1fr;gap:20px;border:1px solid rgba(13,27,36,0.1);border-radius:2px;padding:20px;background:#FFFFFF">
+          <div style="border-radius:2px;overflow:hidden;aspect-ratio:1/1"><image-slot id="{{use.imgId}}" shape="rect" src="{{use.img}}" placeholder="Site photograph"></image-slot></div>
+          <div>
+            <h3 style="margin:0 0 8px;font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:17px;color:#0D1B24">{{use.title}}</h3>
+            <p style="margin:0 0 10px;font-family:Inter,sans-serif;font-size:14px;line-height:1.65;color:#5B6469">{{use.description}}</p>
+            <p style="margin:0;font-family:Inter,sans-serif;font-size:12.5px;color:#69757A">Relevant systems: {{use.systems}}</p>
+          </div>
+        </div>
+      </sc-for>
+    </div>
+  </div>
+</section>
+
+<section style="padding:80px 24px">
+  <div style="max-width:1280px;margin:0 auto">
+    <div style="display:flex;align-items:baseline;gap:16px;margin-bottom:36px">
+      <span style="font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:28px;color:#0C5A56">02</span>
+      <h2 style="margin:0;font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:clamp(24px,3vw,32px);letter-spacing:-0.01em;color:#0D1B24">Residential &amp; Estates</h2>
+    </div>
+    <p style="margin:0 0 40px;font-family:Inter,sans-serif;font-size:16px;line-height:1.7;color:#5B6469;max-width:680px">Serious property owners who want a quality, monitored system built to last &mdash; not the fastest quote on the market.</p>
+
+    <div style="display:grid;grid-template-columns:repeat(2,1fr);gap:24px">
+      <sc-for list="{{residentialUses}}" as="use" hint-placeholder-count="2">
+        <div style="display:grid;grid-template-columns:140px 1fr;gap:20px;border:1px solid rgba(13,27,36,0.1);border-radius:2px;padding:20px;background:#FFFFFF">
+          <div style="border-radius:2px;overflow:hidden;aspect-ratio:1/1"><image-slot id="{{use.imgId}}" shape="rect" src="{{use.img}}" placeholder="Site photograph"></image-slot></div>
+          <div>
+            <h3 style="margin:0 0 8px;font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:17px;color:#0D1B24">{{use.title}}</h3>
+            <p style="margin:0 0 10px;font-family:Inter,sans-serif;font-size:14px;line-height:1.65;color:#5B6469">{{use.description}}</p>
+            <p style="margin:0;font-family:Inter,sans-serif;font-size:12.5px;color:#69757A">Relevant systems: {{use.systems}}</p>
+          </div>
+        </div>
+      </sc-for>
+    </div>
+  </div>
+</section>
+
+<section style="padding:64px 24px;background:#0C5A56">
+  <div style="max-width:1280px;margin:0 auto;display:flex;flex-wrap:wrap;gap:24px;align-items:center;justify-content:space-between">
+    <div>
+      <h2 style="margin:0 0 6px;font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:22px;color:#F5F2EA">Tell us about your property.</h2>
+      <p style="margin:0;font-family:Inter,sans-serif;font-size:15px;color:#CFE3E0">We&rsquo;ll recommend an application category and system configuration.</p>
+    </div>
+    <a href="Quote.dc.html" style="font-family:Inter,sans-serif;font-size:15px;font-weight:600;color:#0D1B24;background:#F3B23F;padding:15px 28px;border-radius:2px;text-decoration:none;min-height:44px;display:flex;align-items:center" style-hover="background:#F5C76A">Request a Quotation</a>
+  </div>
+</section>
+
+<dc-import name="Footer" hint-size="100%,320px"></dc-import>
+</x-dc>
+<script type="text/x-dc" data-dc-script>
+class Component extends DCLogic {
+  renderVals() {
+    const commercialUses = [
+      { title: 'Factories & Manufacturing', description: 'Continuous-process operations where an unplanned outage stops production lines.', systems: 'Commercial Energy Systems, Battery Storage', imgId: 'sol-factory', img: 'images/factory-rooftop-solar.png' },
+      { title: 'Hotels & Hospitality', description: 'Guest-facing operations where power reliability protects both comfort and reputation.', systems: 'Solar Panels, Monitoring Systems', imgId: 'sol-hotel', img: 'images/hotel-exterior-solar.png' },
+      { title: 'Offices & Commercial Buildings', description: 'Daytime-load buildings well suited to grid-tied generation with monitored consumption.', systems: 'Solar Panels, Inverters', imgId: 'sol-office', img: 'images/office-building-exterior.png' },
+      { title: 'Property Developers', description: 'New developments specifying energy infrastructure at the design stage, at scale.', systems: 'Commercial Energy Systems, Solar Carports', imgId: 'sol-developer', img: 'images/development-construction-aerial.png' },
+    ];
+    const residentialUses = [
+      { title: 'Large Residential Properties', description: 'Homes with significant load and appliance demand that need a properly sized system.', systems: 'Solar Panels, Battery Storage', imgId: 'sol-residential', img: 'images/residential-estate-house.png' },
+      { title: 'Estates & Gated Communities', description: 'Shared or per-unit infrastructure for multi-property developments and estates.', systems: 'Commercial Energy Systems, Monitoring Systems', imgId: 'sol-estate', img: 'images/gated-estate-aerial.png' },
+    ];
+    return { commercialUses, residentialUses };
+  }
+}
+</script>
+</body>
+</html>
