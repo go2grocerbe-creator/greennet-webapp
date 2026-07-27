@@ -33,17 +33,13 @@ export const siteConfig: SiteConfig = {
     address: "No. 12 Imuentinyan Street, Off Arbico Street, Upper Sokponoba, Benin City, Nigeria",
   },
   nav: [
-    { label: "Home", href: "/" },
-    { label: "About", href: "/about" },
-    { label: "Solar Solutions", href: "/services" },
     { label: "Products", href: "/products" },
+    { label: "Solutions", href: "/solutions" },
     { label: "Projects", href: "/projects" },
-    { label: "Contact", href: "/contact" },
+    { label: "Monitoring & Support", href: "/monitoring" },
+    { label: "About", href: "/about" },
   ],
 };
 
-/** Routes that exist today. About and Projects remain in the confirmed Phase 1
- * information architecture, but stay out of public navigation until built. */
-export const publicNav = siteConfig.nav.filter(
-  (item) => item.href !== "/about" && item.href !== "/projects",
-);
+/** Routes published in the Claude Reimagination design. */
+export const publicNav = siteConfig.nav;
