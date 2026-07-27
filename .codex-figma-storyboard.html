@@ -1,0 +1,670 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>GreenNet Solar Day — Figma Storyboard</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Archivo:wght@600;700;800&family=Instrument+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --forest: #063f2a;
+      --green: #087a42;
+      --gold: #f5c400;
+      --gold-dark: #d4a900;
+      --cream: #f7f7f1;
+      --soft: #e8f2e9;
+      --charcoal: #17211b;
+      --sun: #ffdf6b;
+      --first-light: #fff3c4;
+      --day: #fcfbf4;
+      --night: #031f17;
+      --panel: #061721;
+      --panel-light: #d9edf0;
+    }
+    * { box-sizing: border-box; }
+    html, body { margin: 0; min-width: 2920px; background: #e7ebe3; color: var(--charcoal); }
+    body { font-family: "Instrument Sans", Arial, sans-serif; }
+    .board {
+      width: 2920px;
+      padding: 88px 80px 120px;
+      background:
+        radial-gradient(circle at 12% 0%, rgba(245,196,0,.10), transparent 22%),
+        #e7ebe3;
+    }
+    .board-head {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-end;
+      margin-bottom: 64px;
+      padding-bottom: 34px;
+      border-bottom: 1px solid rgba(6,63,42,.18);
+    }
+    .eyebrow {
+      margin: 0 0 14px;
+      color: var(--green);
+      font-size: 14px;
+      font-weight: 700;
+      letter-spacing: .16em;
+      text-transform: uppercase;
+    }
+    .board h1 {
+      max-width: 1340px;
+      margin: 0;
+      color: var(--forest);
+      font-family: "Archivo", Arial, sans-serif;
+      font-size: 76px;
+      line-height: .95;
+      letter-spacing: -.045em;
+    }
+    .board-note {
+      width: 720px;
+      margin: 0 0 4px;
+      color: rgba(23,33,27,.72);
+      font-size: 22px;
+      line-height: 1.5;
+    }
+    .section-title {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      margin: 0 0 28px;
+      color: var(--forest);
+      font-family: "Archivo", Arial, sans-serif;
+      font-size: 28px;
+      letter-spacing: -.02em;
+    }
+    .section-title span {
+      display: grid;
+      place-items: center;
+      width: 34px;
+      height: 34px;
+      border-radius: 50%;
+      color: var(--forest);
+      background: var(--gold);
+      font: 700 13px/1 "Instrument Sans", Arial, sans-serif;
+    }
+    .foundations {
+      display: grid;
+      grid-template-columns: 1.4fr .9fr;
+      gap: 30px;
+      margin-bottom: 70px;
+    }
+    .foundation-card {
+      min-height: 280px;
+      padding: 34px;
+      border: 1px solid rgba(6,63,42,.12);
+      border-radius: 28px;
+      background: rgba(247,247,241,.86);
+      box-shadow: 0 20px 54px rgba(6,63,42,.08);
+    }
+    .swatches {
+      display: grid;
+      grid-template-columns: repeat(5, 1fr);
+      gap: 16px;
+    }
+    .swatch {
+      overflow: hidden;
+      border: 1px solid rgba(6,63,42,.12);
+      border-radius: 18px;
+      background: white;
+    }
+    .swatch-color { height: 96px; }
+    .swatch-copy { padding: 13px 14px 15px; }
+    .swatch-copy b { display: block; color: var(--forest); font-size: 13px; }
+    .swatch-copy small { color: rgba(23,33,27,.62); font-size: 12px; }
+    .type-samples { display: grid; gap: 18px; }
+    .type-display {
+      color: var(--forest);
+      font-family: "Archivo", Arial, sans-serif;
+      font-size: 42px;
+      font-weight: 800;
+      line-height: 1;
+      letter-spacing: -.04em;
+    }
+    .type-body { max-width: 680px; font-size: 18px; line-height: 1.5; }
+    .type-label { color: var(--green); font-size: 12px; font-weight: 700; letter-spacing: .14em; text-transform: uppercase; }
+    .motion-strip {
+      display: grid;
+      grid-template-columns: repeat(6, 1fr);
+      gap: 14px;
+      margin-bottom: 70px;
+    }
+    .motion-item {
+      padding: 22px 20px;
+      border-radius: 18px;
+      background: var(--forest);
+      color: var(--first-light);
+    }
+    .motion-item b { display: block; margin-bottom: 9px; font: 700 17px/1.2 "Archivo", Arial, sans-serif; }
+    .motion-item span { color: rgba(255,243,196,.72); font-size: 13px; }
+    .scenes {
+      display: grid;
+      grid-template-columns: repeat(2, 1280px);
+      gap: 54px 56px;
+    }
+    .scene-card { width: 1280px; }
+    .scene-meta {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 16px;
+      color: var(--forest);
+    }
+    .scene-meta h3 { margin: 0; font: 700 22px/1 "Archivo", Arial, sans-serif; }
+    .scene-meta p { margin: 0; color: rgba(6,63,42,.62); font-size: 14px; }
+    .screen {
+      position: relative;
+      width: 1280px;
+      height: 720px;
+      overflow: hidden;
+      border-radius: 24px;
+      background: var(--cream);
+      box-shadow: 0 24px 70px rgba(6,63,42,.16);
+    }
+    .site-header {
+      position: absolute;
+      inset: 0 0 auto;
+      z-index: 20;
+      display: flex;
+      align-items: center;
+      height: 72px;
+      padding: 0 56px;
+      color: var(--forest);
+      background: rgba(247,247,241,.97);
+      border-bottom: 1px solid rgba(6,63,42,.08);
+    }
+    .wordmark {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-family: "Archivo", Arial, sans-serif;
+      font-size: 19px;
+      font-weight: 800;
+      letter-spacing: -.03em;
+    }
+    .wordmark-sun {
+      width: 20px;
+      height: 20px;
+      border-radius: 50%;
+      background: var(--gold);
+      box-shadow: inset 0 0 0 5px rgba(255,255,255,.30);
+    }
+    .site-nav {
+      display: flex;
+      gap: 30px;
+      margin-left: auto;
+      margin-right: 30px;
+      font-size: 13px;
+      font-weight: 600;
+    }
+    .header-cta {
+      padding: 13px 18px;
+      border-radius: 12px;
+      color: white;
+      background: var(--green);
+      font-size: 13px;
+      font-weight: 700;
+    }
+    .scene {
+      position: absolute;
+      inset: 72px 0 0;
+      overflow: hidden;
+    }
+    .scene::after {
+      content: "";
+      position: absolute;
+      inset: auto 0 0;
+      height: 128px;
+      background: linear-gradient(to top, rgba(3,31,23,.22), transparent);
+      pointer-events: none;
+    }
+    .scene.predawn { background: radial-gradient(circle at 12% 82%, rgba(255,223,107,.18), transparent 28%), linear-gradient(145deg, #061b23, #020d12 70%); }
+    .scene.morning { background: radial-gradient(circle at 21% 28%, rgba(255,223,107,.48), transparent 30%), linear-gradient(140deg, #fff7e0, #d9edf0 72%); }
+    .scene.noon { background: radial-gradient(circle at 49% 10%, rgba(255,223,107,.32), transparent 26%), linear-gradient(145deg, #fdfcf7, #eaf4f1); }
+    .scene.golden { background: radial-gradient(circle at 83% 13%, rgba(255,223,107,.62), transparent 28%), linear-gradient(140deg, #fff3a1, #e4b967 60%, #b9ca8d); }
+    .scene.sunset { background: radial-gradient(circle at 80% 35%, rgba(245,196,0,.36), transparent 24%), linear-gradient(145deg, #8e6a3e, #37402f 54%, #0a3d2b); }
+    .scene.night { background: radial-gradient(circle at 50% 82%, rgba(8,122,66,.22), transparent 28%), linear-gradient(150deg, #031f17, #021711); }
+    .sun {
+      position: absolute;
+      z-index: 4;
+      width: 142px;
+      height: 142px;
+      border-radius: 50%;
+      background: var(--sun);
+      box-shadow: 0 0 28px rgba(255,223,107,.74), 0 0 80px rgba(245,196,0,.42);
+    }
+    .predawn .sun { left: 44px; top: 476px; }
+    .morning .sun { left: 216px; top: 136px; }
+    .noon .sun { left: 568px; top: -34px; }
+    .golden .sun { left: 1008px; top: 42px; }
+    .sunset .sun { left: 1010px; top: 202px; width: 128px; height: 128px; }
+    .night .sun { left: 606px; top: 430px; width: 68px; height: 68px; opacity: .18; }
+    .copy {
+      position: absolute;
+      z-index: 10;
+      width: 610px;
+    }
+    .copy-left { left: 88px; top: 108px; }
+    .copy-right { right: 92px; top: 112px; }
+    .copy-low { top: 278px; }
+    .copy-center { left: 320px; top: 72px; width: 640px; text-align: center; }
+    .golden .copy-low { top: 112px; }
+    .sunset .copy-right { right: 280px; top: 250px; width: 640px; }
+    .time {
+      display: inline-block;
+      margin-bottom: 22px;
+      padding: 8px 12px;
+      border: 1px solid currentColor;
+      border-radius: 999px;
+      font-size: 12px;
+      font-weight: 700;
+      letter-spacing: .06em;
+    }
+    .kicker {
+      margin: 0 0 13px;
+      font-size: 12px;
+      font-weight: 700;
+      letter-spacing: .15em;
+      text-transform: uppercase;
+    }
+    .copy h2 {
+      margin: 0;
+      font-family: "Archivo", Arial, sans-serif;
+      font-size: 61px;
+      font-weight: 800;
+      line-height: .98;
+      letter-spacing: -.045em;
+    }
+    .copy.hero { width: 720px; top: 84px; }
+    .copy.hero h2 { font-size: 62px; }
+    .lede {
+      max-width: 570px;
+      margin: 21px 0 0;
+      font-size: 18px;
+      line-height: 1.48;
+    }
+    .actions { display: flex; align-items: center; gap: 24px; margin-top: 28px; }
+    .button {
+      display: inline-flex;
+      align-items: center;
+      gap: 11px;
+      padding: 15px 20px;
+      border-radius: 12px;
+      color: white;
+      background: var(--green);
+      font-size: 14px;
+      font-weight: 700;
+    }
+    .text-link {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      margin-top: 24px;
+      padding-bottom: 5px;
+      border-bottom: 1px solid currentColor;
+      font-size: 14px;
+      font-weight: 700;
+    }
+    .predawn, .sunset, .night { color: var(--first-light); }
+    .morning, .noon, .golden { color: var(--forest); }
+    .predawn .button { color: var(--forest); background: var(--gold); }
+    .night .button { color: var(--forest); background: var(--gold); }
+    .night .actions { justify-content: center; }
+    .panel {
+      position: absolute;
+      z-index: 6;
+      left: -86px;
+      bottom: -34px;
+      width: 650px;
+      height: 226px;
+      transform: rotate(-4deg) skewX(-9deg);
+      border: 10px solid #082e30;
+      border-radius: 6px;
+      background-color: var(--panel);
+      background-image:
+        linear-gradient(rgba(153,179,173,.55) 2px, transparent 2px),
+        linear-gradient(90deg, rgba(153,179,173,.55) 2px, transparent 2px);
+      background-size: 106px 76px;
+      box-shadow: 0 20px 44px rgba(2,23,17,.28);
+    }
+    .morning .panel, .noon .panel {
+      background-color: #0a4c50;
+      background-image:
+        linear-gradient(rgba(217,237,240,.75) 2px, transparent 2px),
+        linear-gradient(90deg, rgba(217,237,240,.75) 2px, transparent 2px);
+    }
+    .noon .panel::after {
+      content: "";
+      position: absolute;
+      left: 218px;
+      top: 5px;
+      width: 196px;
+      height: 206px;
+      background: rgba(255,243,161,.30);
+      border: 3px solid var(--gold);
+    }
+    .battery {
+      position: absolute;
+      z-index: 7;
+      right: 102px;
+      bottom: 52px;
+      width: 176px;
+      height: 250px;
+      padding: 10px;
+      border: 8px solid var(--forest);
+      border-radius: 26px;
+      background: rgba(247,247,241,.64);
+      box-shadow: 0 18px 42px rgba(6,63,42,.20);
+    }
+    .battery::before {
+      content: "";
+      position: absolute;
+      left: 57px;
+      top: -22px;
+      width: 46px;
+      height: 18px;
+      border-radius: 6px 6px 0 0;
+      background: var(--forest);
+    }
+    .battery-fill {
+      position: absolute;
+      inset: auto 10px 10px;
+      height: 72%;
+      border-radius: 12px;
+      background: linear-gradient(to top, var(--green), var(--gold));
+    }
+    .battery-label {
+      position: absolute;
+      z-index: 2;
+      left: 21px;
+      bottom: 28px;
+      color: white;
+      font-size: 11px;
+      font-weight: 800;
+      letter-spacing: .10em;
+      writing-mode: vertical-rl;
+      transform: rotate(180deg);
+    }
+    .noon .battery { width: 106px; height: 154px; right: 132px; bottom: 80px; opacity: .55; }
+    .noon .battery::before { left: 29px; width: 32px; }
+    .noon .battery-label { display: none; }
+    .predawn .battery, .morning .battery { display: none; }
+    .sunset .battery { opacity: .86; }
+    .night .battery { display: none; }
+    .house {
+      position: absolute;
+      z-index: 8;
+      left: 500px;
+      bottom: 0;
+      width: 280px;
+      height: 178px;
+      border-radius: 8px 8px 0 0;
+      background: var(--forest);
+      box-shadow: 0 22px 50px rgba(0,0,0,.28);
+    }
+    .house::before {
+      content: "";
+      position: absolute;
+      left: -36px;
+      top: -112px;
+      width: 0;
+      height: 0;
+      border-left: 176px solid transparent;
+      border-right: 176px solid transparent;
+      border-bottom: 132px solid var(--forest);
+    }
+    .door {
+      position: absolute;
+      left: 116px;
+      bottom: 0;
+      width: 58px;
+      height: 112px;
+      border-radius: 6px 6px 0 0;
+      background: #815d39;
+      box-shadow: 0 0 26px rgba(255,223,107,.58);
+    }
+    .window {
+      position: absolute;
+      left: 35px;
+      top: 43px;
+      width: 58px;
+      height: 54px;
+      border: 7px solid #e4b967;
+      background: var(--sun);
+      box-shadow: 0 0 28px rgba(255,223,107,.60);
+    }
+    .house-label {
+      position: absolute;
+      left: 65px;
+      top: -164px;
+      color: var(--first-light);
+      font-size: 13px;
+      font-weight: 700;
+    }
+    .predawn .house, .morning .house, .noon .house, .golden .house, .sunset .house { display: none; }
+    .energy {
+      position: absolute;
+      z-index: 5;
+      inset: 0;
+      width: 1280px;
+      height: 648px;
+      pointer-events: none;
+    }
+    .energy path {
+      fill: none;
+      stroke: var(--gold);
+      stroke-width: 6;
+      stroke-linecap: round;
+      stroke-dasharray: 14 14;
+      filter: drop-shadow(0 0 8px rgba(245,196,0,.52));
+    }
+    .predawn .energy, .morning .energy { display: none; }
+    .noon .energy path { d: path("M 330 545 C 480 420, 580 250, 630 92"); opacity: .82; }
+    .golden .energy path { d: path("M 330 545 C 520 420, 760 440, 1050 445"); }
+    .sunset .energy path { d: path("M 350 545 C 610 430, 760 480, 1050 430"); opacity: .88; }
+    .night .energy path { d: path("M 180 590 C 430 510, 540 460, 642 420"); }
+    .night .energy { z-index: 9; }
+    .rail {
+      position: absolute;
+      z-index: 15;
+      right: 28px;
+      top: 78px;
+      width: 78px;
+      height: 474px;
+      color: currentColor;
+    }
+    .rail-line {
+      position: absolute;
+      right: 14px;
+      top: 8px;
+      bottom: 8px;
+      width: 1px;
+      background: currentColor;
+      opacity: .35;
+    }
+    .rail-dot {
+      position: absolute;
+      right: 7px;
+      width: 15px;
+      height: 15px;
+      border: 3px solid currentColor;
+      border-radius: 50%;
+      background: transparent;
+      transform: translateY(-50%);
+    }
+    .rail-dot.active { border-color: var(--gold); background: var(--gold); box-shadow: 0 0 0 5px rgba(245,196,0,.18); }
+    .rail-label {
+      position: absolute;
+      right: 28px;
+      width: 46px;
+      transform: translateY(-50%);
+      text-align: right;
+      font-size: 9px;
+      font-weight: 700;
+      letter-spacing: .08em;
+      text-transform: uppercase;
+      opacity: .72;
+    }
+    .stars { position: absolute; inset: 0; z-index: 2; }
+    .star {
+      position: absolute;
+      width: 3px;
+      height: 3px;
+      border-radius: 50%;
+      background: var(--first-light);
+      box-shadow: 0 0 8px rgba(255,243,196,.75);
+    }
+    .predawn .stars { opacity: .60; }
+    .sunset .stars { opacity: .38; }
+    .night .stars { opacity: .92; }
+    .morning .stars, .noon .stars, .golden .stars { display: none; }
+  </style>
+</head>
+<body>
+  <main class="board">
+    <header class="board-head">
+      <div>
+        <p class="eyebrow">GreenNet Energy · Editable animation handoff</p>
+        <h1>One solar day,<br>six scroll states.</h1>
+      </div>
+      <p class="board-note">
+        Current homepage animation translated into discrete desktop boards. Edit copy, composition,
+        color, and object placement here; each board maps to a production scroll anchor.
+      </p>
+    </header>
+
+    <h2 class="section-title"><span>01</span> Production foundations</h2>
+    <section class="foundations">
+      <div class="foundation-card">
+        <div class="swatches" id="swatches"></div>
+      </div>
+      <div class="foundation-card">
+        <div class="type-samples">
+          <div class="type-label">Archivo ExtraBold · Display</div>
+          <div class="type-display">Clean energy,<br>made visible.</div>
+          <div class="type-label">Instrument Sans · Body & interface</div>
+          <div class="type-body">A grounded, editorial system with high-contrast solar gold and deep forest green.</div>
+        </div>
+      </div>
+    </section>
+
+    <h2 class="section-title"><span>02</span> Scroll anchors</h2>
+    <section class="motion-strip" id="motion"></section>
+
+    <h2 class="section-title"><span>03</span> Desktop storyboard · 1280 × 720</h2>
+    <section class="scenes" id="scenes"></section>
+  </main>
+
+  <script>
+    const colors = [
+      ["Deep Forest", "#063f2a"], ["Primary", "#087a42"], ["Solar Gold", "#f5c400"],
+      ["Gold Dark", "#d4a900"], ["Cream", "#f7f7f1"], ["Soft Green", "#e8f2e9"],
+      ["Charcoal", "#17211b"], ["Sun Core", "#ffdf6b"], ["First Light", "#fff3c4"], ["Night Canopy", "#031f17"]
+    ];
+    document.querySelector("#swatches").innerHTML = colors.map(([name, hex]) => `
+      <article class="swatch">
+        <div class="swatch-color" style="background:${hex}"></div>
+        <div class="swatch-copy"><b>${name}</b><small>${hex}</small></div>
+      </article>`).join("");
+
+    const phases = [
+      {
+        key: "predawn", label: "Pre-dawn", anchor: "0%", step: "Hero",
+        kicker: "Harness the Power of the Sun Today",
+        title: "Powering Homes & Businesses with Clean Solar Energy",
+        lede: "A solar energy company in Benin City, Nigeria.",
+        layout: "copy-left hero", action: "Request a quotation", secondary: "Move the sun ↓"
+      },
+      {
+        key: "morning", label: "Morning", anchor: "19%", step: "01 / Collection",
+        kicker: "01 / Collection", title: "Light becomes current.",
+        lede: "Photovoltaic cells receive daylight and begin collecting clean energy.",
+        layout: "copy-right", secondary: "Explore Solar Solutions →"
+      },
+      {
+        key: "noon", label: "Noon", anchor: "38%", step: "02 / Conversion",
+        kicker: "02 / Conversion", title: "Sunlight becomes current.",
+        lede: "Photovoltaic cells produce direct current—quietly, without moving parts.",
+        layout: "copy-left"
+      },
+      {
+        key: "golden", label: "Golden hour", anchor: "57%", step: "03 / Storage",
+        kicker: "03 / Storage", title: "Energy becomes reserve.",
+        lede: "An inverter makes solar electricity usable. Batteries can hold surplus energy for the hours after daylight changes.",
+        layout: "copy-left copy-low", secondary: "See Products →"
+      },
+      {
+        key: "sunset", label: "Sunset", anchor: "76%", step: "04 / Handoff",
+        kicker: "04 / Handoff", title: "Light changes hands.",
+        lede: "The horizon darkens. Stored electricity carries the day forward as the environment moves into night.",
+        layout: "copy-right copy-low"
+      },
+      {
+        key: "night", label: "Night", anchor: "100%", step: "05 / Stored power",
+        kicker: "05 / Stored power", title: "The sun is still working.",
+        lede: "Tell us about your property or send a general enquiry. The sun above has become your next step.",
+        layout: "copy-center", action: "Request a quotation"
+      }
+    ];
+
+    document.querySelector("#motion").innerHTML = phases.map(p => `
+      <div class="motion-item"><b>${p.label}</b><span>${p.anchor} · ${p.step}</span></div>`).join("");
+
+    const nav = `<div class="site-header">
+      <div class="wordmark"><i class="wordmark-sun"></i><span>GreenNet Energy</span></div>
+      <div class="site-nav"><span>Home</span><span>Solar Solutions</span><span>Products</span><span>Contact</span></div>
+      <div class="header-cta">Request a quotation →</div>
+    </div>`;
+    const stars = Array.from({length: 34}, (_, i) => {
+      const x = (i * 97 + 41) % 1160 + 25;
+      const y = (i * 61 + 23) % 430 + 18;
+      const s = i % 5 === 0 ? 5 : 3;
+      return `<i class="star" style="left:${x}px;top:${y}px;width:${s}px;height:${s}px"></i>`;
+    }).join("");
+    const rail = active => `<div class="rail"><i class="rail-line"></i>${
+      phases.map((p, i) => {
+        const pos = 8 + i * 91.5;
+        return `<span class="rail-label" style="top:${pos}px">${String(i + 1).padStart(2,"0")}</span>
+          <i class="rail-dot ${i === active ? "active" : ""}" style="top:${pos}px"></i>`;
+      }).join("")
+    }</div>`;
+    const pathByPhase = {
+      predawn: "M 310 560 C 520 430, 760 430, 1040 420",
+      morning: "M 310 560 C 520 430, 760 430, 1040 420",
+      noon: "M 330 545 C 480 420, 580 250, 630 92",
+      golden: "M 330 545 C 520 420, 760 440, 1050 445",
+      sunset: "M 350 545 C 610 430, 760 480, 1050 430",
+      night: "M 250 560 C 440 510, 540 455, 642 390"
+    };
+    const objects = key => `
+      <div class="stars">${stars}</div>
+      <div class="sun"></div>
+      <div class="panel"></div>
+      <svg class="energy" viewBox="0 0 1280 648" aria-hidden="true"><path d="${pathByPhase[key]}"></path></svg>
+      <div class="battery"><div class="battery-fill"></div><span class="battery-label">ENERGY RESERVED</span></div>
+      <div class="house"><div class="door"></div><div class="window"></div><span class="house-label">Request a quotation →</span></div>`;
+
+    document.querySelector("#scenes").innerHTML = phases.map((p, i) => `
+      <article class="scene-card">
+        <div class="scene-meta"><h3>${String(i + 1).padStart(2,"0")} · ${p.label}</h3><p>Scroll progress ${p.anchor}</p></div>
+        <div class="screen">
+          ${nav}
+          <div class="scene ${p.key}">
+            ${objects(p.key)}
+            <div class="copy ${p.layout}">
+              <div class="time">${p.label}</div>
+              <p class="kicker">${p.kicker}</p>
+              <h2>${p.title}</h2>
+              <p class="lede">${p.lede}</p>
+              ${p.action ? `<div class="actions"><span class="button">${p.action} →</span>${p.secondary ? `<span class="text-link">${p.secondary}</span>` : ""}</div>` : ""}
+              ${!p.action && p.secondary ? `<span class="text-link">${p.secondary}</span>` : ""}
+            </div>
+            ${rail(i)}
+          </div>
+        </div>
+      </article>`).join("");
+  </script>
+</body>
+</html>

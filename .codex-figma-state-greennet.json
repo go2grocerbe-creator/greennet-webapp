@@ -1,0 +1,29 @@
+{
+  "runId": "greennet-solar-20260727",
+  "fileKey": "d7VlKfxG37BXnVnFmndH1L",
+  "phase": "phase1",
+  "step": "foundations",
+  "entities": {
+    "collections": {
+      "primitives": "VariableCollectionId:3:2",
+      "semantic": "VariableCollectionId:3:3",
+      "layout": "VariableCollectionId:3:4"
+    },
+    "variables": {},
+    "styles": {},
+    "pages": {
+      "Page 1": "0:1"
+    },
+    "components": {},
+    "capture": {
+      "referenceFrame": "1:2"
+    }
+  },
+  "pendingValidations": [
+    "phase1:variables",
+    "phase1:styles"
+  ],
+  "completedSteps": [
+    "phase0"
+  ]
+}

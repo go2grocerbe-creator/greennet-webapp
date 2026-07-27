@@ -75,20 +75,29 @@
   --card-foreground: oklch(0.145 0 0);
   --popover: oklch(1 0 0);
   --popover-foreground: oklch(0.145 0 0);
-  /* Semantic tokens mapped to the confirmed GreenNet brand palette
-     (docs/content-register.md "Company identity" — #063f2a / #087a42 / #f5c400). */
-  --primary: #087a42;
+  /* Claude Reimagination brand (sleek redesign) */
+  --midnight-navy: #0D1B24;
+  --petrol-teal: #0C5A56;
+  --petrol-light: #147A74;
+  --petrol-dark: #084240;
+  --solar-amber: #F3B23F;
+  --amber-light: #F5C76A;
+  --amber-dark: #D99A2A;
+  --titanium-grey: #69757A;
+  --warm-white: #F5F2EA;
+  /* Semantic tokens mapped to sleek brand */
+  --primary: #0C5A56;
   --primary-foreground: #ffffff;
-  --secondary: #e8f2e9;
-  --secondary-foreground: #063f2a;
+  --secondary: #F5F2EA;
+  --secondary-foreground: #0D1B24;
   --muted: oklch(0.968 0.005 150);
   --muted-foreground: oklch(0.5 0.015 155);
-  --accent: #e8f2e9;
-  --accent-foreground: #063f2a;
+  --accent: #F3B23F;
+  --accent-foreground: #0D1B24;
   --destructive: oklch(0.577 0.245 27.325);
-  --border: oklch(0.915 0.008 150);
-  --input: oklch(0.885 0.01 150);
-  --ring: #087a42;
+  --border: rgba(13, 27, 36, 0.08);
+  --input: rgba(13, 27, 36, 0.1);
+  --ring: #F3B23F;
   --chart-1: oklch(0.87 0 0);
   --chart-2: oklch(0.556 0 0);
   --chart-3: oklch(0.439 0 0);
