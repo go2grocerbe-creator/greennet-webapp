@@ -25,7 +25,7 @@ export async function createClient() {
           }
         } catch {
           // Called from a Server Component with no request/response to
-          // write cookies to — safe to ignore when middleware refreshes
+          // write cookies to — safe to ignore when the request proxy refreshes
           // the session on every request.
         }
       },

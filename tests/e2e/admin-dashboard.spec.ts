@@ -2,7 +2,7 @@ import { expect, test } from "@playwright/test";
 
 /**
  * The admin dashboard, quotations list, and quotation detail pages are
- * all gated behind a real Supabase Auth session (see src/middleware.ts
+ * all gated behind a real Supabase Auth session (see src/proxy.ts
  * and src/app/(admin)/admin/layout.tsx). This environment has no live
  * Supabase project connected, so an authenticated session can't be
  * created here — see docs/testing-plan.md for the full explanation and

@@ -153,12 +153,12 @@ describe("quoteSubmissionSchema", () => {
     expect(result.success).toBe(true);
   });
 
-  it("requires a turnstile token", () => {
+  it("lets an empty token reach the environment-aware server verifier", () => {
     const result = quoteSubmissionSchema.safeParse({
       ...validPayload,
       [HONEYPOT_FIELD_NAME]: "",
       turnstileToken: "",
     });
-    expect(result.success).toBe(false);
+    expect(result.success).toBe(true);
   });
 });

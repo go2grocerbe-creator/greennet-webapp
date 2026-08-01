@@ -9,11 +9,9 @@ export type TurnstileResult =
  * directly from process.env (not via getServerEnv()) so this module has
  * no accidental dependency on unrelated required server env vars.
  *
- * Dev/test bypass: if the secret is absent, verification is skipped and
- * success is returned — logged clearly so it's never silently relied on.
- * If the secret IS configured, this always performs a real check; the
- * bypass can never mask a misconfigured production deployment. See
- * docs/decision-log.md ADR-010.
+ * Development/test bypass: if the secret is absent outside production,
+ * verification is skipped and logged. Production fails closed when the
+ * secret is absent. If configured, every environment performs a real check.
  */
 export async function verifyTurnstileToken(
   token: string,
@@ -22,6 +20,10 @@ export async function verifyTurnstileToken(
   const secret = process.env.TURNSTILE_SECRET_KEY;
 
   if (!secret) {
+    if (process.env.NODE_ENV === "production") {
+      console.error("[turnstile] TURNSTILE_SECRET_KEY is required in production.");
+      return { success: false, reason: "not_configured" };
+    }
     console.warn(
       "[turnstile] TURNSTILE_SECRET_KEY not set — skipping verification (dev/test bypass).",
     );

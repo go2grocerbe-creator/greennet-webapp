@@ -111,7 +111,7 @@ export const quoteRequestSchema = z.object({
     .or(z.literal("").transform(() => undefined)),
   message: trimmedString(2000).min(10, "Tell us a little more (at least 10 characters)."),
   privacyConsent: z.literal(true, {
-    error: "You must accept the privacy notice to submit this form.",
+    error: "You must agree to be contacted about this enquiry.",
   }),
 });
 
@@ -128,7 +128,9 @@ export const HONEYPOT_FIELD_NAME = "hp_field";
  */
 export const quoteSubmissionSchema = quoteRequestSchema.extend({
   [HONEYPOT_FIELD_NAME]: z.string().optional(),
-  turnstileToken: z.string().min(1, "Verification token missing."),
+  // Empty is allowed through shape validation so the verifier can apply the
+  // environment-aware policy: dev/test bypass, production fail-closed.
+  turnstileToken: z.string().max(2048),
 });
 
 export type QuoteSubmissionInput = z.input<typeof quoteSubmissionSchema>;
