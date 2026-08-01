@@ -21,16 +21,16 @@ Non-blocking issues: don't break the build, don't fail tests, don't affect secur
 
 ## Public Services/Products, Products/Projects management (this milestone)
 
-- **No public Projects page yet.** Not requested this round — `docs/decision-log.md` ADR-013.
-- **No image upload/Storage integration.** Image/Cover Image are plain URL text fields; a real upload flow (Supabase Storage bucket + RLS + UI) is a larger, separate piece of work.
+- **Resolved 2026-08-01: public Projects page.** `/projects` now presents neutral capability pathways and explicitly published text records while withholding unverified photography (ADR-018).
+- **Media upload UI remains deferred, with the unsafe path closed.** Legacy URL values are preserved on drafts but hidden publicly; migration `20260801000001` blocks them on published records and enforces rights on `project_media` attachments.
 - **Public `/services` and `/products` render dynamically on every request** (no ISR/caching configured) — acceptable at current expected traffic; revisit with `revalidate` if it ever matters.
 - **Ordering correctness (`sort_order`, then title/name) lives entirely in the SQL `.order()` call** and isn't verified by a live-database test in this environment — only that the mapping layer preserves whatever order the data source returns. Real ordering behavior needs verification against a live Supabase project.
 - **`completion_date`/`sort_order` etc. added to `products`/`projects` are unused by `project_type`/`equipment_summary`/`featured`/`brand`/`category`/`spec_sheet_media_id`** (pre-existing columns not touched by this milestone's forms) — those columns simply stay `null`/default for now; nothing broken, just not yet exposed in the admin UI.
 
 ## Pre-existing (carried over, not introduced this milestone)
 
-- **`middleware.ts` naming deprecation.** Next.js 16 warns `The "middleware" file convention is deprecated. Please use "proxy" instead.` on every build/dev start. Functionally correct today; rename to `proxy.ts` in a dedicated pass once Next's migration guidance is confirmed stable, not mid-feature-milestone.
-- **Dev-time console noise when Supabase env vars are unset.** `[auth] failed to resolve admin session`, `[middleware] failed to resolve session`, `[admin] failed to create quotations data source` all log a full `ZodError` in this environment (no `.env.local` exists, by design). These are the intended fail-closed error path, not bugs — see `docs/security-model.md`. Noisy in the Next.js dev overlay but harmless; will disappear once a real Supabase project is configured.
+- **Resolved 2026-08-01: Next.js proxy convention.** The admin session gate now lives in `src/proxy.ts`; production builds no longer emit the middleware naming warning.
+- **Dev-time console noise when Supabase env vars are unset.** `[auth] failed to resolve admin session`, `[proxy] failed to resolve session`, and `[admin] failed to create quotations data source` log a full `ZodError` in this environment (no `.env.local` exists, by design). These are the intended fail-closed error path, not bugs — see `docs/security-model.md`. They are noisy in the Next.js dev overlay but disappear once a real Supabase project is configured.
 
 ## Public solar-story redesign
 

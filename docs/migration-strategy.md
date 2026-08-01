@@ -1,11 +1,13 @@
 # Migration Strategy
 
-Status: DRAFT — planning only, no execution yet
-Last updated: 2026-07-17
+Status: IMPLEMENTED THROUGH CLIENT-REVIEW GATE — production cutover pending
+Last updated: 2026-08-01
 
 ## Governing principle
 
 Build the production application alongside the current static demo. Do not destructively rewrite it. The demo remains fully intact and recoverable until equivalent production functionality is verified and the client has explicitly agreed to cut over.
+
+Current state: the static demo is preserved in `legacy-demo/` and on `legacy/static-demo`; the Next.js application is complete on a non-`main` branch. Production DNS remains untouched pending the approval and deployment gates in `HANDOVER.md`.
 
 ## Non-negotiable rules for this migration
 

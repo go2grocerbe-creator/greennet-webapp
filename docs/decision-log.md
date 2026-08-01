@@ -186,3 +186,76 @@ runtime dependency, external imagery or a second visual language.
 ## Superseded decisions
 
 None yet.
+
+## ADR-018 — Client-handover completion and defense-in-depth release gates
+
+**Date:** 2026-08-01
+**Status:** Confirmed by the handover-completion instruction
+
+**Decision:** Complete the confirmed Phase 1 information architecture on the existing solar-story
+implementation and strengthen every public publication/write boundary before handover.
+
+- `/about` publishes only approved positioning, location, and the quality/performance/visibility/support/progress principles.
+- `/products` remains useful without catalogue data through neutral product categories. Brands, specifications, warranties, and prices remain withheld until approved.
+- `/projects` presents intended operating environments and only explicitly published CMS project records. No project image renders until authenticity and rights are confirmed.
+- Optional CMS empty/unavailable states are hidden on public routes; the verified editorial experience remains complete.
+- Public data mappers explicitly filter `status = 'published'` in addition to RLS. This supersedes ADR-013's reliance on caller-specific RLS alone, which could return drafts when an authenticated editor viewed a public route.
+- Direct product/project image URL controls are held for review and their values preserved, but public pages do not render them. Migration `20260801000001` prevents those direct URLs on published records and enforces `media.rights_confirmed` for published project attachments.
+- Quotation inserts use a server-only service-role client only after server-side Zod, honeypot, rate-limit, and Turnstile checks. Anonymous quotation INSERT RLS is removed, superseding ADR-010's anon-insert implementation so direct Supabase REST calls cannot bypass the route pipeline.
+- Turnstile may bypass only outside production; production fails closed when the secret is missing.
+- The final migration restricts editor lead mutations to status, narrows site-settings policies, and adds trigger-based audit logging for content/settings mutations and quotation status changes.
+- The visual brand base uses the handover brand system's Midnight Navy, Deep Petrol Teal, Solar Amber, Titanium Grey, Warm White, Space Grotesk, and Inter. The existing text wordmark remains until an official logo source is supplied.
+
+**Rationale:** Handover requires a complete, credible public experience even before optional content is
+available, while preventing draft leakage, spam-protection bypass, unverified media publication, and
+unaudited administrative changes. These gates are more defensible than relying on UI discipline or an
+authenticated caller's RLS result shape.
+
+**Deployment boundary:** The code and migrations are complete, but no live Supabase, Turnstile,
+Resend, Vercel, domain, or DNS credentials were available. Production cutover requires the documented
+client approvals, migration application, environment configuration, and real Preview verification.
+
+## ADR-019 — Solar-story interaction handoff and continuous chapter crossfades
+
+**Date:** 2026-08-01
+**Status:** Confirmed by preservation and completion of the active solar-story work
+
+**Decision:** Preserve the refined solar-story model in which adjacent chapter windows crossfade
+without an empty-copy gap. The scene itself exposes contextual, keyboard-focusable links while their
+subjects are active: the panel field links to Solar Solutions, the battery links to Products, and the
+illuminated home becomes the single visible quotation action at settled Night. The sun remains the
+pointer/keyboard time-navigation control until that final handoff. Reduced-motion and no-JavaScript
+users retain the document-flow chapter links and the explicit Night quotation action.
+
+This supersedes only ADR-014's statements that the sun itself becomes the final quotation action and
+that copy phases are separated by empty transition gaps. The single-controller, CSS-variable,
+server-rendered, progressively enhanced architecture remains unchanged.
+
+**Rationale:** The contextual controls connect each energy-stage subject to the relevant live route,
+while the final illuminated-home action makes the story's collection → storage → delivery sequence
+explicit. Continuous crossfades remove blank narrative intervals without allowing more than two
+readable chapters or more than one active navigation step.
+
+**Validation:** The final Playwright suite passes all 59 scenarios, including keyboard and pointer
+phase navigation, crossfade synchronization, contextual-link focusability, reduced motion, settled
+Night handoff, responsive geometry, public routes, quotation states, and unauthenticated admin gates.
+
+## ADR-020 — Shared Supabase quotation rate limiting for serverless deployment
+
+**Date:** 2026-08-01
+**Status:** Confirmed by the production-handover security audit
+
+**Decision:** The production quotation route uses an atomic fixed-window limiter stored in Supabase,
+keyed only by the existing truncated SHA-256 IP hash. Migration `20260801000001` creates an
+RLS-enabled counter table with no client policies and an RPC executable only by `service_role`. The
+five-submission/ten-minute window is therefore shared across Vercel instances. Database/RPC failure
+fails the submission closed with the generic server-error response. The in-memory adapter remains
+available only for unit tests and isolated local use.
+
+**Rationale:** A process-local map cannot enforce an abuse boundary across serverless instances.
+Using the already-confirmed Supabase service avoids a new vendor or secret while keeping the raw IP
+out of logs and storage.
+
+**Validation boundary:** Unit tests cover adapter mapping and fail-closed behavior. The migration must
+still be applied to Preview and its atomic expiry/limit behavior verified against the real database
+before production approval.
