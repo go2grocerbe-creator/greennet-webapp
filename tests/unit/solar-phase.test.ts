@@ -7,9 +7,11 @@ import {
   getConversionFlow,
   getHandoffFlow,
   getHomeFocus,
+  getHouseContact,
   getPanelFocus,
   getSolarChapterOpacity,
   getSolarEnvironmentPhase,
+  getSolarStoryState,
   getSolarTextPhase,
   getSolarTextPhaseAttribute,
   getStoryDistance,
@@ -40,11 +42,11 @@ describe("getSolarEnvironmentPhase", () => {
 
   it("switches exactly at each threshold", () => {
     const boundaries = [
-      [0.1, "predawn", "morning"],
-      [0.3, "morning", "noon"],
-      [0.5, "noon", "golden"],
-      [0.7, "golden", "sunset"],
-      [0.88, "sunset", "night"],
+      [0.08, "predawn", "morning"],
+      [0.25, "morning", "noon"],
+      [0.43, "noon", "golden"],
+      [0.62, "golden", "sunset"],
+      [0.82, "sunset", "night"],
     ] as const;
     for (const [edge, before, after] of boundaries) {
       expect(getSolarEnvironmentPhase(edge - 1e-6)).toBe(before);
@@ -61,27 +63,28 @@ describe("getSolarTextPhase", () => {
     }
   });
 
-  it("returns null at every derived transition midpoint", () => {
+  it("keeps every derived transition midpoint readable", () => {
     for (const midpoint of solarTransitionMidpoints) {
-      expect(getSolarTextPhase(midpoint)).toBeNull();
-      expect(getSolarTextPhaseAttribute(midpoint)).toBe("transition");
+      expect(getSolarTextPhase(midpoint)).not.toBeNull();
+      expect(getSolarTextPhaseAttribute(midpoint)).not.toBe("transition");
     }
   });
 
-  it("keeps transition midpoints clear of both neighbouring windows", () => {
+  it("keeps transition midpoints inside a controlled crossfade", () => {
     solarTransitionMidpoints.forEach((midpoint, index) => {
-      expect(midpoint - solarChapterWindows[index].end).toBeGreaterThan(0.02);
-      expect(solarChapterWindows[index + 1].start - midpoint).toBeGreaterThan(0.02);
+      expect(midpoint).toBeGreaterThan(solarChapterWindows[index].holdEnd);
+      expect(midpoint).toBeLessThan(solarChapterWindows[index + 1].holdStart);
     });
   });
 
-  it("never reports two readable chapters at once", () => {
+  it("never has more than two readable chapters during crossfade", () => {
     for (let step = 0; step <= 1000; step += 1) {
       const progress = step / 1000;
       const readable = solarChapterWindows.filter(
         (window) => getSolarChapterOpacity(progress, window) > READABLE_OPACITY_THRESHOLD,
       );
-      expect(readable.length).toBeLessThanOrEqual(1);
+      expect(readable.length).toBeGreaterThanOrEqual(1);
+      expect(readable.length).toBeLessThanOrEqual(2);
     }
   });
 
@@ -93,12 +96,15 @@ describe("getSolarTextPhase", () => {
 });
 
 describe("solar phase tables", () => {
-  it("keeps chapter windows ordered and non-overlapping", () => {
+  it("keeps chapter windows ordered with small intentional crossfades", () => {
     solarChapterWindows.forEach((window, index) => {
       expect(window.start).toBeLessThanOrEqual(window.holdStart);
       expect(window.holdStart).toBeLessThanOrEqual(window.holdEnd);
       expect(window.holdEnd).toBeLessThanOrEqual(window.end);
-      if (index > 0) expect(window.start).toBeGreaterThan(solarChapterWindows[index - 1].end);
+      if (index > 0) {
+        expect(window.start).toBeLessThan(solarChapterWindows[index - 1].end);
+        expect(window.holdStart).toBeGreaterThan(solarChapterWindows[index - 1].holdEnd);
+      }
     });
     expect(solarPhaseAnchors.map((entry) => entry.id)).toEqual(solarPhases.map((p) => p.id));
   });
@@ -122,13 +128,11 @@ describe("storytelling emphasis variables", () => {
     expect(getConversionFlow(anchor("night"))).toBeLessThan(0.35);
   });
 
-  it("battery focus: absent through Noon, dominant at Golden, supporting at Night", () => {
+  it("battery focus: absent through Noon, dominant at Golden, gone at settled Night", () => {
     expect(getBatteryFocus(anchor("morning"))).toBe(0);
     expect(getBatteryFocus(anchor("noon"))).toBe(0);
     expect(getBatteryFocus(anchor("golden"))).toBe(1);
-    const night = getBatteryFocus(anchor("night"));
-    expect(night).toBeGreaterThan(0.3);
-    expect(night).toBeLessThan(getBatteryFocus(anchor("golden")));
+    expect(getSolarStoryState(anchor("night")).batteryPresence).toBe(0);
   });
 
   it("handoff flow: draws across Sunset and completes for Night", () => {
@@ -136,7 +140,7 @@ describe("storytelling emphasis variables", () => {
     const sunset = getHandoffFlow(anchor("sunset"));
     expect(sunset).toBeGreaterThan(0);
     expect(sunset).toBeLessThan(1);
-    expect(getHandoffFlow(anchor("night"))).toBe(1);
+    expect(getHandoffFlow(0.88)).toBeGreaterThan(0.9);
   });
 
   it("home focus: begins during Sunset and resolves before the sun settles", () => {
@@ -144,12 +148,19 @@ describe("storytelling emphasis variables", () => {
     const sunset = getHomeFocus(anchor("sunset"));
     expect(sunset).toBeGreaterThan(0);
     expect(sunset).toBeLessThan(1);
-    expect(getHomeFocus(0.92)).toBe(1);
+    expect(getHomeFocus(0.9)).toBe(1);
     expect(getHomeFocus(anchor("night"))).toBe(1);
   });
 
   it("every emphasis variable stays inside 0..1 for any input", () => {
-    const fns = [getPanelFocus, getConversionFlow, getBatteryFocus, getHandoffFlow, getHomeFocus];
+    const fns = [
+      getPanelFocus,
+      getConversionFlow,
+      getBatteryFocus,
+      getHandoffFlow,
+      getHomeFocus,
+      getHouseContact,
+    ];
     for (let step = -20; step <= 120; step += 1) {
       for (const fn of fns) {
         const value = fn(step / 100);
@@ -157,6 +168,64 @@ describe("storytelling emphasis variables", () => {
         expect(value).toBeLessThanOrEqual(1);
       }
     }
+  });
+
+  it("samples the full story state without voids, conflicts, or invalid values", () => {
+    let longestCopyVoid = 0;
+    let currentVoid = 0;
+    let longestStaticRun = 0;
+    let currentStaticRun = 0;
+    let previousSignature = "";
+
+    for (let step = 0; step <= 200; step += 1) {
+      const state = getSolarStoryState(step / 200);
+      const numericValues = [
+        state.progress,
+        state.panelFocus,
+        state.panelPresence,
+        state.conversionFlow,
+        state.batteryEntry,
+        state.batteryFocus,
+        state.batteryPresence,
+        state.handoffFlow,
+        state.homeFocus,
+        state.houseContact,
+        state.homeLight,
+        state.houseCta,
+      ];
+      for (const value of numericValues) {
+        expect(Number.isFinite(value)).toBe(true);
+        expect(value).toBeGreaterThanOrEqual(0);
+        expect(value).toBeLessThanOrEqual(1);
+      }
+
+      if (state.textPhase === null) currentVoid += 1;
+      else currentVoid = 0;
+      longestCopyVoid = Math.max(longestCopyVoid, currentVoid);
+
+      const signature = [
+        state.environmentPhase,
+        state.textPhase,
+        state.currentState,
+        state.panelPresence.toFixed(2),
+        state.conversionFlow.toFixed(2),
+        state.batteryPresence.toFixed(2),
+        state.handoffFlow.toFixed(2),
+        state.houseContact.toFixed(2),
+      ].join("|");
+      if (signature === previousSignature) currentStaticRun += 1;
+      else currentStaticRun = 0;
+      previousSignature = signature;
+      longestStaticRun = Math.max(longestStaticRun, currentStaticRun);
+    }
+
+    expect(longestCopyVoid).toBe(0);
+    expect(longestStaticRun).toBeLessThan(20);
+    expect(getSolarStoryState(0.94).homeLight).toBe(0);
+    expect(getSolarStoryState(0.96).homeLight).toBe(0);
+    expect(getSolarStoryState(1).homeLight).toBe(1);
+    expect(getSolarStoryState(1).panelPresence).toBe(0);
+    expect(getSolarStoryState(1).batteryPresence).toBe(0);
   });
 });
 

@@ -66,7 +66,12 @@ describe("listServicesForPublic", () => {
   });
 
   it("maps to the full detail shape and reuses the same list() call, not a second query", async () => {
-    const ds = createDataSource();
+    const ds = createDataSource({
+      list: vi.fn().mockResolvedValue({
+        data: [{ ...rawRow, status: "published" as const }],
+        error: null,
+      }),
+    });
     const result = await listServicesForPublic(ds);
     expect(result.status).toBe("ok");
     if (result.status === "ok") {
@@ -79,6 +84,21 @@ describe("listServicesForPublic", () => {
       );
     }
     expect(ds.list).toHaveBeenCalledTimes(1);
+  });
+
+  it("never returns draft records even when the data source can read them", async () => {
+    const ds = createDataSource({
+      list: vi.fn().mockResolvedValue({
+        data: [rawRow, { ...rawRow, id: "svc-2", status: "published" as const }],
+        error: null,
+      }),
+    });
+
+    const result = await listServicesForPublic(ds);
+    expect(result).toEqual({
+      status: "ok",
+      data: [expect.objectContaining({ id: "svc-2", status: "published" })],
+    });
   });
 });
 

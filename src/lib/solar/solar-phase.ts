@@ -9,10 +9,10 @@
 
 export const solarPhases = [
   { id: "predawn", label: "Pre-dawn", progress: 0 },
-  { id: "morning", label: "Morning", progress: 0.19 },
-  { id: "noon", label: "Noon", progress: 0.38 },
-  { id: "golden", label: "Golden hour", progress: 0.57 },
-  { id: "sunset", label: "Sunset", progress: 0.76 },
+  { id: "morning", label: "Morning", progress: 0.16 },
+  { id: "noon", label: "Noon", progress: 0.32 },
+  { id: "golden", label: "Golden hour", progress: 0.5 },
+  { id: "sunset", label: "Sunset", progress: 0.68 },
   { id: "night", label: "Night", progress: 1 },
 ] as const;
 
@@ -20,11 +20,11 @@ export type SolarPhaseId = (typeof solarPhases)[number]["id"];
 
 /** Upper bound (exclusive) of each named environment phase. */
 const environmentThresholds: readonly { readonly id: SolarPhaseId; readonly below: number }[] = [
-  { id: "predawn", below: 0.1 },
-  { id: "morning", below: 0.3 },
-  { id: "noon", below: 0.5 },
-  { id: "golden", below: 0.7 },
-  { id: "sunset", below: 0.88 },
+  { id: "predawn", below: 0.08 },
+  { id: "morning", below: 0.25 },
+  { id: "noon", below: 0.43 },
+  { id: "golden", below: 0.62 },
+  { id: "sunset", below: 0.82 },
 ] as const;
 
 export type SolarChapterWindow = {
@@ -40,12 +40,12 @@ export type SolarChapterWindow = {
 };
 
 export const solarChapterWindows: readonly SolarChapterWindow[] = [
-  { id: "predawn", start: 0, holdStart: 0, holdEnd: 0.045, end: 0.065 },
-  { id: "morning", start: 0.17, holdStart: 0.18, holdEnd: 0.22, end: 0.235 },
-  { id: "noon", start: 0.36, holdStart: 0.37, holdEnd: 0.41, end: 0.425 },
-  { id: "golden", start: 0.55, holdStart: 0.56, holdEnd: 0.6, end: 0.615 },
-  { id: "sunset", start: 0.74, holdStart: 0.75, holdEnd: 0.79, end: 0.805 },
-  { id: "night", start: 0.925, holdStart: 0.94, holdEnd: 1, end: 1 },
+  { id: "predawn", start: 0, holdStart: 0, holdEnd: 0.075, end: 0.12 },
+  { id: "morning", start: 0.105, holdStart: 0.13, holdEnd: 0.235, end: 0.28 },
+  { id: "noon", start: 0.255, holdStart: 0.29, holdEnd: 0.415, end: 0.46 },
+  { id: "golden", start: 0.435, holdStart: 0.47, holdEnd: 0.61, end: 0.655 },
+  { id: "sunset", start: 0.63, holdStart: 0.665, holdEnd: 0.805, end: 0.86 },
+  { id: "night", start: 0.835, holdStart: 0.875, holdEnd: 1, end: 1 },
 ] as const;
 
 /** A chapter counts as readable once its opacity clears this value. */
@@ -86,11 +86,14 @@ export function getSolarChapterOpacity(progress: number, window: SolarChapterWin
  */
 export function getSolarTextPhase(progress: number): SolarPhaseId | null {
   const value = clampProgress(progress);
-  return (
-    solarChapterWindows.find(
-      (window) => getSolarChapterOpacity(value, window) > READABLE_OPACITY_THRESHOLD,
-    )?.id ?? null
-  );
+  let best: { id: SolarPhaseId; opacity: number } | null = null;
+  for (const window of solarChapterWindows) {
+    const opacity = getSolarChapterOpacity(value, window);
+    if (opacity > READABLE_OPACITY_THRESHOLD && (!best || opacity > best.opacity)) {
+      best = { id: window.id, opacity };
+    }
+  }
+  return best?.id ?? null;
 }
 
 export const getActiveSolarPhase = getSolarTextPhase;
@@ -107,10 +110,9 @@ export const solarPhaseAnchors: readonly {
 /** Midpoints of the gaps between chapter windows — provably copy-free. */
 export const solarTransitionMidpoints: readonly number[] = solarChapterWindows
   .slice(0, -1)
-  .map((window, index) => {
-    const next = solarChapterWindows[index + 1];
-    return Number(((window.end + next.start) / 2).toFixed(4));
-  });
+  .map((window, index) =>
+    Number(((window.holdEnd + solarChapterWindows[index + 1].holdStart) / 2).toFixed(4)),
+  );
 
 /* ── Storytelling emphasis variables ─────────────────────────────────────
    Each function maps scroll progress to one CSS custom property. The
@@ -124,7 +126,7 @@ export const solarTransitionMidpoints: readonly number[] = solarChapterWindows
  */
 export function getPanelFocus(progress: number): number {
   const p = clampProgress(progress);
-  return ramp(p, 0.06, 0.16) * (1 - 0.65 * ramp(p, 0.48, 0.62)) * (1 - ramp(p, 0.74, 0.9));
+  return ramp(p, 0.045, 0.15) * (1 - 0.55 * ramp(p, 0.46, 0.6)) * (1 - ramp(p, 0.68, 0.83));
 }
 
 /**
@@ -136,7 +138,7 @@ export function getPanelFocus(progress: number): number {
  */
 export function getConversionFlow(progress: number): number {
   const p = clampProgress(progress);
-  return ramp(p, 0.14, 0.37) * (1 - 0.45 * ramp(p, 0.62, 0.8)) * (1 - 0.6 * ramp(p, 0.85, 0.97));
+  return ramp(p, 0.1, 0.32) * (1 - 0.35 * ramp(p, 0.56, 0.72)) * (1 - ramp(p, 0.78, 0.9));
 }
 
 /**
@@ -147,15 +149,17 @@ export function getConversionFlow(progress: number): number {
  */
 export function getBatteryFocus(progress: number): number {
   const p = clampProgress(progress);
-  return ramp(p, 0.45, 0.56) * (1 - 0.5 * ramp(p, 0.72, 0.88));
+  return ramp(p, 0.4, 0.49) * (1 - 0.45 * ramp(p, 0.62, 0.78)) * (1 - ramp(p, 0.86, 0.94));
 }
 
 /**
  * `--handoff-flow` — the delivery segment of the energy path
- * (battery → home). Draws across Sunset into Night, 0.66–0.88.
+ * (battery → home). Draws across Sunset, then softens to a supporting
+ * trace once the illuminated home becomes the Night subject.
  */
 export function getHandoffFlow(progress: number): number {
-  return ramp(clampProgress(progress), 0.66, 0.88);
+  const p = clampProgress(progress);
+  return ramp(p, 0.62, 0.86) * (1 - 0.45 * ramp(p, 0.93, 1));
 }
 
 /**
@@ -164,7 +168,65 @@ export function getHandoffFlow(progress: number): number {
  * completes at 0.92, before the sun settles into the final action.
  */
 export function getHomeFocus(progress: number): number {
-  return ramp(clampProgress(progress), 0.72, 0.92);
+  return ramp(clampProgress(progress), 0.66, 0.9);
+}
+
+export type CurrentState = "off" | "forming" | "active" | "arriving" | "complete";
+
+export type SolarStoryState = {
+  progress: number;
+  environmentPhase: SolarPhaseId;
+  textPhase: SolarPhaseId | null;
+  panelFocus: number;
+  panelPresence: number;
+  conversionFlow: number;
+  currentState: CurrentState;
+  batteryEntry: number;
+  batteryFocus: number;
+  batteryPresence: number;
+  handoffFlow: number;
+  homeFocus: number;
+  houseContact: number;
+  homeLight: number;
+  houseCta: number;
+};
+
+export function getCurrentState(progress: number): CurrentState {
+  const p = clampProgress(progress);
+  if (p < 0.1) return "off";
+  if (p < 0.26) return "forming";
+  if (p < 0.52) return "active";
+  if (p < 0.78) return "arriving";
+  return "complete";
+}
+
+export function getHouseContact(progress: number): number {
+  return ramp(clampProgress(progress), 0.88, 0.965);
+}
+
+export function getSolarStoryState(progress: number): SolarStoryState {
+  const p = clampProgress(progress);
+  const houseContact = getHouseContact(p);
+  const batteryEntry = ramp(p, 0.4, 0.49);
+  const batteryExit = 1 - ramp(p, 0.86, 0.94);
+  const panelFocus = getPanelFocus(p);
+  return {
+    progress: p,
+    environmentPhase: getSolarEnvironmentPhase(p),
+    textPhase: getSolarTextPhase(p),
+    panelFocus,
+    panelPresence: panelFocus * (1 - ramp(p, 0.82, 0.9)),
+    conversionFlow: getConversionFlow(p),
+    currentState: getCurrentState(p),
+    batteryEntry,
+    batteryFocus: getBatteryFocus(p),
+    batteryPresence: batteryEntry * batteryExit,
+    handoffFlow: getHandoffFlow(p),
+    homeFocus: getHomeFocus(p),
+    houseContact,
+    homeLight: houseContact >= 0.95 ? ramp(houseContact, 0.95, 1) : 0,
+    houseCta: houseContact >= 0.95 ? ramp(houseContact, 0.95, 1) : 0,
+  };
 }
 
 /**

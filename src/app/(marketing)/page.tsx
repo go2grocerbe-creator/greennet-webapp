@@ -1,9 +1,14 @@
+import type { Metadata } from "next";
 import Link from "next/link";
 import { ArrowDown, ArrowRight } from "lucide-react";
 
 import { SolarExperience } from "@/components/marketing/solar-experience";
 import { Button } from "@/components/ui/button";
 import { Container } from "@/components/ui/container";
+
+export const metadata: Metadata = {
+  alternates: { canonical: "/" },
+};
 
 /**
  * All business-facing copy below is limited to confirmed taglines, location,
@@ -141,8 +146,8 @@ export default function HomePage() {
               <p className="solar-kicker">05 / Stored power</p>
               <h2 id="night-title">The sun is still working.</h2>
               <p className="solar-lede">
-                Tell us about your property or send a general enquiry. The sun above has become your
-                next step.
+                The day&apos;s energy journey has reached the home. Tell us about your property or
+                send a general enquiry.
               </p>
               <div className="solar-actions solar-actions--center">
                 <Button
@@ -163,11 +168,17 @@ export default function HomePage() {
         <Container className="story-exit__inner">
           <p id="story-exit-title">Continue exploring</p>
           <nav aria-label="Continue exploring GreenNet">
+            <Link href="/about">
+              About GreenNet <ArrowRight aria-hidden="true" />
+            </Link>
             <Link href="/services">
               Solar Solutions <ArrowRight aria-hidden="true" />
             </Link>
             <Link href="/products">
               Products <ArrowRight aria-hidden="true" />
+            </Link>
+            <Link href="/projects">
+              Projects <ArrowRight aria-hidden="true" />
             </Link>
             <Link href="/contact">
               Contact <ArrowRight aria-hidden="true" />

@@ -66,7 +66,12 @@ describe("listProductsForPublic", () => {
   });
 
   it("maps to the full detail shape needed for public display", async () => {
-    const ds = createDataSource();
+    const ds = createDataSource({
+      list: vi.fn().mockResolvedValue({
+        data: [{ ...rawRow, status: "published" as const }],
+        error: null,
+      }),
+    });
     const result = await listProductsForPublic(ds);
     expect(result.status).toBe("ok");
     if (result.status === "ok") {
@@ -82,8 +87,8 @@ describe("listProductsForPublic", () => {
   });
 
   it("preserves the order returned by the data source (ordering happens in the SQL query, not here)", async () => {
-    const rowA = { ...rawRow, id: "a", name: "Zebra Panel" };
-    const rowB = { ...rawRow, id: "b", name: "Alpha Panel" };
+    const rowA = { ...rawRow, id: "a", name: "Zebra Panel", status: "published" as const };
+    const rowB = { ...rawRow, id: "b", name: "Alpha Panel", status: "published" as const };
     const ds = createDataSource({
       list: vi.fn().mockResolvedValue({ data: [rowA, rowB], error: null }),
     });
@@ -102,6 +107,21 @@ describe("listProductsForPublic", () => {
     await listProductsForPublic(ds);
     expect(ds.list).toHaveBeenCalledTimes(2);
     expect(ds.getById).not.toHaveBeenCalled();
+  });
+
+  it("never returns draft records even when the data source can read them", async () => {
+    const ds = createDataSource({
+      list: vi.fn().mockResolvedValue({
+        data: [rawRow, { ...rawRow, id: "prod-2", status: "published" as const }],
+        error: null,
+      }),
+    });
+
+    const result = await listProductsForPublic(ds);
+    expect(result).toEqual({
+      status: "ok",
+      data: [expect.objectContaining({ id: "prod-2", status: "published" })],
+    });
   });
 });
 

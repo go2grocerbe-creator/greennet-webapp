@@ -15,6 +15,7 @@
   --terrain-lift: 1.8vh;
   --atmosphere-shift: -1.2vw;
   --battery-presence: 0;
+  --battery-entry: 0;
   --charge-low: 0;
   --charge-mid: 0;
   --charge-high: 0;
@@ -22,11 +23,13 @@
   --home-light: 0;
   --sun-morph: 0;
   --cta-reveal: 0;
+  --house-contact: 0;
   --shadow-reach: 28vw;
   --camera-tilt: -3.5deg;
   /* Storytelling emphasis — progress ranges documented in
      src/lib/solar/solar-phase.ts. */
   --panel-focus: 0;
+  --panel-presence: 0;
   --conversion-flow: 0;
   --battery-focus: 0;
   --handoff-flow: 0;
@@ -130,11 +133,6 @@
   outline: none;
   place-items: center;
   transform: translate(-50%, -50%) translateZ(0);
-  transition:
-    top 650ms cubic-bezier(0.16, 1, 0.3, 1),
-    left 650ms cubic-bezier(0.16, 1, 0.3, 1),
-    width 700ms cubic-bezier(0.16, 1, 0.3, 1),
-    border-radius 700ms cubic-bezier(0.16, 1, 0.3, 1);
   touch-action: none;
 }
 .sunHandle:active {
@@ -157,36 +155,12 @@
     0 0 0 1.1rem rgb(245 196 0 / 12%),
     0 0 4rem 1.6rem rgb(245 196 0 / 34%),
     0 1.5rem 4rem rgb(38 31 0 / 24%);
-  transform: scale(calc(1 - var(--sun-morph) * 0.22));
-  transition: transform 500ms ease;
-}
-.sunCtaLabel {
-  position: relative;
-  z-index: 1;
-  max-width: 0;
-  overflow: hidden;
-  font-family: var(--font-heading-brand), sans-serif;
-  font-size: 0.78rem;
-  font-weight: 720;
-  letter-spacing: -0.02em;
-  white-space: nowrap;
-  opacity: 0;
-  transition: opacity 260ms ease 220ms;
+  opacity: calc(1 - var(--cta-reveal));
+  transform: scale(calc(1 - var(--house-contact) * 0.72));
 }
 .experience[data-sun-settled="true"] .sunHandle {
-  width: 14rem;
-  cursor: pointer;
-  border-radius: 3.5rem;
-}
-.experience[data-sun-settled="true"] .sunCore {
-  background: radial-gradient(circle at 68% 32%, #fff3a1 0, #f5c400 48%, #e8a900 100%);
-  box-shadow:
-    0 0 0 0.75rem rgb(245 196 0 / 10%),
-    0 0 3.5rem 1.2rem rgb(245 196 0 / 26%);
-}
-.experience[data-sun-settled="true"] .sunCtaLabel {
-  max-width: 12rem;
-  opacity: 1;
+  pointer-events: none;
+  visibility: hidden;
 }
 
 /* The sun is the primary control; the phase list is an intentional
@@ -265,6 +239,175 @@
 .phaseNavigation a[aria-current="step"] i {
   box-shadow: 0 0 0 0.35rem rgb(245 196 0 / 14%);
   opacity: 1;
+}
+
+.progressRail {
+  position: absolute;
+  z-index: 2;
+  top: 28vh;
+  right: max(1rem, env(safe-area-inset-right));
+  width: 0.75rem;
+  height: 44vh;
+  pointer-events: none;
+}
+.progressRailTrack {
+  position: absolute;
+  top: 0;
+  left: 50%;
+  width: 2px;
+  height: 100%;
+  overflow: hidden;
+  background: rgb(255 255 255 / 18%);
+  border-radius: 999px;
+  transform: translateX(-50%);
+}
+.progressRailFill {
+  position: absolute;
+  inset: 0;
+  background: #f5c400;
+  border-radius: inherit;
+  transform: scaleY(var(--solar-progress));
+  transform-origin: 50% 0;
+}
+.progressRailMarker {
+  position: absolute;
+  top: calc(var(--marker-progress) * 100%);
+  left: 50%;
+  width: 0.46rem;
+  height: 0.46rem;
+  background: rgb(255 255 255 / 42%);
+  border-radius: 999px;
+  transform: translate(-50%, -50%);
+}
+.progressRailMarker[data-active="true"] {
+  background: #f5c400;
+  box-shadow: 0 0 0 0.32rem rgb(245 196 0 / 14%);
+}
+
+.semanticLayer {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+.panelSemanticLink,
+.batterySemanticLink,
+.houseSemanticLink {
+  position: absolute;
+  z-index: 4;
+  display: grid;
+  color: #063f2a;
+  font-family: var(--font-heading-brand), sans-serif;
+  font-weight: 760;
+  text-decoration: none;
+  pointer-events: auto;
+  visibility: hidden;
+  opacity: 0;
+  outline: none;
+  place-items: center;
+}
+.panelSemanticLink:focus-visible,
+.batterySemanticLink:focus-visible,
+.houseSemanticLink:focus-visible {
+  box-shadow:
+    0 0 0 3px #fff3a1,
+    0 0 0 7px #087a42;
+}
+.panelSemanticLink {
+  left: 5vw;
+  bottom: -3vh;
+  width: min(43rem, 48vw);
+  height: 28vh;
+  cursor: pointer;
+  transform: translate3d(0, calc(var(--terrain-lift) * 0.35), 0)
+    rotateX(calc(56deg + var(--camera-tilt))) rotateZ(-7deg)
+    scale(calc(1 + var(--panel-focus) * 0.05));
+}
+.panelSemanticLink span {
+  position: absolute;
+  top: -4.2rem;
+  left: 26%;
+  display: inline-flex;
+  min-height: 2.75rem;
+  padding-bottom: 0.3rem;
+  color: #063f2a;
+  border-bottom: 1px solid currentColor;
+  align-items: center;
+}
+.panelSemanticLink span::after {
+  width: 4.2rem;
+  height: 4.2rem;
+  margin-left: 0.65rem;
+  content: "";
+  border-right: 2px solid #f5c400;
+  border-bottom: 2px solid #f5c400;
+  transform: translateY(1.5rem) rotate(36deg);
+}
+.experience:is([data-text-phase="morning"], [data-text-phase="noon"]) .panelSemanticLink {
+  visibility: visible;
+  opacity: calc(0.55 + var(--panel-focus) * 0.45);
+}
+.panelSemanticLink:hover,
+.panelSemanticLink:focus-visible {
+  filter: drop-shadow(0 0 1.25rem rgb(245 196 0 / 42%));
+}
+.batterySemanticLink {
+  right: calc(15vw + var(--battery-focus) * 8vw);
+  bottom: calc(6vh + var(--battery-focus) * 6vh);
+  min-width: 9rem;
+  min-height: 3rem;
+  color: #063f2a;
+  transform: translate(34%, -10%);
+}
+.batterySemanticLink span,
+.houseSemanticLink span {
+  display: inline-flex;
+  min-height: 2.75rem;
+  padding: 0.65rem 0.9rem;
+  background: rgb(255 243 161 / 92%);
+  border: 1px solid rgb(255 255 255 / 42%);
+  border-radius: 999px;
+  align-items: center;
+  box-shadow: 0 0 2rem rgb(245 196 0 / 22%);
+}
+.experience[data-text-phase="golden"] .batterySemanticLink {
+  visibility: visible;
+  opacity: var(--battery-focus);
+}
+.batterySemanticLink:hover,
+.batterySemanticLink:focus-visible {
+  transform: translate(34%, -10%) scale(1.02);
+}
+.houseSemanticLink {
+  left: 50%;
+  bottom: calc(2vh + 0.8rem);
+  width: 21rem;
+  height: 15rem;
+  color: #063f2a;
+  transform: translateX(-50%) scale(calc((0.9 + var(--home-focus) * 0.1) * var(--home-scale)));
+}
+.houseSemanticLink span {
+  position: absolute;
+  right: 4.1rem;
+  bottom: 1.6rem;
+  max-width: 8.4rem;
+  min-height: 2.4rem;
+  padding: 0.5rem 0.7rem;
+  font-size: 0.72rem;
+  line-height: 1;
+  text-align: center;
+  border-radius: 0.45rem;
+  box-shadow:
+    0 0 1.8rem rgb(245 196 0 / 42%),
+    inset 0 0 1.2rem rgb(255 255 255 / 38%);
+}
+.experience[data-sun-settled="true"] .houseSemanticLink {
+  visibility: visible;
+  opacity: var(--cta-reveal);
+}
+.houseSemanticLink:hover,
+.houseSemanticLink:focus-visible {
+  filter: drop-shadow(0 0 1.8rem rgb(245 196 0 / 40%));
+  transform: translateX(-50%) scale(calc((0.91 + var(--home-focus) * 0.105) * var(--home-scale)));
 }
 
 .world,
@@ -385,7 +528,7 @@
   left: 5vw;
   width: min(43rem, 48vw);
   height: 28vh;
-  opacity: calc(0.08 + var(--pre-dawn) * 0.38 + var(--panel-focus) * 0.7);
+  opacity: var(--panel-presence);
   filter: brightness(calc(0.58 + var(--panel-light) * 0.2 + var(--panel-focus) * 0.34))
     saturate(calc(0.82 + var(--panel-focus) * 0.3));
   transform: translate3d(0, calc(var(--terrain-lift) * 0.35), 0)
@@ -507,6 +650,7 @@
   width: 7.5rem;
   height: 11rem;
   opacity: var(--battery-presence);
+  pointer-events: none;
   transform: translate3d(
       calc(var(--battery-focus) * -8vw),
       calc((1 - var(--battery-presence)) * 3rem - var(--battery-focus) * 6vh),
@@ -515,6 +659,9 @@
     rotateY(calc(-14deg + var(--battery-focus) * 10deg))
     scale(calc(0.92 + var(--battery-focus) * 0.3));
   transform-origin: 50% 100%;
+}
+.experience[data-text-phase="golden"] .battery {
+  animation: batteryBreath 1.9s ease-in-out infinite alternate;
 }
 .batteryBody {
   position: absolute;
@@ -555,6 +702,20 @@
   height: 0.8rem;
   background: #031f17;
   border-radius: 0.3rem 0.3rem 0 0;
+  transform: translateX(-50%);
+}
+.batteryLabel {
+  position: absolute;
+  right: 0;
+  bottom: -2.4rem;
+  left: 50%;
+  width: max-content;
+  color: #063f2a;
+  font-size: 0.68rem;
+  font-weight: 800;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  opacity: var(--battery-entry);
   transform: translateX(-50%);
 }
 
@@ -615,6 +776,15 @@
   height: 5.4rem;
   background: #fff3a1;
 }
+
+@keyframes batteryBreath {
+  from {
+    filter: drop-shadow(0 0 0 rgb(245 196 0 / 0%));
+  }
+  to {
+    filter: drop-shadow(0 0 1.1rem rgb(245 196 0 / 26%));
+  }
+}
 .shadowLine {
   position: absolute;
   z-index: 4;
@@ -669,27 +839,31 @@
       0 0 0 0.7rem rgb(245 196 0 / 11%),
       0 0 2.4rem 0.85rem rgb(245 196 0 / 29%);
   }
-  .experience[data-sun-settled="true"] .sunHandle {
-    top: 70%;
-    width: 13rem;
-    transform: translate(-50%, -50%);
-  }
-  .experience[data-phase="morning"] .sunHandle {
-    top: 17%;
-    left: 84%;
-  }
-  .experience[data-phase="golden"] .sunHandle {
-    top: 32%;
-    left: 86%;
-  }
-  .experience[data-phase="sunset"] .sunHandle {
-    top: 77%;
+  .progressRail {
+    top: 31vh;
+    right: max(0.55rem, env(safe-area-inset-right));
+    height: 36vh;
   }
   .panelField {
     bottom: -2vh;
     left: -12vw;
     width: 82vw;
     height: 20vh;
+  }
+  .panelSemanticLink {
+    bottom: -2vh;
+    left: -12vw;
+    width: 82vw;
+    height: 20vh;
+  }
+  .panelSemanticLink span {
+    top: -5rem;
+    left: 34%;
+    font-size: 0.82rem;
+  }
+  .panelSemanticLink span::after {
+    width: 3.1rem;
+    height: 3.1rem;
   }
   .battery {
     right: 6vw;
@@ -704,9 +878,30 @@
       rotateY(calc(-14deg + var(--battery-focus) * 10deg))
       scale(calc(0.92 + var(--battery-focus) * 0.3));
   }
+  .batterySemanticLink {
+    right: calc(5vw + var(--battery-focus) * 16vw);
+    bottom: calc(8vh + var(--battery-focus) * 4vh);
+    min-width: 7.6rem;
+    transform: translate(16%, -18%);
+  }
+  .batterySemanticLink:hover,
+  .batterySemanticLink:focus-visible {
+    transform: translate(16%, -18%) scale(1.02);
+  }
   .nightHome {
     --home-scale: 0.72;
     bottom: 1.5vh;
+  }
+  .houseSemanticLink {
+    bottom: calc(1.5vh + 0.5rem);
+    width: 21rem;
+    height: 15rem;
+  }
+  .houseSemanticLink span {
+    right: 4.4rem;
+    bottom: 1.5rem;
+    max-width: 7rem;
+    font-size: 0.64rem;
   }
 }
 
@@ -717,7 +912,9 @@
     background: #fcfbf4;
   }
   .stage,
-  .solarControl {
+  .solarControl,
+  .semanticLayer,
+  .progressRail {
     display: none;
   }
   .chapters {
@@ -736,6 +933,9 @@
   .world * {
     animation: none !important;
     transition: none !important;
+  }
+  .battery {
+    animation: none !important;
   }
 }
 

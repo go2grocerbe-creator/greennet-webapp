@@ -75,20 +75,20 @@
   --card-foreground: oklch(0.145 0 0);
   --popover: oklch(1 0 0);
   --popover-foreground: oklch(0.145 0 0);
-  /* Semantic tokens mapped to the confirmed GreenNet brand palette
-     (docs/content-register.md "Company identity" — #063f2a / #087a42 / #f5c400). */
-  --primary: #087a42;
+  /* Semantic tokens mapped to the approved handover palette in
+     .agents/skills/greennet-release/references/brand-system.md. */
+  --primary: #0c5a56;
   --primary-foreground: #ffffff;
   --secondary: #e8f2e9;
-  --secondary-foreground: #063f2a;
+  --secondary-foreground: #0d1b24;
   --muted: oklch(0.968 0.005 150);
   --muted-foreground: oklch(0.5 0.015 155);
   --accent: #e8f2e9;
-  --accent-foreground: #063f2a;
+  --accent-foreground: #0d1b24;
   --destructive: oklch(0.577 0.245 27.325);
   --border: oklch(0.915 0.008 150);
   --input: oklch(0.885 0.01 150);
-  --ring: #087a42;
+  --ring: #0c5a56;
   --chart-1: oklch(0.87 0 0);
   --chart-2: oklch(0.556 0 0);
   --chart-3: oklch(0.439 0 0);
@@ -97,21 +97,22 @@
   --radius: 0.625rem;
   --sidebar: oklch(0.99 0.003 150);
   --sidebar-foreground: oklch(0.145 0 0);
-  --sidebar-primary: #087a42;
+  --sidebar-primary: #0c5a56;
   --sidebar-primary-foreground: #ffffff;
   --sidebar-accent: #e8f2e9;
-  --sidebar-accent-foreground: #063f2a;
+  --sidebar-accent-foreground: #0d1b24;
   --sidebar-border: oklch(0.915 0.008 150);
-  --sidebar-ring: #087a42;
+  --sidebar-ring: #0c5a56;
 
-  /* GreenNet brand tokens — migrated from legacy-demo/styles.css design system, see docs/content-register.md */
-  --c-deep-forest: #063f2a;
-  --c-primary: #087a42;
-  --c-accent: #f5c400;
-  --c-accent-dark: #d4a900;
-  --c-cream: #f7f7f1;
-  --c-soft-green: #e8f2e9;
-  --c-charcoal: #17211b;
+  /* GreenNet handover brand tokens — see the repository brand-system reference. */
+  --c-deep-forest: #0d1b24;
+  --c-primary: #0c5a56;
+  --c-accent: #f3b23f;
+  --c-accent-dark: #d9992c;
+  --c-cream: #f5f2ea;
+  --c-soft-green: #e6efeb;
+  --c-charcoal: #0d1b24;
+  --c-titanium: #69757a;
 
   --r-sm: 6px;
   --r-md: 12px;
@@ -131,20 +132,19 @@
   --t-base: 250ms;
   --t-slow: 400ms;
 
-  --font-heading-brand: var(--font-archivo), system-ui, sans-serif;
+  --font-heading-brand: var(--font-display), system-ui, sans-serif;
 
-  /* Sun-journey atmosphere tokens — golden-hour light, derived from the
-     confirmed brand gold (#f5c400) and deep forest (#063f2a). */
-  --sun-core: #ffdf6b;
-  --sun-glow: #f5c400;
+  /* Sun-journey atmosphere tokens derived from Solar Amber and Midnight Navy. */
+  --sun-core: #ffd27a;
+  --sun-glow: #f3b23f;
   --sky-dawn: #fff7e0;
   --sky-noon: #fdfcf7;
-  --sky-dusk: #0a3d2b;
-  --solar-core: #f5c400;
-  --first-light: #fff3c4;
-  --daylight-canvas: #fcfbf4;
-  --living-green: #087a42;
-  --night-canopy: #031f17;
+  --sky-dusk: #0c5a56;
+  --solar-core: #f3b23f;
+  --first-light: #f5f2ea;
+  --daylight-canvas: #f5f2ea;
+  --living-green: #0c5a56;
+  --night-canopy: #0d1b24;
 }
 
 .dark {
@@ -232,9 +232,9 @@
   z-index: 60;
   top: 0;
   color: var(--c-deep-forest);
-  background: rgb(252 251 244 / 86%);
+  background: rgb(252 251 244 / 96%);
   border-bottom: 1px solid rgb(6 63 42 / 12%);
-  backdrop-filter: blur(18px) saturate(125%);
+  box-shadow: 0 0.5rem 2rem rgb(6 63 42 / 5%);
 }
 
 .public-header__inner {
@@ -630,10 +630,6 @@
 @media (prefers-reduced-motion: no-preference) {
   [data-enhanced="true"] .solar-text-link {
     visibility: hidden;
-  }
-  [data-enhanced="true"][data-text-phase="morning"] .solar-chapter--morning .solar-text-link,
-  [data-enhanced="true"][data-text-phase="golden"] .solar-chapter--golden .solar-text-link {
-    visibility: visible;
   }
 }
 .solar-actions .solar-text-link {
@@ -1877,6 +1873,81 @@
   white-space: pre-wrap;
 }
 
+.about-scope {
+  display: grid;
+  padding: clamp(2.5rem, 6vw, 5rem) 0;
+  border-top: 1px solid rgb(13 27 36 / 18%);
+  border-bottom: 1px solid rgb(13 27 36 / 18%);
+  gap: 2rem;
+}
+.about-scope p {
+  margin: 0;
+}
+.about-scope p:first-child {
+  color: var(--c-primary);
+  font-size: 0.68rem;
+  font-weight: 720;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+}
+.about-scope p:last-child {
+  max-width: 40rem;
+  color: var(--c-deep-forest);
+  font-family: var(--font-heading-brand);
+  font-size: clamp(1.8rem, 4vw, 3.6rem);
+  font-weight: 650;
+  line-height: 1.05;
+  letter-spacing: -0.05em;
+}
+
+.project-proof-policy {
+  display: grid;
+  padding: clamp(3rem, 7vw, 6rem);
+  margin-bottom: clamp(5rem, 10vw, 9rem);
+  color: var(--first-light);
+  background:
+    radial-gradient(circle at 88% 18%, rgb(243 178 63 / 18%), transparent 18rem),
+    var(--night-canopy);
+  gap: 1.25rem;
+}
+.project-proof-policy > p:first-child {
+  margin: 0;
+  color: var(--c-accent);
+  font-size: 0.68rem;
+  font-weight: 720;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+}
+.project-proof-policy h2 {
+  max-width: 13ch;
+  margin: 0;
+  font-family: var(--font-heading-brand);
+  font-size: clamp(3rem, 7vw, 6.5rem);
+  font-weight: 740;
+  line-height: 0.88;
+  letter-spacing: -0.065em;
+}
+.project-proof-policy > p:last-child {
+  max-width: 40rem;
+  margin: 0.5rem 0 0;
+  color: rgb(245 242 234 / 70%);
+  line-height: 1.7;
+}
+.project-record__meta {
+  display: flex;
+  margin: 1.25rem 0 0;
+  color: var(--c-primary);
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  flex-wrap: wrap;
+  gap: 0.6rem 1.25rem;
+}
+.project-record__meta time {
+  font-variant-numeric: tabular-nums;
+}
+
 .contact-stage {
   display: grid;
   padding-top: clamp(4rem, 8vw, 7rem);
@@ -1990,6 +2061,10 @@
 }
 
 @media (min-width: 768px) {
+  .about-scope {
+    grid-template-columns: minmax(9rem, 0.45fr) minmax(0, 1.2fr);
+    gap: clamp(2rem, 7vw, 7rem);
+  }
   .public-data-state {
     grid-template-columns: 1fr 1.1fr;
   }
@@ -2031,6 +2106,15 @@
   .solution-sector-list > li {
     grid-template-columns: 4rem minmax(0, 1fr) minmax(16rem, 0.7fr);
     gap: 2rem;
+  }
+}
+
+@media (min-width: 768px) and (max-width: 1099px) {
+  .public-desktop-nav {
+    display: none;
+  }
+  .public-mobile-menu {
+    display: block;
   }
 }
 

@@ -145,20 +145,13 @@ export function ProjectForm({ action, projectId, defaultValues, submitLabel }: P
         )}
       </div>
 
-      <div className="flex flex-col gap-1.5">
-        <Label htmlFor="coverImage">Cover image URL</Label>
-        <Input
-          id="coverImage"
-          name="coverImage"
-          defaultValue={defaultValues?.coverImage ?? ""}
-          aria-invalid={Boolean(fieldErrors.coverImage)}
-          aria-describedby={fieldErrors.coverImage ? "coverImage-error" : undefined}
-        />
-        {fieldErrors.coverImage && (
-          <p id="coverImage-error" role="alert" className="text-destructive text-sm">
-            {fieldErrors.coverImage[0]}
-          </p>
-        )}
+      <div className="border-border bg-muted/40 rounded-lg border p-4 text-sm">
+        <input type="hidden" name="coverImage" value={defaultValues?.coverImage ?? ""} />
+        <p className="text-foreground font-medium">Project photography is held for verification</p>
+        <p className="text-muted-foreground mt-1 leading-relaxed">
+          Existing references are preserved, but project photography stays off the public site until
+          authenticity and usage rights are confirmed in the media workflow.
+        </p>
       </div>
 
       <div className="flex flex-col gap-1.5">

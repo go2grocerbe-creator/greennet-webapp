@@ -83,7 +83,9 @@ async function expectSolarTextPhase(page: Page, phase: string) {
 }
 
 function storyLink(page: Page, phase: "morning" | "golden") {
-  return page.locator(`.solar-chapter--${phase} .solar-text-link`);
+  return phase === "morning"
+    ? page.locator('a[aria-label="Open Solar Solutions from the solar panel"]')
+    : page.locator('a[aria-label="Open Products for batteries and inverters"]');
 }
 
 async function expectStoryLinkVisibility(
@@ -124,7 +126,7 @@ async function expectStoryLinksSkippedByTab(page: Page) {
       const active = document.activeElement;
       return Boolean(
         active?.matches(
-          ".solar-chapter--morning .solar-text-link, .solar-chapter--golden .solar-text-link",
+          '.solar-chapter--morning .solar-text-link, .solar-chapter--golden .solar-text-link, a[aria-label="Open Solar Solutions from the solar panel"], a[aria-label="Open Products for batteries and inverters"]',
         ),
       );
     });
@@ -170,11 +172,21 @@ test("home page renders the hero with the confirmed brand tagline", async ({ pag
     page.getByRole("heading", { name: /powering homes & businesses with clean solar energy/i }),
   ).toBeVisible();
   await expect(page.getByRole("button", { name: /open solar day navigation/i })).toBeVisible();
-  await expect(page.getByRole("link", { name: "About", exact: true })).toHaveCount(0);
-  await expect(page.getByRole("link", { name: "Projects", exact: true })).toHaveCount(0);
+  await expect(
+    page.getByRole("navigation", { name: "Main navigation" }).getByRole("link", {
+      name: "About",
+      exact: true,
+    }),
+  ).toHaveAttribute("href", "/about");
+  await expect(
+    page.getByRole("navigation", { name: "Main navigation" }).getByRole("link", {
+      name: "Projects",
+      exact: true,
+    }),
+  ).toHaveAttribute("href", "/projects");
 });
 
-test("the sun is a keyboard-operable phase navigator and becomes the final action", async ({
+test("the sun is a keyboard-operable phase navigator and hands off to the final action", async ({
   page,
 }) => {
   await page.goto("/");
@@ -182,10 +194,12 @@ test("the sun is a keyboard-operable phase navigator and becomes the final actio
   await sun.focus();
   await page.keyboard.press("End");
 
-  const finalSun = page.getByRole("button", { name: /night\. request a quotation/i });
-  await expect(finalSun).toBeVisible();
+  const finalAction = page.getByRole("link", {
+    name: /request a quotation from the illuminated house/i,
+  });
+  await expect(finalAction).toBeVisible();
   await expect(page.getByRole("heading", { name: /the sun is still working/i })).toBeVisible();
-  await finalSun.click();
+  await finalAction.click();
   await expect(page).toHaveURL(/\/contact$/);
 });
 
@@ -247,9 +261,11 @@ test("phase copy windows are exclusive and synchronized on desktop and mobile", 
 
     for (const progress of transitions) {
       const result = await sample(progress);
-      expect(result.textPhase).toBe("transition");
-      expect(result.readableCount).toBe(0);
-      expect(result.activeCount).toBe(0);
+      expect(result.textPhase).not.toBe("transition");
+      expect(result.readableCount).toBeGreaterThanOrEqual(1);
+      expect(result.readableCount).toBeLessThanOrEqual(2);
+      expect(result.activeCount).toBe(1);
+      expect(result.activeHref).toBe(`#solar-${result.textPhase}`);
     }
   }
 
@@ -276,8 +292,8 @@ test("phase copy windows are exclusive and synchronized on desktop and mobile", 
 
     return { maxReadable, readableSamples };
   });
-  expect(timelineDensity.maxReadable).toBe(1);
-  expect(timelineDensity.readableSamples).toBeLessThan(45);
+  expect(timelineDensity.maxReadable).toBeLessThanOrEqual(2);
+  expect(timelineDensity.readableSamples).toBe(101);
 });
 
 test("reduced motion renders every chapter as a static scene", async ({ page }) => {
@@ -381,6 +397,8 @@ test("mobile navigation exposes only live public routes without overflow", async
 
   await expect(page.getByRole("navigation", { name: /mobile navigation/i })).toBeVisible();
   await expect(page.getByRole("link", { name: /solar solutions/i }).last()).toBeVisible();
+  await expect(page.getByRole("link", { name: "About", exact: true }).last()).toBeVisible();
+  await expect(page.getByRole("link", { name: "Projects", exact: true }).last()).toBeVisible();
   const hasHorizontalOverflow = await page.evaluate(
     () => document.documentElement.scrollWidth > document.documentElement.clientWidth,
   );
@@ -403,18 +421,18 @@ test.describe("story links", () => {
     await expectStoryLinkFocusability(page, "golden", false);
     await expectStoryLinksSkippedByTab(page);
 
-    for (const [phase, progress] of [
-      ["noon", 0.38],
-      ["sunset", 0.76],
-      ["night", 1],
+    for (const [phase, progress, panelVisible] of [
+      ["noon", 0.38, true],
+      ["sunset", 0.76, false],
+      ["night", 1, false],
     ] as const) {
       await moveSolarStoryTo(page, progress);
       await expectSolarTextPhase(page, phase);
-      await expectStoryLinkVisibility(page, "morning", "hidden");
+      await expectStoryLinkVisibility(page, "morning", panelVisible ? "visible" : "hidden");
       await expectStoryLinkVisibility(page, "golden", "hidden");
-      await expectStoryLinkFocusability(page, "morning", false);
+      await expectStoryLinkFocusability(page, "morning", panelVisible);
       await expectStoryLinkFocusability(page, "golden", false);
-      await expectStoryLinksSkippedByTab(page);
+      if (!panelVisible) await expectStoryLinksSkippedByTab(page);
     }
   });
 
@@ -431,7 +449,9 @@ test.describe("story links", () => {
 
       await moveSolarStoryTo(page, 0.2);
       await expectSolarTextPhase(page, "morning");
-      const servicesLink = page.getByRole("link", { name: /explore solar solutions/i });
+      const servicesLink = page.getByRole("link", {
+        name: /open solar solutions from the solar panel/i,
+      });
       await expect(servicesLink).toBeVisible();
       await expectStoryLinkVisibility(page, "morning", "visible");
       await expect(servicesLink).toHaveAttribute("href", "/services");
@@ -440,11 +460,17 @@ test.describe("story links", () => {
       await expectStoryLinkFocusability(page, "morning", true);
       await expectStoryLinkVisibility(page, "golden", "hidden");
       await expectStoryLinkFocusability(page, "golden", false);
-      await expectNoCollision(page, ".solar-chapter--morning .solar-text-link", "#morning-title");
+      await expectNoCollision(
+        page,
+        'a[aria-label="Open Solar Solutions from the solar panel"] span',
+        "#morning-title",
+      );
 
       await moveSolarStoryTo(page, 0.58);
       await expectSolarTextPhase(page, "golden");
-      const productsLink = page.getByRole("link", { name: /see products/i });
+      const productsLink = page.getByRole("link", {
+        name: /open products for batteries and inverters/i,
+      });
       await expect(productsLink).toBeVisible();
       await expectStoryLinkVisibility(page, "golden", "visible");
       await expect(productsLink).toHaveAttribute("href", "/products");
@@ -453,7 +479,11 @@ test.describe("story links", () => {
       await expectStoryLinkFocusability(page, "golden", true);
       await expectStoryLinkVisibility(page, "morning", "hidden");
       await expectStoryLinkFocusability(page, "morning", false);
-      await expectNoCollision(page, ".solar-chapter--golden .solar-text-link", "#golden-title");
+      await expectNoCollision(
+        page,
+        'a[aria-label="Open Products for batteries and inverters"] span',
+        "#golden-title",
+      );
 
       const hasHorizontalOverflow = await page.evaluate(
         () => document.documentElement.scrollWidth > document.documentElement.clientWidth,
@@ -466,13 +496,13 @@ test.describe("story links", () => {
     await openSolarHome(page);
     await moveSolarStoryTo(page, 0.2);
     await expectSolarTextPhase(page, "morning");
-    await page.getByRole("link", { name: /explore solar solutions/i }).click();
+    await page.getByRole("link", { name: /open solar solutions from the solar panel/i }).click();
     await expect(page).toHaveURL(/\/services$/);
 
     await openSolarHome(page);
     await moveSolarStoryTo(page, 0.58);
     await expectSolarTextPhase(page, "golden");
-    await page.getByRole("link", { name: /see products/i }).click();
+    await page.getByRole("link", { name: /open products for batteries and inverters/i }).click();
     await expect(page).toHaveURL(/\/products$/);
   });
 
@@ -501,9 +531,11 @@ test.describe("story links", () => {
 
     await sun.focus();
     await page.keyboard.press("End");
-    const finalSun = page.getByRole("button", { name: /night\. request a quotation/i });
-    await expect(finalSun).toBeVisible();
-    await finalSun.click();
+    const finalAction = page.getByRole("link", {
+      name: /request a quotation from the illuminated house/i,
+    });
+    await expect(finalAction).toBeVisible();
+    await finalAction.click();
     await expect(page).toHaveURL(/\/contact$/);
   });
 });
@@ -557,7 +589,7 @@ test.describe("solar story", () => {
     expect(noonFlow).toBe(1);
     expect(noonFlow).toBeGreaterThan(morningFlow);
     expect(noonAltitude).toBeGreaterThan(0.85);
-    await expectStoryLinkFocusability(page, "morning", false);
+    await expectStoryLinkFocusability(page, "morning", true);
     await expectStoryLinkFocusability(page, "golden", false);
   });
 
@@ -612,7 +644,7 @@ test.describe("solar story", () => {
 
       expect(await readSceneVariable(page, "--home-focus")).toBe(1);
       expect(await readSceneVariable(page, "--home-light")).toBeGreaterThan(0.95);
-      expect(await readSceneVariable(page, "--handoff-flow")).toBe(1);
+      expect(await readSceneVariable(page, "--handoff-flow")).toBeGreaterThan(0.5);
 
       await waitForStableBox(page, 'button[aria-controls="solar-phase-navigation"]');
       await waitForStableBox(page, "[data-solar-home]");
@@ -635,8 +667,7 @@ test.describe("solar story", () => {
             homeBox.right <= window.innerWidth &&
             homeBox.bottom <= window.innerHeight,
           headingOverlapsHome: overlap(heading.getBoundingClientRect(), homeBox),
-          sunOverlapsHome: overlap(sun.getBoundingClientRect(), homeBox),
-          sunOverlapsHeading: overlap(sun.getBoundingClientRect(), heading.getBoundingClientRect()),
+          sunVisible: getComputedStyle(sun).visibility === "visible",
           overflow: document.documentElement.scrollWidth > document.documentElement.clientWidth,
         };
       });
@@ -645,8 +676,7 @@ test.describe("solar story", () => {
       expect(geometry!.homeCenterOffset).toBeLessThan(0.12);
       expect(geometry!.homeFullyOnScreen).toBe(true);
       expect(geometry!.headingOverlapsHome).toBe(false);
-      expect(geometry!.sunOverlapsHome).toBe(false);
-      expect(geometry!.sunOverlapsHeading).toBe(false);
+      expect(geometry!.sunVisible).toBe(false);
       expect(geometry!.overflow).toBe(false);
     }
   });
@@ -659,8 +689,10 @@ test.describe("solar story", () => {
     ).toBeAttached();
 
     const story = page.locator('[aria-label="A solar day"]');
-    // The morphed sun is the single visible quotation action…
-    await expect(story.getByRole("button", { name: /night\. request a quotation/i })).toBeVisible();
+    // The illuminated house is the single visible quotation action…
+    await expect(
+      story.getByRole("link", { name: /request a quotation from the illuminated house/i }),
+    ).toBeVisible();
     // …the in-chapter fallback stays hidden under normal motion…
     await expect(story.locator(".solar-night-action")).toBeHidden();
     // …no phone link exists inside the story…

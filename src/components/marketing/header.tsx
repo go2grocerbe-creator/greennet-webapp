@@ -11,7 +11,7 @@ export function Header() {
       <Container className="public-header__inner">
         <Link href="/" className="public-wordmark" aria-label={`${siteConfig.name} home`}>
           <span className="public-wordmark__sun" aria-hidden="true" />
-          <span>{siteConfig.name}</span>
+          <span>{siteConfig.shortName}</span>
         </Link>
 
         <nav className="public-desktop-nav" aria-label="Main navigation">

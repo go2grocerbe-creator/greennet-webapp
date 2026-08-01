@@ -1,18 +1,14 @@
 "use client";
 
+import Link from "next/link";
+import type { CSSProperties } from "react";
 import { useCallback, useEffect, useRef, useState } from "react";
 
 import { SunScene } from "@/components/marketing/sun-scene";
 import {
   clamp,
-  getBatteryFocus,
-  getConversionFlow,
-  getHandoffFlow,
-  getHomeFocus,
-  getPanelFocus,
   getSolarChapterOpacity,
-  getSolarEnvironmentPhase,
-  getSolarTextPhase,
+  getSolarStoryState,
   getStoryDistance,
   solarChapterWindows,
   solarPhases,
@@ -87,8 +83,9 @@ export function SolarExperience({ children }: { children: React.ReactNode }) {
       const rect = root.getBoundingClientRect();
       const distance = getStoryDistance(root.offsetHeight, window.innerHeight);
       const progress = clamp(-rect.top / distance);
+      const storyState = getSolarStoryState(progress);
       const daylight = clamp(progress / 0.82);
-      const nightMorph = clamp((progress - 0.82) / 0.16);
+      const nightMorph = clamp((progress - 0.82) / 0.145);
       const solarAltitude = Math.sin(Math.PI * daylight);
       const dawnWarmth = clamp((progress - 0.015) / 0.11) * (1 - clamp((progress - 0.2) / 0.16));
       const duskWarmth = clamp((progress - 0.5) / 0.17) * (1 - clamp((progress - 0.8) / 0.14));
@@ -98,15 +95,13 @@ export function SolarExperience({ children }: { children: React.ReactNode }) {
       const baseX = 7 + daylight * 86;
       const baseY = 80 - Math.sin(Math.PI * daylight) * 68;
       const sunX = baseX * (1 - nightMorph) + 50 * nightMorph;
-      const endpointLiftProgress = clamp((progress - 0.97) / 0.03);
-      const endpointLift =
-        endpointLiftProgress * endpointLiftProgress * (3 - 2 * endpointLiftProgress);
+      const endpointLift = storyState.houseContact;
       // The settled sun parks at 62% height — between the night lede and the
       // centered home's roofline, so the final action collides with neither.
-      const sunY = baseY * (1 - endpointLift) + 62 * endpointLift;
-      const nextPhase = getSolarEnvironmentPhase(progress);
-      const nextVisiblePhase = getSolarTextPhase(progress);
-      const nextSettled = progress >= 0.997;
+      const sunY = baseY * (1 - endpointLift) + 76 * endpointLift;
+      const nextPhase = storyState.environmentPhase;
+      const nextVisiblePhase = storyState.textPhase;
+      const nextSettled = storyState.houseCta >= 0.95;
 
       root.style.setProperty("--solar-progress", progress.toFixed(4));
       for (const window of solarChapterWindows) {
@@ -125,12 +120,13 @@ export function SolarExperience({ children }: { children: React.ReactNode }) {
       root.style.setProperty("--panel-light", panelLight.toFixed(4));
       root.style.setProperty("--terrain-lift", `${((1 - solarAltitude) * 1.8).toFixed(3)}vh`);
       root.style.setProperty("--atmosphere-shift", `${((progress - 0.5) * 2.4).toFixed(3)}vw`);
-      root.style.setProperty("--battery-presence", clamp((progress - 0.44) / 0.1).toFixed(4));
-      root.style.setProperty("--charge-low", clamp((progress - 0.44) / 0.08).toFixed(4));
-      root.style.setProperty("--charge-mid", clamp((progress - 0.47) / 0.08).toFixed(4));
-      root.style.setProperty("--charge-high", clamp((progress - 0.5) / 0.056).toFixed(4));
+      root.style.setProperty("--battery-entry", storyState.batteryEntry.toFixed(4));
+      root.style.setProperty("--battery-presence", storyState.batteryPresence.toFixed(4));
+      root.style.setProperty("--charge-low", clamp((progress - 0.4) / 0.08).toFixed(4));
+      root.style.setProperty("--charge-mid", clamp((progress - 0.43) / 0.08).toFixed(4));
+      root.style.setProperty("--charge-high", clamp((progress - 0.46) / 0.056).toFixed(4));
       root.style.setProperty("--stored-glow", clamp((progress - 0.52) / 0.2).toFixed(4));
-      root.style.setProperty("--home-light", clamp((progress - 0.84) / 0.12).toFixed(4));
+      root.style.setProperty("--home-light", storyState.homeLight.toFixed(4));
       root.style.setProperty("--pre-dawn", clamp(1 - progress / 0.12).toFixed(4));
       root.style.setProperty(
         "--daylight",
@@ -142,15 +138,18 @@ export function SolarExperience({ children }: { children: React.ReactNode }) {
       );
       root.style.setProperty("--night", clamp((progress - 0.69) / 0.25).toFixed(4));
       root.style.setProperty("--sun-morph", nightMorph.toFixed(4));
-      root.style.setProperty("--cta-reveal", clamp((progress - 0.992) / 0.008).toFixed(4));
+      root.style.setProperty("--house-contact", storyState.houseContact.toFixed(4));
+      root.style.setProperty("--cta-reveal", storyState.houseCta.toFixed(4));
       root.style.setProperty("--shadow-reach", `${((0.5 - daylight) * 56).toFixed(2)}vw`);
       root.style.setProperty("--camera-tilt", `${((progress - 0.5) * 7).toFixed(2)}deg`);
       // Storytelling emphasis — ranges documented in src/lib/solar/solar-phase.ts.
-      root.style.setProperty("--panel-focus", getPanelFocus(progress).toFixed(4));
-      root.style.setProperty("--conversion-flow", getConversionFlow(progress).toFixed(4));
-      root.style.setProperty("--battery-focus", getBatteryFocus(progress).toFixed(4));
-      root.style.setProperty("--handoff-flow", getHandoffFlow(progress).toFixed(4));
-      root.style.setProperty("--home-focus", getHomeFocus(progress).toFixed(4));
+      root.style.setProperty("--panel-focus", storyState.panelFocus.toFixed(4));
+      root.style.setProperty("--panel-presence", storyState.panelPresence.toFixed(4));
+      root.style.setProperty("--conversion-flow", storyState.conversionFlow.toFixed(4));
+      root.style.setProperty("--battery-focus", storyState.batteryFocus.toFixed(4));
+      root.style.setProperty("--handoff-flow", storyState.handoffFlow.toFixed(4));
+      root.style.setProperty("--home-focus", storyState.homeFocus.toFixed(4));
+      root.dataset.currentState = storyState.currentState;
 
       // `data-text-phase` is written synchronously here, but the matching
       // `aria-current="step"` marker is React-rendered and lands on the next
@@ -286,23 +285,17 @@ export function SolarExperience({ children }: { children: React.ReactNode }) {
         <button
           type="button"
           className={styles.sunHandle}
+          tabIndex={sunSettled ? -1 : undefined}
+          aria-hidden={sunSettled ? "true" : undefined}
           aria-expanded={navOpen}
           aria-controls="solar-phase-navigation"
-          aria-label={
-            sunSettled
-              ? "Night. Request a quotation"
-              : `${currentLabel}. Open solar day navigation. Use arrow keys to move through time.`
-          }
+          aria-label={`${currentLabel}. Open solar day navigation. Use arrow keys to move through time.`}
           onClick={() => {
             if (movedDuringDrag.current) {
               movedDuringDrag.current = false;
               return;
             }
-            if (sunSettled) {
-              window.location.assign("/contact");
-              return;
-            }
-            if (phase === "night") {
+            if (sunSettled || phase === "night") {
               scrollToProgress(1);
               return;
             }
@@ -324,7 +317,6 @@ export function SolarExperience({ children }: { children: React.ReactNode }) {
           onPointerCancel={() => setDragging(false)}
         >
           <span className={styles.sunCore} aria-hidden="true" />
-          <span className={styles.sunCtaLabel}>Request a quotation</span>
         </button>
 
         <nav
@@ -351,6 +343,44 @@ export function SolarExperience({ children }: { children: React.ReactNode }) {
             ))}
           </ol>
         </nav>
+
+        <div className={styles.progressRail} aria-hidden="true">
+          <span className={styles.progressRailTrack}>
+            <span className={styles.progressRailFill} />
+          </span>
+          {phases.map((item) => (
+            <i
+              key={item.id}
+              className={styles.progressRailMarker}
+              data-active={phase === item.id ? "true" : "false"}
+              style={{ "--marker-progress": item.progress } as CSSProperties}
+            />
+          ))}
+        </div>
+
+        <div className={styles.semanticLayer}>
+          <Link
+            href="/services"
+            className={styles.panelSemanticLink}
+            aria-label="Open Solar Solutions from the solar panel"
+          >
+            <span>Explore Solar Solutions</span>
+          </Link>
+          <Link
+            href="/products"
+            className={styles.batterySemanticLink}
+            aria-label="Open Products for batteries and inverters"
+          >
+            <span>See Products</span>
+          </Link>
+          <Link
+            href="/contact"
+            className={styles.houseSemanticLink}
+            aria-label="Request a quotation from the illuminated house"
+          >
+            <span>Request a quotation</span>
+          </Link>
+        </div>
       </div>
 
       <div className={styles.stage} data-solar-stage aria-hidden="true">

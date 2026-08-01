@@ -15,7 +15,7 @@ export function Footer() {
         <div className="public-footer__grid">
           <div className="public-footer__statement">
             <span className="public-footer__sun" aria-hidden="true" />
-            <p>Powering Homes &amp; Businesses with Clean Solar Energy.</p>
+            <p>{siteConfig.tagline}</p>
           </div>
           <nav aria-label="Footer navigation" className="public-footer__nav">
             <p>Explore</p>
@@ -39,7 +39,7 @@ export function Footer() {
           <p>
             &copy; {new Date().getFullYear()} {siteConfig.legalName}
           </p>
-          <p>Harness the Power of the Sun Today</p>
+          <p>{siteConfig.name}</p>
         </div>
       </Container>
     </footer>

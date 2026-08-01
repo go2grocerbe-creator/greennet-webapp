@@ -4,6 +4,7 @@ import {
   createProject,
   getProject,
   listProjects,
+  listProjectsForPublic,
   setProjectStatus,
   updateProject,
 } from "@/lib/admin/projects";
@@ -77,6 +78,27 @@ describe("listProjects / getProject", () => {
     expect(result).toEqual({
       status: "ok",
       data: expect.objectContaining({ location: "Benin City", completionDate: "2026-03-15" }),
+    });
+  });
+});
+
+describe("listProjectsForPublic", () => {
+  it("returns unavailable when the data source is null", async () => {
+    expect(await listProjectsForPublic(null)).toEqual({ status: "unavailable" });
+  });
+
+  it("returns published records and excludes drafts", async () => {
+    const ds = createDataSource({
+      list: vi.fn().mockResolvedValue({
+        data: [rawRow, { ...rawRow, id: "proj-2", status: "published" as const }],
+        error: null,
+      }),
+    });
+
+    const result = await listProjectsForPublic(ds);
+    expect(result).toEqual({
+      status: "ok",
+      data: [expect.objectContaining({ id: "proj-2", status: "published" })],
     });
   });
 });

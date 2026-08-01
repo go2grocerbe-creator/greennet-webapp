@@ -59,11 +59,9 @@ export async function listProducts(
 }
 
 /**
- * Same underlying `ds.list()` call as `listProducts` (RLS already scopes
- * it to published-only for an anonymous caller) — just mapped to the
- * fuller detail shape the public page needs instead of the admin table's
- * slim list-item shape. Not a duplicate query — see docs/decision-log.md
- * ADR-013.
+ * Uses the same ordered data-source query as the admin list, then applies an
+ * explicit publication gate before mapping. This protects public rendering
+ * even when an authenticated editor's RLS session can read draft rows.
  */
 export async function listProductsForPublic(
   ds: ProductsDataSource | null,
@@ -72,7 +70,10 @@ export async function listProductsForPublic(
   try {
     const { data, error } = await ds.list();
     if (error || !data) return { status: "unavailable" };
-    return { status: "ok", data: data.map(mapProductDetail) };
+    return {
+      status: "ok",
+      data: data.filter((row) => row.status === "published").map(mapProductDetail),
+    };
   } catch (error) {
     console.error("[admin] failed to list products for public page", error);
     return { status: "unavailable" };

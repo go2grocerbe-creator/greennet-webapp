@@ -27,10 +27,11 @@ test.describe("Public Services page", () => {
     await expect(page).toHaveTitle(/solar solutions/i);
   });
 
-  test("shows a friendly message instead of a crash when data is unavailable", async ({ page }) => {
+  test("keeps backend availability details off the public page", async ({ page }) => {
     await page.goto("/services");
 
-    await expect(page.getByText(/catalogue is between connections/i)).toBeVisible();
+    await expect(page.getByText(/data unavailable/i)).toHaveCount(0);
+    await expect(page.getByText(/catalogue is between connections/i)).toHaveCount(0);
   });
 
   test("nav link to Solar Solutions points at /services", async ({ page }) => {
