@@ -63,6 +63,11 @@ export function ramp(progress: number, from: number, to: number): number {
   return clamp((progress - from) / Math.max(0.0001, to - from));
 }
 
+/** The sun's normalized altitude for the continuous daylight arc. */
+export function getSolarAltitude(progress: number): number {
+  return Math.sin(Math.PI * clamp(clampProgress(progress) / 0.82));
+}
+
 /** The environment phase (sky, light, shadow) for a scroll position. */
 export function getSolarEnvironmentPhase(progress: number): SolarPhaseId {
   const value = clampProgress(progress);
@@ -80,9 +85,9 @@ export function getSolarChapterOpacity(progress: number, window: SolarChapterWin
 }
 
 /**
- * The chapter whose copy is currently readable, or `null` in the
- * deliberate transition gaps. Drives `data-text-phase` and the active
- * navigation step so the two can never disagree.
+ * The most readable chapter at this progress, or `null` if a future table
+ * introduces a genuine gap. Drives `data-text-phase` and the active
+ * navigation step so crossfades still expose one deterministic phase.
  */
 export function getSolarTextPhase(progress: number): SolarPhaseId | null {
   const value = clampProgress(progress);
@@ -107,12 +112,17 @@ export const solarPhaseAnchors: readonly {
   readonly progress: number;
 }[] = solarPhases.map(({ id, progress }) => ({ id, progress }));
 
-/** Midpoints of the gaps between chapter windows — provably copy-free. */
+/** Midpoints between neighbouring full-opacity holds. */
 export const solarTransitionMidpoints: readonly number[] = solarChapterWindows
   .slice(0, -1)
   .map((window, index) =>
     Number(((window.holdEnd + solarChapterWindows[index + 1].holdStart) / 2).toFixed(4)),
   );
+
+export const BATTERY_ENTRY_START = 0.4;
+export const BATTERY_ENTRY_COMPLETE = 0.49;
+export const BATTERY_EXIT_START = 0.86;
+export const BATTERY_EXIT_COMPLETE = 0.94;
 
 /* ── Storytelling emphasis variables ─────────────────────────────────────
    Each function maps scroll progress to one CSS custom property. The
@@ -120,9 +130,8 @@ export const solarTransitionMidpoints: readonly number[] = solarChapterWindows
 
 /**
  * `--panel-focus` — how strongly the panel field is the story's subject.
- * 0 in pre-dawn, ramps in over 0.06–0.16, holds 1 through Morning and
- * Noon, recedes to ~0.35 across Golden (0.48–0.62) and dies out through
- * Sunset (0.74–0.9) so the night field reads as a silhouette.
+ * 0 in pre-dawn, ramps in over 0.045–0.15, holds through Morning and Noon,
+ * then recedes across Golden and leaves the settled Night frame by 0.83.
  */
 export function getPanelFocus(progress: number): number {
   const p = clampProgress(progress);
@@ -130,26 +139,78 @@ export function getPanelFocus(progress: number): number {
 }
 
 /**
+ * `--panel-presence` — whether the physical panel should remain visible.
+ * It follows panel focus through generation and fades completely before
+ * settled Night so the house owns the final frame.
+ */
+export function getPanelPresence(progress: number): number {
+  const p = clampProgress(progress);
+  return getPanelFocus(p) * (1 - ramp(p, 0.82, 0.9));
+}
+
+/**
  * `--conversion-flow` — the collection segment of the energy path
- * (panels → battery) and its confidence. Starts drawing at 0.14, fully
- * drawn just before the Noon anchor (0.37), then relaxes: −45% over
- * 0.62–0.8 and a further −60% of the remainder over 0.85–0.97 so it
- * survives at night only as a faint trace.
+ * (panels → battery) and its confidence. It draws over 0.1–0.32, then
+ * relaxes across Golden and disappears before the final Night frame.
  */
 export function getConversionFlow(progress: number): number {
   const p = clampProgress(progress);
   return ramp(p, 0.1, 0.32) * (1 - 0.35 * ramp(p, 0.56, 0.72)) * (1 - ramp(p, 0.78, 0.9));
 }
 
+export type SolarCurrentState = "off" | "forming" | "active" | "arriving" | "complete";
+
 /**
- * `--battery-focus` — how strongly the battery is the subject. 0 until
- * 0.45, 1 across Golden (0.56–0.7), then eases back to ~0.5 over
- * 0.72–0.88 and stays there: present and charged at night, but clearly
- * supporting the house rather than competing with it.
+ * A semantic name for the panel-to-storage relay. This is intentionally
+ * derived from progress, not from timers, so fast reverse scroll restores
+ * the correct state immediately.
+ */
+export function getSolarCurrentState(progress: number): SolarCurrentState {
+  const p = clampProgress(progress);
+  if (p < 0.1) return "off";
+  if (p < 0.26) return "forming";
+  if (p < 0.52) return "active";
+  if (p < 0.78) return "arriving";
+  return "complete";
+}
+
+/**
+ * `--battery-focus` — how strongly the battery is the subject. It enters
+ * over 0.4–0.49, dominates Golden, then eases away before settled Night.
  */
 export function getBatteryFocus(progress: number): number {
   const p = clampProgress(progress);
   return ramp(p, 0.4, 0.49) * (1 - 0.45 * ramp(p, 0.62, 0.78)) * (1 - ramp(p, 0.86, 0.94));
+}
+
+/**
+ * The canonical entry signal for the physical battery. The rendered
+ * battery, decorative "Energy Reserved" label, products connector and pulse
+ * activation all read this same output so they appear on the same frame.
+ */
+export function getBatteryEntry(progress: number): number {
+  return ramp(clampProgress(progress), BATTERY_ENTRY_START, BATTERY_ENTRY_COMPLETE);
+}
+
+export type SolarBatteryState = "inactive" | "entering" | "reserved" | "handoff" | "gone";
+
+export function getSolarBatteryState(progress: number): SolarBatteryState {
+  const p = clampProgress(progress);
+  if (getBatteryEntry(p) <= 0) return "inactive";
+  if (p < BATTERY_ENTRY_COMPLETE) return "entering";
+  if (p < 0.62) return "reserved";
+  if (getBatteryPresence(p) > 0) return "handoff";
+  return "gone";
+}
+
+/**
+ * `--battery-presence` — physical entry/exit of the battery. It appears
+ * before Golden Hour, stays available through the storage cue, and reaches
+ * zero at settled Night after the handoff has done its job.
+ */
+export function getBatteryPresence(progress: number): number {
+  const p = clampProgress(progress);
+  return getBatteryEntry(p) * (1 - ramp(p, BATTERY_EXIT_START, BATTERY_EXIT_COMPLETE));
 }
 
 /**
@@ -164,24 +225,26 @@ export function getHandoffFlow(progress: number): number {
 
 /**
  * `--home-focus` — the house's arrival: opacity, travel toward the
- * centered night position and scale. Begins during Sunset (0.72) and
- * completes at 0.92, before the sun settles into the final action.
+ * centered night position and scale. Begins at 0.66 and completes at 0.9,
+ * before the sun settles into the final action.
  */
 export function getHomeFocus(progress: number): number {
   return ramp(clampProgress(progress), 0.66, 0.9);
 }
 
-export type CurrentState = "off" | "forming" | "active" | "arriving" | "complete";
+export type CurrentState = SolarCurrentState;
 
 export type SolarStoryState = {
   progress: number;
+  solarAltitude: number;
   environmentPhase: SolarPhaseId;
   textPhase: SolarPhaseId | null;
   panelFocus: number;
   panelPresence: number;
   conversionFlow: number;
-  currentState: CurrentState;
+  currentState: SolarCurrentState;
   batteryEntry: number;
+  batteryState: SolarBatteryState;
   batteryFocus: number;
   batteryPresence: number;
   handoffFlow: number;
@@ -189,43 +252,48 @@ export type SolarStoryState = {
   houseContact: number;
   homeLight: number;
   houseCta: number;
+  sunMorph: number;
 };
 
-export function getCurrentState(progress: number): CurrentState {
-  const p = clampProgress(progress);
-  if (p < 0.1) return "off";
-  if (p < 0.26) return "forming";
-  if (p < 0.52) return "active";
-  if (p < 0.78) return "arriving";
-  return "complete";
-}
+export const getCurrentState = getSolarCurrentState;
 
+/**
+ * The deterministic moment where the sun reaches the home. Home light and
+ * the final CTA are gated behind this signal so the ending reads as a handoff.
+ */
 export function getHouseContact(progress: number): number {
   return ramp(clampProgress(progress), 0.88, 0.965);
 }
 
+export function getHomeLight(progress: number): number {
+  return ramp(getHouseContact(progress), 0.95, 1);
+}
+
+export const getFinalCtaActivation = getHomeLight;
+
 export function getSolarStoryState(progress: number): SolarStoryState {
   const p = clampProgress(progress);
   const houseContact = getHouseContact(p);
-  const batteryEntry = ramp(p, 0.4, 0.49);
-  const batteryExit = 1 - ramp(p, 0.86, 0.94);
-  const panelFocus = getPanelFocus(p);
+  const homeLight = getHomeLight(p);
   return {
     progress: p,
+    solarAltitude: getSolarAltitude(p),
     environmentPhase: getSolarEnvironmentPhase(p),
     textPhase: getSolarTextPhase(p),
-    panelFocus,
-    panelPresence: panelFocus * (1 - ramp(p, 0.82, 0.9)),
+    panelFocus: getPanelFocus(p),
+    panelPresence: getPanelPresence(p),
     conversionFlow: getConversionFlow(p),
-    currentState: getCurrentState(p),
-    batteryEntry,
+    currentState: getSolarCurrentState(p),
+    batteryEntry: getBatteryEntry(p),
+    batteryState: getSolarBatteryState(p),
     batteryFocus: getBatteryFocus(p),
-    batteryPresence: batteryEntry * batteryExit,
+    batteryPresence: getBatteryPresence(p),
     handoffFlow: getHandoffFlow(p),
     homeFocus: getHomeFocus(p),
     houseContact,
-    homeLight: houseContact >= 0.95 ? ramp(houseContact, 0.95, 1) : 0,
-    houseCta: houseContact >= 0.95 ? ramp(houseContact, 0.95, 1) : 0,
+    homeLight,
+    houseCta: homeLight,
+    sunMorph: ramp(p, 0.82, 0.965),
   };
 }
 

@@ -36,11 +36,9 @@ async function moveSolarStoryTo(page: Page, progress: number) {
 
 /**
  * Waits until an element's bounding box has been unchanged across three
- * consecutive samples 120ms apart — roughly 240ms of stillness. The sun
- * animates into its settled position over a 650ms CSS transition, and two
- * adjacent animation frames can round to the same box mid-flight, so
- * geometry assertions need sustained stillness rather than a single
- * frame-to-frame match.
+ * consecutive samples 120ms apart — roughly 240ms of stillness. This keeps
+ * geometry assertions behind the scroll frame and React phase commit rather
+ * than relying on a single potentially stale bounding box.
  */
 async function waitForStableBox(page: Page, selector: string) {
   await page.waitForFunction(
@@ -83,9 +81,121 @@ async function expectSolarTextPhase(page: Page, phase: string) {
 }
 
 function storyLink(page: Page, phase: "morning" | "golden") {
-  return phase === "morning"
-    ? page.locator('a[aria-label="Open Solar Solutions from the solar panel"]')
-    : page.locator('a[aria-label="Open Products for batteries and inverters"]');
+  return page.locator(`.solar-chapter--${phase} .solar-text-link`);
+}
+
+function semanticStoryLink(page: Page, target: "panel" | "battery" | "house") {
+  return page.getByTestId(`solar-${target}-link`);
+}
+
+function expectedEnvironmentPhase(progress: number) {
+  if (progress < 0.08) return "predawn";
+  if (progress < 0.25) return "morning";
+  if (progress < 0.43) return "noon";
+  if (progress < 0.62) return "golden";
+  if (progress < 0.82) return "sunset";
+  return "night";
+}
+
+function expectedCurrentState(progress: number) {
+  if (progress < 0.1) return "off";
+  if (progress < 0.26) return "forming";
+  if (progress < 0.52) return "active";
+  if (progress < 0.78) return "arriving";
+  return "complete";
+}
+
+function expectedTextPhase(progress: number) {
+  const windows = [
+    ["predawn", 0, 0, 0.075, 0.12],
+    ["morning", 0.105, 0.13, 0.235, 0.28],
+    ["noon", 0.255, 0.29, 0.415, 0.46],
+    ["golden", 0.435, 0.47, 0.61, 0.655],
+    ["sunset", 0.63, 0.665, 0.805, 0.86],
+    ["night", 0.835, 0.875, 1, 1],
+  ] as const;
+  const opacity = (start: number, holdStart: number, holdEnd: number, end: number) => {
+    if (progress < start || progress > end) return 0;
+    if (progress < holdStart) return (progress - start) / Math.max(0.001, holdStart - start);
+    if (progress <= holdEnd) return 1;
+    return (end - progress) / Math.max(0.001, end - holdEnd);
+  };
+  const active = windows
+    .map(([id, start, holdStart, holdEnd, end]) => ({
+      id,
+      opacity: opacity(start, holdStart, holdEnd, end),
+    }))
+    .filter((window) => window.opacity > 0.05)
+    .sort((a, b) => b.opacity - a.opacity)[0];
+  return active?.id ?? "transition";
+}
+
+async function readSolarSnapshot(page: Page) {
+  return page.locator('[aria-label="A solar day"]').evaluate((root) => {
+    const styles = getComputedStyle(root);
+    const attr = (name: string) => root.getAttribute(name);
+    const active = document.activeElement;
+    const visibleAndFocusable = (selector: string) => {
+      const element = document.querySelector<HTMLElement>(selector);
+      if (!element) return false;
+      const computed = getComputedStyle(element);
+      return (
+        computed.visibility !== "hidden" &&
+        computed.display !== "none" &&
+        element.tabIndex !== -1 &&
+        element.getAttribute("aria-hidden") !== "true"
+      );
+    };
+    return {
+      progress: Number.parseFloat(styles.getPropertyValue("--solar-progress")),
+      phase: root.getAttribute("data-phase"),
+      textPhase: root.getAttribute("data-text-phase"),
+      currentState: root.getAttribute("data-current-state"),
+      solarReady: root.getAttribute("data-solar-ready"),
+      panelPresence: Number.parseFloat(styles.getPropertyValue("--panel-presence")),
+      batteryPresence: Number.parseFloat(styles.getPropertyValue("--battery-presence")),
+      batteryEntry: Number.parseFloat(styles.getPropertyValue("--battery-entry")),
+      houseContact: Number.parseFloat(styles.getPropertyValue("--house-contact")),
+      homeLight: Number.parseFloat(styles.getPropertyValue("--home-light")),
+      activeMarker: document
+        .querySelector("#solar-phase-navigation [aria-current='step']")
+        ?.textContent?.trim(),
+      panelFocusable: visibleAndFocusable('[data-testid="solar-panel-link"]'),
+      batteryFocusable: visibleAndFocusable('[data-testid="solar-battery-link"]'),
+      houseFocusable: visibleAndFocusable('[data-testid="solar-house-link"]'),
+      sunFocusable:
+        document.querySelector<HTMLElement>('button[aria-controls="solar-phase-navigation"]')
+          ?.tabIndex !== -1,
+      hiddenActiveElement: Boolean(active?.closest("[aria-hidden='true']")),
+      rootDataPhase: attr("data-phase"),
+    };
+  });
+}
+
+async function expectSnapshotMatchesProgress(page: Page, progress: number) {
+  const snapshot = await readSolarSnapshot(page);
+  expect(snapshot.solarReady).toBe("true");
+  expect(snapshot.progress).toBeCloseTo(progress, 2);
+  expect(snapshot.phase).toBe(expectedEnvironmentPhase(progress));
+  expect(snapshot.currentState).toBe(expectedCurrentState(progress));
+  expect(snapshot.textPhase).toBe(expectedTextPhase(progress));
+  expect(snapshot.hiddenActiveElement).toBe(false);
+  if (progress < 0.965) expect(snapshot.houseFocusable).toBe(false);
+  if (snapshot.textPhase !== "transition") {
+    const marker = snapshot.activeMarker?.toLowerCase().replace(/[^a-z]/g, "");
+    const phase = String(snapshot.textPhase)
+      .toLowerCase()
+      .replace(/[^a-z]/g, "");
+    expect(marker).toContain(phase);
+  }
+  if (progress >= 0.965) {
+    expect(snapshot.sunFocusable).toBe(false);
+    expect(snapshot.houseFocusable).toBe(true);
+    expect(snapshot.panelPresence).toBe(0);
+    expect(snapshot.batteryPresence).toBe(0);
+    expect(snapshot.houseContact).toBeGreaterThan(0.8);
+  }
+  if (progress > 0.4 && progress < 0.94) expect(snapshot.batteryEntry).toBeGreaterThan(0);
 }
 
 async function expectStoryLinkVisibility(
@@ -186,7 +296,7 @@ test("home page renders the hero with the confirmed brand tagline", async ({ pag
   ).toHaveAttribute("href", "/projects");
 });
 
-test("the sun is a keyboard-operable phase navigator and hands off to the final action", async ({
+test("the sun is a keyboard-operable phase navigator before the house becomes the final action", async ({
   page,
 }) => {
   await page.goto("/");
@@ -194,16 +304,17 @@ test("the sun is a keyboard-operable phase navigator and hands off to the final 
   await sun.focus();
   await page.keyboard.press("End");
 
-  const finalAction = page.getByRole("link", {
+  await expect(page.getByRole("heading", { name: /the sun is still working/i })).toBeVisible();
+  await expect(page.getByRole("button", { name: /night\./i })).toHaveCount(0);
+  const houseCta = page.getByRole("link", {
     name: /request a quotation from the illuminated house/i,
   });
-  await expect(finalAction).toBeVisible();
-  await expect(page.getByRole("heading", { name: /the sun is still working/i })).toBeVisible();
-  await finalAction.click();
+  await expect(houseCta).toBeVisible();
+  await houseCta.click();
   await expect(page).toHaveURL(/\/contact$/);
 });
 
-test("phase copy windows are exclusive and synchronized on desktop and mobile", async ({
+test("phase copy windows crossfade deliberately and stay synchronized on desktop and mobile", async ({
   page,
 }) => {
   const anchors = [
@@ -214,7 +325,7 @@ test("phase copy windows are exclusive and synchronized on desktop and mobile", 
     ["sunset", 0.76],
     ["night", 1],
   ] as const;
-  const transitions = [0.1175, 0.2975, 0.4875, 0.6775, 0.865] as const;
+  const transitions = [0.1125, 0.2675, 0.4475, 0.6425, 0.8475] as const;
 
   for (const viewport of [
     { width: 1440, height: 900 },
@@ -370,7 +481,9 @@ test("the landscape responds continuously to the solar day", async ({ page }) =>
         altitude: read("--solar-altitude"),
         shadow: read("--shadow-strength"),
         panelLight: read("--panel-light"),
+        panelPresence: read("--panel-presence"),
         battery: read("--battery-presence"),
+        houseContact: read("--house-contact"),
         homeLight: read("--home-light"),
       };
     });
@@ -387,6 +500,9 @@ test("the landscape responds continuously to the solar day", async ({ page }) =>
   expect(predawn.battery).toBe(0);
   expect(golden.battery).toBeGreaterThan(0.95);
   expect(golden.homeLight).toBe(0);
+  expect(night.panelPresence).toBe(0);
+  expect(night.battery).toBe(0);
+  expect(night.houseContact).toBeGreaterThan(0.95);
   expect(night.homeLight).toBeGreaterThan(0.95);
 });
 
@@ -412,7 +528,7 @@ test("unknown route renders the not-found page", async ({ page }) => {
 });
 
 test.describe("story links", () => {
-  test("hide inactive story links from keyboard focus", async ({ page }) => {
+  test("keeps fallback copy links out of keyboard focus in enhanced mode", async ({ page }) => {
     await openSolarHome(page);
     await expectSolarTextPhase(page, "predawn");
     await expectStoryLinkVisibility(page, "morning", "hidden");
@@ -421,18 +537,18 @@ test.describe("story links", () => {
     await expectStoryLinkFocusability(page, "golden", false);
     await expectStoryLinksSkippedByTab(page);
 
-    for (const [phase, progress, panelVisible] of [
-      ["noon", 0.38, true],
-      ["sunset", 0.76, false],
-      ["night", 1, false],
+    for (const [phase, progress] of [
+      ["noon", 0.38],
+      ["sunset", 0.76],
+      ["night", 1],
     ] as const) {
       await moveSolarStoryTo(page, progress);
       await expectSolarTextPhase(page, phase);
-      await expectStoryLinkVisibility(page, "morning", panelVisible ? "visible" : "hidden");
+      await expectStoryLinkVisibility(page, "morning", "hidden");
       await expectStoryLinkVisibility(page, "golden", "hidden");
-      await expectStoryLinkFocusability(page, "morning", panelVisible);
+      await expectStoryLinkFocusability(page, "morning", false);
       await expectStoryLinkFocusability(page, "golden", false);
-      if (!panelVisible) await expectStoryLinksSkippedByTab(page);
+      await expectStoryLinksSkippedByTab(page);
     }
   });
 
@@ -449,41 +565,29 @@ test.describe("story links", () => {
 
       await moveSolarStoryTo(page, 0.2);
       await expectSolarTextPhase(page, "morning");
-      const servicesLink = page.getByRole("link", {
-        name: /open solar solutions from the solar panel/i,
-      });
+      const servicesLink = semanticStoryLink(page, "panel");
       await expect(servicesLink).toBeVisible();
-      await expectStoryLinkVisibility(page, "morning", "visible");
+      await expectStoryLinkVisibility(page, "morning", "hidden");
       await expect(servicesLink).toHaveAttribute("href", "/services");
       await servicesLink.focus();
       await expect(servicesLink).toBeFocused();
-      await expectStoryLinkFocusability(page, "morning", true);
+      await expectStoryLinkFocusability(page, "morning", false);
       await expectStoryLinkVisibility(page, "golden", "hidden");
       await expectStoryLinkFocusability(page, "golden", false);
-      await expectNoCollision(
-        page,
-        'a[aria-label="Open Solar Solutions from the solar panel"] span',
-        "#morning-title",
-      );
+      await expectNoCollision(page, '[data-testid="solar-panel-link"]', "#morning-title");
 
       await moveSolarStoryTo(page, 0.58);
       await expectSolarTextPhase(page, "golden");
-      const productsLink = page.getByRole("link", {
-        name: /open products for batteries and inverters/i,
-      });
+      const productsLink = semanticStoryLink(page, "battery");
       await expect(productsLink).toBeVisible();
-      await expectStoryLinkVisibility(page, "golden", "visible");
+      await expectStoryLinkVisibility(page, "golden", "hidden");
       await expect(productsLink).toHaveAttribute("href", "/products");
       await productsLink.focus();
       await expect(productsLink).toBeFocused();
-      await expectStoryLinkFocusability(page, "golden", true);
+      await expectStoryLinkFocusability(page, "golden", false);
       await expectStoryLinkVisibility(page, "morning", "hidden");
       await expectStoryLinkFocusability(page, "morning", false);
-      await expectNoCollision(
-        page,
-        'a[aria-label="Open Products for batteries and inverters"] span',
-        "#golden-title",
-      );
+      await expectNoCollision(page, '[data-testid="solar-battery-link"]', "#golden-title");
 
       const hasHorizontalOverflow = await page.evaluate(
         () => document.documentElement.scrollWidth > document.documentElement.clientWidth,
@@ -496,13 +600,13 @@ test.describe("story links", () => {
     await openSolarHome(page);
     await moveSolarStoryTo(page, 0.2);
     await expectSolarTextPhase(page, "morning");
-    await page.getByRole("link", { name: /open solar solutions from the solar panel/i }).click();
+    await semanticStoryLink(page, "panel").click();
     await expect(page).toHaveURL(/\/services$/);
 
     await openSolarHome(page);
     await moveSolarStoryTo(page, 0.58);
     await expectSolarTextPhase(page, "golden");
-    await page.getByRole("link", { name: /open products for batteries and inverters/i }).click();
+    await semanticStoryLink(page, "battery").click();
     await expect(page).toHaveURL(/\/products$/);
   });
 
@@ -531,11 +635,11 @@ test.describe("story links", () => {
 
     await sun.focus();
     await page.keyboard.press("End");
-    const finalAction = page.getByRole("link", {
-      name: /request a quotation from the illuminated house/i,
-    });
-    await expect(finalAction).toBeVisible();
-    await finalAction.click();
+    await expect(page.getByRole("button", { name: /night\./i })).toHaveCount(0);
+    const houseCta = semanticStoryLink(page, "house");
+    await expect(houseCta).toBeVisible();
+    await expect(houseCta).toBeFocused();
+    await houseCta.click();
     await expect(page).toHaveURL(/\/contact$/);
   });
 });
@@ -573,7 +677,8 @@ test.describe("solar story", () => {
     expect(morningFocus).toBeGreaterThan(predawnFocus);
     expect(morningFocus).toBe(1);
     expect(morningFlow).toBeGreaterThan(0);
-    await expectStoryLinkVisibility(page, "morning", "visible");
+    await expectStoryLinkVisibility(page, "morning", "hidden");
+    await expect(semanticStoryLink(page, "panel")).toBeVisible();
     await expectStoryLinkFocusability(page, "golden", false);
   });
 
@@ -589,8 +694,9 @@ test.describe("solar story", () => {
     expect(noonFlow).toBe(1);
     expect(noonFlow).toBeGreaterThan(morningFlow);
     expect(noonAltitude).toBeGreaterThan(0.85);
-    await expectStoryLinkFocusability(page, "morning", true);
+    await expectStoryLinkFocusability(page, "morning", false);
     await expectStoryLinkFocusability(page, "golden", false);
+    await expect(semanticStoryLink(page, "panel")).toBeVisible();
   });
 
   test("golden hour makes the battery the charged subject", async ({ page }) => {
@@ -608,7 +714,8 @@ test.describe("solar story", () => {
     }
     expect(await readSceneVariable(page, "--stored-glow")).toBeGreaterThan(0);
     await expect(page.locator("[data-solar-battery]")).toBeVisible();
-    await expectStoryLinkVisibility(page, "golden", "visible");
+    await expectStoryLinkVisibility(page, "golden", "hidden");
+    await expect(semanticStoryLink(page, "battery")).toBeVisible();
   });
 
   test("sunset hands collection over to stored power and the home approaches", async ({ page }) => {
@@ -645,18 +752,22 @@ test.describe("solar story", () => {
       expect(await readSceneVariable(page, "--home-focus")).toBe(1);
       expect(await readSceneVariable(page, "--home-light")).toBeGreaterThan(0.95);
       expect(await readSceneVariable(page, "--handoff-flow")).toBeGreaterThan(0.5);
+      expect(await readSceneVariable(page, "--house-contact")).toBeGreaterThan(0.95);
+      expect(await readSceneVariable(page, "--panel-presence")).toBe(0);
+      expect(await readSceneVariable(page, "--battery-presence")).toBe(0);
 
-      await waitForStableBox(page, 'button[aria-controls="solar-phase-navigation"]');
       await waitForStableBox(page, "[data-solar-home]");
 
       const geometry = await page.evaluate(() => {
         const home = document.querySelector<HTMLElement>("[data-solar-home]");
         const heading = document.querySelector<HTMLElement>("#night-title");
+        const houseCta = document.querySelector<HTMLElement>('[data-testid="solar-house-link"]');
         const sun = document.querySelector<HTMLElement>(
           'button[aria-controls="solar-phase-navigation"]',
         );
-        if (!home || !heading || !sun) return null;
+        if (!home || !heading || !houseCta || !sun) return null;
         const homeBox = home.getBoundingClientRect();
+        const ctaBox = houseCta.getBoundingClientRect();
         const overlap = (a: DOMRect, b: DOMRect) =>
           a.left < b.right && a.right > b.left && a.top < b.bottom && a.bottom > b.top;
         return {
@@ -668,6 +779,7 @@ test.describe("solar story", () => {
             homeBox.bottom <= window.innerHeight,
           headingOverlapsHome: overlap(heading.getBoundingClientRect(), homeBox),
           sunVisible: getComputedStyle(sun).visibility === "visible",
+          ctaOverlapsHeading: overlap(ctaBox, heading.getBoundingClientRect()),
           overflow: document.documentElement.scrollWidth > document.documentElement.clientWidth,
         };
       });
@@ -677,11 +789,14 @@ test.describe("solar story", () => {
       expect(geometry!.homeFullyOnScreen).toBe(true);
       expect(geometry!.headingOverlapsHome).toBe(false);
       expect(geometry!.sunVisible).toBe(false);
+      expect(geometry!.ctaOverlapsHeading).toBe(false);
       expect(geometry!.overflow).toBe(false);
     }
   });
 
-  test("settled night shows exactly one quotation action and no phone link", async ({ page }) => {
+  test("settled night shows exactly one house quotation action and no phone link", async ({
+    page,
+  }) => {
     await openSolarHome(page);
     await moveSolarStoryTo(page, 1);
     await expect(
@@ -689,15 +804,18 @@ test.describe("solar story", () => {
     ).toBeAttached();
 
     const story = page.locator('[aria-label="A solar day"]');
-    // The illuminated house is the single visible quotation action…
-    await expect(
-      story.getByRole("link", { name: /request a quotation from the illuminated house/i }),
-    ).toBeVisible();
-    // …the in-chapter fallback stays hidden under normal motion…
+    // The illuminated house is the single visible quotation action.
+    const houseCta = story.getByRole("link", {
+      name: /request a quotation from the illuminated house/i,
+    });
+    await expect(houseCta).toBeVisible();
+    await expect(houseCta).toHaveAttribute("href", "/contact");
+    await expect(story.getByRole("button", { name: /night\./i })).toHaveCount(0);
+    // The in-chapter fallback stays hidden under normal motion.
     await expect(story.locator(".solar-night-action")).toBeHidden();
-    // …no phone link exists inside the story…
+    // No phone link exists inside the story.
     await expect(story.locator('a[href^="tel:"]')).toHaveCount(0);
-    // …and the hidden fallback never enters the tab order.
+    // The hidden fallback never enters the tab order.
     await page.locator("body").focus();
     for (let index = 0; index < 15; index += 1) {
       await page.keyboard.press("Tab");
@@ -755,5 +873,286 @@ test.describe("solar story", () => {
         page.locator('[aria-label="A solar day"]').evaluate((root) => root.dataset.textPhase),
       )
       .toBe("noon");
+  });
+});
+
+test.describe("solar story refinement", () => {
+  test("decorative progress rail tracks progress without becoming UI", async ({ page }) => {
+    await openSolarHome(page);
+    const rail = page.getByTestId("solar-progress-rail");
+    await expect(rail).toBeVisible();
+    await expect(rail).toHaveAttribute("aria-hidden", "true");
+
+    for (const progress of [0.05, 0.38, 0.76, 1]) {
+      await moveSolarStoryTo(page, progress);
+      const geometry = await rail.evaluate((element) => {
+        const railBox = element.getBoundingClientRect();
+        const fill = element.querySelector<HTMLElement>("span span");
+        const fillBox = fill?.getBoundingClientRect();
+        const header = document.querySelector<HTMLElement>(".public-header");
+        const sun = document.querySelector<HTMLElement>(
+          'button[aria-controls="solar-phase-navigation"]',
+        );
+        const phaseNav = document.querySelector<HTMLElement>("#solar-phase-navigation");
+        const collide = (a: DOMRect, b: DOMRect) =>
+          a.left < b.right && a.right > b.left && a.top < b.bottom && a.bottom > b.top;
+        return {
+          pointerEvents: getComputedStyle(element).pointerEvents,
+          rightGap: window.innerWidth - railBox.right,
+          fillRatio: fillBox ? fillBox.height / railBox.height : 0,
+          overflows: document.documentElement.scrollWidth > document.documentElement.clientWidth,
+          hitsHeader: header ? collide(railBox, header.getBoundingClientRect()) : true,
+          hitsSun:
+            sun && getComputedStyle(sun).visibility !== "hidden"
+              ? collide(railBox, sun.getBoundingClientRect())
+              : false,
+          hitsPhaseMenu:
+            phaseNav && getComputedStyle(phaseNav).visibility !== "hidden"
+              ? collide(railBox, phaseNav.getBoundingClientRect())
+              : false,
+        };
+      });
+      expect(geometry.pointerEvents).toBe("none");
+      expect(geometry.rightGap).toBeGreaterThanOrEqual(0);
+      expect(geometry.rightGap).toBeLessThan(32);
+      expect(geometry.fillRatio).toBeGreaterThanOrEqual(Math.max(0, progress - 0.08));
+      expect(geometry.fillRatio).toBeLessThanOrEqual(Math.min(1, progress + 0.08));
+      expect(geometry.overflows).toBe(false);
+      expect(geometry.hitsHeader).toBe(false);
+      expect(geometry.hitsSun).toBe(false);
+      expect(geometry.hitsPhaseMenu).toBe(false);
+    }
+  });
+
+  test("header remains fixed, opaque and collision-free during reversal", async ({ page }) => {
+    for (const viewport of [
+      { width: 1440, height: 900 },
+      { width: 390, height: 844 },
+      { width: 320, height: 844 },
+    ]) {
+      await page.setViewportSize(viewport);
+      await openSolarHome(page);
+      let expectedHeight: number | null = null;
+      for (const progress of [0, 0.22, 0.58, 0.9, 0.15, 1, 0.3]) {
+        await moveSolarStoryTo(page, progress);
+        const evidence = await page.evaluate(() => {
+          const header = document.querySelector<HTMLElement>(".public-header");
+          const rail = document.querySelector<HTMLElement>('[data-testid="solar-progress-rail"]');
+          const sun = document.querySelector<HTMLElement>(
+            'button[aria-controls="solar-phase-navigation"]',
+          );
+          const phaseNav = document.querySelector<HTMLElement>("#solar-phase-navigation");
+          if (!header || !rail || !sun || !phaseNav) return null;
+          const headerBox = header.getBoundingClientRect();
+          const collide = (a: DOMRect, b: DOMRect) =>
+            a.left < b.right && a.right > b.left && a.top < b.bottom && a.bottom > b.top;
+          const sunVisible = getComputedStyle(sun).visibility !== "hidden";
+          return {
+            top: headerBox.top,
+            height: headerBox.height,
+            backgroundAlpha: getComputedStyle(header).backgroundColor,
+            hitsSun: sunVisible && collide(headerBox, sun.getBoundingClientRect()),
+            hitsPhaseMenu:
+              getComputedStyle(phaseNav).visibility !== "hidden" &&
+              collide(headerBox, phaseNav.getBoundingClientRect()),
+            hitsRail: collide(headerBox, rail.getBoundingClientRect()),
+            overflow: document.documentElement.scrollWidth > document.documentElement.clientWidth,
+          };
+        });
+        expect(evidence).not.toBeNull();
+        expectedHeight ??= evidence!.height;
+        expect(Math.abs(evidence!.top)).toBeLessThanOrEqual(1);
+        expect(Math.abs(evidence!.height - expectedHeight)).toBeLessThanOrEqual(1);
+        expect(evidence!.backgroundAlpha).not.toContain("0)");
+        expect(evidence!.hitsSun).toBe(false);
+        expect(evidence!.hitsPhaseMenu).toBe(false);
+        expect(evidence!.hitsRail).toBe(false);
+        expect(evidence!.overflow).toBe(false);
+      }
+    }
+  });
+
+  test("semantic artwork links are outside aria-hidden stage and phase-gated", async ({ page }) => {
+    await openSolarHome(page);
+
+    const focusableInsideHiddenStage = await page.locator("[aria-hidden='true'] a").count();
+    expect(focusableInsideHiddenStage).toBe(0);
+
+    await moveSolarStoryTo(page, 0);
+    await expect(semanticStoryLink(page, "panel")).toBeHidden();
+    await expect(semanticStoryLink(page, "battery")).toBeHidden();
+    await expect(semanticStoryLink(page, "house")).toBeHidden();
+
+    await moveSolarStoryTo(page, 0.2);
+    await expect(semanticStoryLink(page, "panel")).toBeVisible();
+    await expect(semanticStoryLink(page, "panel")).toHaveAttribute("href", "/services");
+    await expect(semanticStoryLink(page, "battery")).toBeHidden();
+    await expect(semanticStoryLink(page, "house")).toBeHidden();
+
+    await moveSolarStoryTo(page, 0.58);
+    await expect(semanticStoryLink(page, "battery")).toBeVisible();
+    await expect(semanticStoryLink(page, "battery")).toHaveAttribute("href", "/products");
+    await expect(semanticStoryLink(page, "panel")).toBeHidden();
+
+    await moveSolarStoryTo(page, 1);
+    await expect(semanticStoryLink(page, "house")).toBeVisible();
+    await expect(semanticStoryLink(page, "house")).toHaveAttribute("href", "/contact");
+    await expect(semanticStoryLink(page, "panel")).toBeHidden();
+    await expect(semanticStoryLink(page, "battery")).toBeHidden();
+  });
+
+  test("battery label and products module share the canonical entry signal", async ({ page }) => {
+    await openSolarHome(page);
+
+    await moveSolarStoryTo(page, 0.399);
+    await expect
+      .poll(async () =>
+        page.locator('[aria-label="A solar day"]').evaluate((root) => root.dataset.batteryState),
+      )
+      .toBe("inactive");
+    expect(await readSceneVariable(page, "--battery-entry")).toBe(0);
+
+    await moveSolarStoryTo(page, 0.401);
+    await expect
+      .poll(async () =>
+        page.locator('[aria-label="A solar day"]').evaluate((root) => root.dataset.batteryState),
+      )
+      .toBe("entering");
+    expect(await readSceneVariable(page, "--battery-entry")).toBeGreaterThan(0);
+
+    await moveSolarStoryTo(page, 0.58);
+    await expect(semanticStoryLink(page, "battery")).toBeVisible();
+    const batteryAnimation = await page
+      .locator("[data-solar-battery] > span")
+      .last()
+      .evaluate((element) => getComputedStyle(element).animationName);
+    const batteryTransformAnimation = await page
+      .locator("[data-solar-battery]")
+      .evaluate((element) => getComputedStyle(element).animationName);
+    expect(batteryAnimation).not.toBe("none");
+    expect(batteryTransformAnimation).toBe("none");
+  });
+
+  test("keyboard settlement transfers focus to the illuminated house link", async ({ page }) => {
+    await openSolarHome(page);
+    const sun = page.getByRole("button", { name: /open solar day navigation/i });
+    await sun.focus();
+    await page.keyboard.press("End");
+    const houseCta = semanticStoryLink(page, "house");
+    await expect(houseCta).toBeVisible();
+    await expect(houseCta).toBeFocused();
+    await expect(houseCta).toHaveCSS("outline-style", /solid|auto/);
+    await page.keyboard.press("Enter");
+    await expect(page).toHaveURL(/\/contact$/);
+  });
+
+  test("scroll settlement does not steal focus and reverse removes hidden focus stops", async ({
+    page,
+  }) => {
+    await openSolarHome(page);
+    await page.getByRole("link", { name: /greennet energy home/i }).focus();
+    await moveSolarStoryTo(page, 1);
+    await expect(semanticStoryLink(page, "house")).toBeVisible();
+    await expect(semanticStoryLink(page, "house")).not.toBeFocused();
+
+    await semanticStoryLink(page, "house").focus();
+    await expect(semanticStoryLink(page, "house")).toBeFocused();
+    await moveSolarStoryTo(page, 0.58);
+    await expect(semanticStoryLink(page, "house")).toBeHidden();
+    await expect(semanticStoryLink(page, "house")).not.toBeFocused();
+    const hiddenActive = await page.evaluate(() =>
+      Boolean(document.activeElement?.closest("[aria-hidden='true']")),
+    );
+    expect(hiddenActive).toBe(false);
+  });
+
+  test("current transformation, house contact and settled assets are deterministic", async ({
+    page,
+  }) => {
+    await openSolarHome(page);
+
+    for (const [progress, state] of [
+      [0.05, "off"],
+      [0.2, "forming"],
+      [0.38, "active"],
+      [0.58, "arriving"],
+      [0.76, "arriving"],
+      [0.8, "complete"],
+    ] as const) {
+      await moveSolarStoryTo(page, progress);
+      await expect
+        .poll(async () =>
+          page.locator('[aria-label="A solar day"]').evaluate((root) => root.dataset.currentState),
+        )
+        .toBe(state);
+    }
+
+    await moveSolarStoryTo(page, 0.9);
+    expect(await readSceneVariable(page, "--house-contact")).toBeLessThan(0.95);
+    expect(await readSceneVariable(page, "--home-light")).toBe(0);
+
+    await moveSolarStoryTo(page, 1);
+    expect(await readSceneVariable(page, "--house-contact")).toBeGreaterThan(0.95);
+    expect(await readSceneVariable(page, "--home-light")).toBeGreaterThan(0.95);
+    expect(await readSceneVariable(page, "--panel-presence")).toBe(0);
+    expect(await readSceneVariable(page, "--battery-presence")).toBe(0);
+  });
+
+  test("sun coordinates have no scroll-driven transition lag", async ({ page }) => {
+    await openSolarHome(page);
+
+    for (const progress of [0.12, 0.48, 0.9, 0.2, 1]) {
+      await moveSolarStoryTo(page, progress);
+      const delta = await page.evaluate(() => {
+        const root = document.querySelector<HTMLElement>('[aria-label="A solar day"]');
+        const sun = document.querySelector<HTMLElement>(
+          'button[aria-controls="solar-phase-navigation"]',
+        );
+        if (!root || !sun) return { x: 0, y: 0 };
+        const rootStyles = getComputedStyle(root);
+        const sunStyles = getComputedStyle(sun);
+        const viewportWidth = window.innerWidth;
+        const viewportHeight = window.innerHeight;
+        return {
+          x: Math.abs(
+            (Number.parseFloat(rootStyles.getPropertyValue("--sun-x")) / 100) * viewportWidth -
+              Number.parseFloat(sunStyles.left),
+          ),
+          y: Math.abs(
+            (Number.parseFloat(rootStyles.getPropertyValue("--sun-y")) / 100) * viewportHeight -
+              Number.parseFloat(sunStyles.top),
+          ),
+        };
+      });
+      expect(delta.x).toBeLessThan(0.2);
+      expect(delta.y).toBeLessThan(0.2);
+    }
+  });
+
+  test("survives 50 rapid direction changes with state agreement after every reversal", async ({
+    page,
+  }) => {
+    for (const viewport of [
+      { width: 1440, height: 900 },
+      { width: 390, height: 844 },
+    ]) {
+      await page.setViewportSize(viewport);
+      await openSolarHome(page);
+      const pairs = [
+        [0.04, 0.19],
+        [0.19, 0.38],
+        [0.38, 0.57],
+        [0.57, 0.76],
+        [0.76, 0.98],
+        [0.98, 0.57],
+        [0.98, 0.04],
+      ] as const;
+      for (let index = 0; index < 56; index += 1) {
+        const pair = pairs[index % pairs.length];
+        const progress = index % 2 === 0 ? pair[0] : pair[1];
+        await moveSolarStoryTo(page, progress);
+        await expectSnapshotMatchesProgress(page, progress);
+      }
+    }
   });
 });

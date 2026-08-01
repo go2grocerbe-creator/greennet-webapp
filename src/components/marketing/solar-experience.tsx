@@ -1,7 +1,6 @@
 "use client";
 
 import Link from "next/link";
-import type { CSSProperties } from "react";
 import { useCallback, useEffect, useRef, useState } from "react";
 
 import { SunScene } from "@/components/marketing/sun-scene";
@@ -28,7 +27,11 @@ type PhaseId = SolarPhaseId;
  */
 export function SolarExperience({ children }: { children: React.ReactNode }) {
   const rootRef = useRef<HTMLElement>(null);
+  const houseLinkRef = useRef<HTMLAnchorElement>(null);
+  const sunButtonRef = useRef<HTMLButtonElement>(null);
   const movedDuringDrag = useRef(false);
+  const keyboardSettlementPending = useRef(false);
+  const restoreSunFocusPending = useRef(false);
   const [phase, setPhase] = useState<PhaseId>("predawn");
   const [visiblePhase, setVisiblePhase] = useState<PhaseId | null>("predawn");
   const [sunSettled, setSunSettled] = useState(false);
@@ -85,8 +88,7 @@ export function SolarExperience({ children }: { children: React.ReactNode }) {
       const progress = clamp(-rect.top / distance);
       const storyState = getSolarStoryState(progress);
       const daylight = clamp(progress / 0.82);
-      const nightMorph = clamp((progress - 0.82) / 0.145);
-      const solarAltitude = Math.sin(Math.PI * daylight);
+      const solarAltitude = storyState.solarAltitude;
       const dawnWarmth = clamp((progress - 0.015) / 0.11) * (1 - clamp((progress - 0.2) / 0.16));
       const duskWarmth = clamp((progress - 0.5) / 0.17) * (1 - clamp((progress - 0.8) / 0.14));
       const shadowStrength =
@@ -94,11 +96,10 @@ export function SolarExperience({ children }: { children: React.ReactNode }) {
       const panelLight = clamp(solarAltitude * 1.18) * (1 - clamp((progress - 0.72) / 0.24) * 0.72);
       const baseX = 7 + daylight * 86;
       const baseY = 80 - Math.sin(Math.PI * daylight) * 68;
-      const sunX = baseX * (1 - nightMorph) + 50 * nightMorph;
-      const endpointLift = storyState.houseContact;
-      // The settled sun parks at 62% height — between the night lede and the
-      // centered home's roofline, so the final action collides with neither.
-      const sunY = baseY * (1 - endpointLift) + 76 * endpointLift;
+      const sunX = baseX * (1 - storyState.sunMorph) + 50 * storyState.sunMorph;
+      // The settled sun reaches the home before yielding focus to the house
+      // quotation link, keeping the final action separate from the night copy.
+      const sunY = baseY * (1 - storyState.houseContact) + 76 * storyState.houseContact;
       const nextPhase = storyState.environmentPhase;
       const nextVisiblePhase = storyState.textPhase;
       const nextSettled = storyState.houseCta >= 0.95;
@@ -118,6 +119,7 @@ export function SolarExperience({ children }: { children: React.ReactNode }) {
       root.style.setProperty("--shadow-strength", shadowStrength.toFixed(4));
       root.style.setProperty("--shadow-softness", `${(0.6 + solarAltitude * 1.3).toFixed(3)}rem`);
       root.style.setProperty("--panel-light", panelLight.toFixed(4));
+      root.style.setProperty("--panel-presence", storyState.panelPresence.toFixed(4));
       root.style.setProperty("--terrain-lift", `${((1 - solarAltitude) * 1.8).toFixed(3)}vh`);
       root.style.setProperty("--atmosphere-shift", `${((progress - 0.5) * 2.4).toFixed(3)}vw`);
       root.style.setProperty("--battery-entry", storyState.batteryEntry.toFixed(4));
@@ -137,19 +139,18 @@ export function SolarExperience({ children }: { children: React.ReactNode }) {
         (clamp((progress - 0.38) / 0.16) * (1 - clamp((progress - 0.69) / 0.13))).toFixed(4),
       );
       root.style.setProperty("--night", clamp((progress - 0.69) / 0.25).toFixed(4));
-      root.style.setProperty("--sun-morph", nightMorph.toFixed(4));
       root.style.setProperty("--house-contact", storyState.houseContact.toFixed(4));
       root.style.setProperty("--cta-reveal", storyState.houseCta.toFixed(4));
       root.style.setProperty("--shadow-reach", `${((0.5 - daylight) * 56).toFixed(2)}vw`);
       root.style.setProperty("--camera-tilt", `${((progress - 0.5) * 7).toFixed(2)}deg`);
       // Storytelling emphasis — ranges documented in src/lib/solar/solar-phase.ts.
       root.style.setProperty("--panel-focus", storyState.panelFocus.toFixed(4));
-      root.style.setProperty("--panel-presence", storyState.panelPresence.toFixed(4));
       root.style.setProperty("--conversion-flow", storyState.conversionFlow.toFixed(4));
       root.style.setProperty("--battery-focus", storyState.batteryFocus.toFixed(4));
       root.style.setProperty("--handoff-flow", storyState.handoffFlow.toFixed(4));
       root.style.setProperty("--home-focus", storyState.homeFocus.toFixed(4));
       root.dataset.currentState = storyState.currentState;
+      root.dataset.batteryState = storyState.batteryState;
 
       // `data-text-phase` is written synchronously here, but the matching
       // `aria-current="step"` marker is React-rendered and lands on the next
@@ -225,7 +226,37 @@ export function SolarExperience({ children }: { children: React.ReactNode }) {
     root.dataset.solarReady = "true";
   }, [visiblePhase, phase, sunSettled]);
 
-  const selectPhase = (target: (typeof phases)[number]) => {
+  useEffect(() => {
+    if (sunSettled) {
+      if (keyboardSettlementPending.current) {
+        requestAnimationFrame(() => {
+          const house = houseLinkRef.current;
+          if (!house || house.getAttribute("aria-hidden") === "true") return;
+          house.focus({ preventScroll: true });
+          restoreSunFocusPending.current = true;
+        });
+      }
+      return;
+    }
+
+    const house = houseLinkRef.current;
+    if (house && document.activeElement === house) {
+      const sun = sunButtonRef.current;
+      if (restoreSunFocusPending.current && sun && sun.tabIndex !== -1) {
+        sun.focus({ preventScroll: true });
+      } else {
+        (rootRef.current as HTMLElement | null)?.focus({ preventScroll: true });
+      }
+    }
+    keyboardSettlementPending.current = false;
+    restoreSunFocusPending.current = false;
+  }, [sunSettled]);
+
+  const selectPhase = (
+    target: (typeof phases)[number],
+    source: "keyboard" | "pointer" = "pointer",
+  ) => {
+    if (target.id === "night" && source === "keyboard") keyboardSettlementPending.current = true;
     setNavOpen(false);
     scrollToProgress(target.progress);
   };
@@ -234,16 +265,17 @@ export function SolarExperience({ children }: { children: React.ReactNode }) {
     const index = phases.findIndex((item) => item.id === phase);
     if (event.key === "ArrowLeft" || event.key === "ArrowUp") {
       event.preventDefault();
-      selectPhase(phases[Math.max(0, index - 1)]);
+      selectPhase(phases[Math.max(0, index - 1)], "keyboard");
     } else if (event.key === "ArrowRight" || event.key === "ArrowDown") {
       event.preventDefault();
-      selectPhase(phases[Math.min(phases.length - 1, index + 1)]);
+      selectPhase(phases[Math.min(phases.length - 1, index + 1)], "keyboard");
     } else if (event.key === "Home") {
       event.preventDefault();
-      selectPhase(phases[0]);
+      selectPhase(phases[0], "keyboard");
     } else if (event.key === "End") {
       event.preventDefault();
-      selectPhase(phases[phases.length - 1]);
+      keyboardSettlementPending.current = true;
+      selectPhase(phases[phases.length - 1], "keyboard");
     }
   };
 
@@ -268,6 +300,7 @@ export function SolarExperience({ children }: { children: React.ReactNode }) {
       data-sun-settled={sunSettled ? "true" : "false"}
       data-nav-open={navOpen ? "true" : "false"}
       aria-label="A solar day"
+      tabIndex={-1}
     >
       <a href="#after-solar-story" className={styles.skipStory}>
         Skip the solar story
@@ -283,13 +316,18 @@ export function SolarExperience({ children }: { children: React.ReactNode }) {
       </noscript>
       <div className={styles.solarControl}>
         <button
+          ref={sunButtonRef}
           type="button"
           className={styles.sunHandle}
           tabIndex={sunSettled ? -1 : undefined}
           aria-hidden={sunSettled ? "true" : undefined}
           aria-expanded={navOpen}
           aria-controls="solar-phase-navigation"
-          aria-label={`${currentLabel}. Open solar day navigation. Use arrow keys to move through time.`}
+          aria-label={
+            sunSettled
+              ? "Night. The sun has reached the house."
+              : `${currentLabel}. Open solar day navigation. Use arrow keys to move through time.`
+          }
           onClick={() => {
             if (movedDuringDrag.current) {
               movedDuringDrag.current = false;
@@ -319,6 +357,53 @@ export function SolarExperience({ children }: { children: React.ReactNode }) {
           <span className={styles.sunCore} aria-hidden="true" />
         </button>
 
+        <div className={styles.progressRail} data-testid="solar-progress-rail" aria-hidden="true">
+          <span className={styles.progressRailTrack}>
+            <span className={styles.progressRailFill} />
+          </span>
+          <ol>
+            {phases.map((item) => (
+              <li key={item.id} data-phase-marker={item.id}>
+                <span />
+              </li>
+            ))}
+          </ol>
+        </div>
+
+        <Link
+          href="/services"
+          className={styles.panelSemanticLink}
+          data-testid="solar-panel-link"
+          aria-label="Open Solar Solutions from the solar panel"
+          aria-hidden={visiblePhase === "morning" || visiblePhase === "noon" ? undefined : "true"}
+          tabIndex={visiblePhase === "morning" || visiblePhase === "noon" ? undefined : -1}
+        >
+          <span>Explore Solar Solutions</span>
+        </Link>
+
+        <Link
+          href="/products"
+          className={styles.batterySemanticLink}
+          data-testid="solar-battery-link"
+          aria-label="Open Products for batteries and inverters"
+          aria-hidden={visiblePhase === "golden" ? undefined : "true"}
+          tabIndex={visiblePhase === "golden" ? undefined : -1}
+        >
+          <span>Explore Batteries &amp; Inverters</span>
+        </Link>
+
+        <Link
+          ref={houseLinkRef}
+          href="/contact"
+          className={styles.houseSemanticLink}
+          data-testid="solar-house-link"
+          aria-label="Request a quotation from the illuminated house"
+          aria-hidden={sunSettled ? undefined : "true"}
+          tabIndex={sunSettled ? undefined : -1}
+        >
+          <span>Request a quotation</span>
+        </Link>
+
         <nav
           id="solar-phase-navigation"
           className={styles.phaseNavigation}
@@ -333,7 +418,7 @@ export function SolarExperience({ children }: { children: React.ReactNode }) {
                   aria-current={visiblePhase === item.id ? "step" : undefined}
                   onClick={(event) => {
                     event.preventDefault();
-                    selectPhase(item);
+                    selectPhase(item, event.detail === 0 ? "keyboard" : "pointer");
                   }}
                 >
                   <span>{item.label}</span>
@@ -343,44 +428,6 @@ export function SolarExperience({ children }: { children: React.ReactNode }) {
             ))}
           </ol>
         </nav>
-
-        <div className={styles.progressRail} aria-hidden="true">
-          <span className={styles.progressRailTrack}>
-            <span className={styles.progressRailFill} />
-          </span>
-          {phases.map((item) => (
-            <i
-              key={item.id}
-              className={styles.progressRailMarker}
-              data-active={phase === item.id ? "true" : "false"}
-              style={{ "--marker-progress": item.progress } as CSSProperties}
-            />
-          ))}
-        </div>
-
-        <div className={styles.semanticLayer}>
-          <Link
-            href="/services"
-            className={styles.panelSemanticLink}
-            aria-label="Open Solar Solutions from the solar panel"
-          >
-            <span>Explore Solar Solutions</span>
-          </Link>
-          <Link
-            href="/products"
-            className={styles.batterySemanticLink}
-            aria-label="Open Products for batteries and inverters"
-          >
-            <span>See Products</span>
-          </Link>
-          <Link
-            href="/contact"
-            className={styles.houseSemanticLink}
-            aria-label="Request a quotation from the illuminated house"
-          >
-            <span>Request a quotation</span>
-          </Link>
-        </div>
       </div>
 
       <div className={styles.stage} data-solar-stage aria-hidden="true">
