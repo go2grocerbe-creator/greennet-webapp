@@ -106,20 +106,13 @@ export function ProductForm({ action, productId, defaultValues, submitLabel }: P
         )}
       </div>
 
-      <div className="flex flex-col gap-1.5">
-        <Label htmlFor="image">Image URL</Label>
-        <Input
-          id="image"
-          name="image"
-          defaultValue={defaultValues?.image ?? ""}
-          aria-invalid={Boolean(fieldErrors.image)}
-          aria-describedby={fieldErrors.image ? "image-error" : undefined}
-        />
-        {fieldErrors.image && (
-          <p id="image-error" role="alert" className="text-destructive text-sm">
-            {fieldErrors.image[0]}
-          </p>
-        )}
+      <div className="border-border bg-muted/40 rounded-lg border p-4 text-sm">
+        <input type="hidden" name="image" value={defaultValues?.image ?? ""} />
+        <p className="text-foreground font-medium">Product media is held for rights review</p>
+        <p className="text-muted-foreground mt-1 leading-relaxed">
+          Existing image references are preserved, but public product media stays hidden until the
+          Supabase media record and usage rights are confirmed.
+        </p>
       </div>
 
       <div className="flex flex-col gap-1.5">

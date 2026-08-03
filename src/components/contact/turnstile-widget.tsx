@@ -28,10 +28,9 @@ type TurnstileWidgetProps = {
 
 /**
  * If `siteKey` is configured, loads the official Cloudflare script and
- * renders a real widget. If not (current state — no Turnstile account
- * yet), renders a neutral notice and never calls `onVerify`; the
- * server-side dev bypass (src/lib/turnstile/verify.ts) is the actual
- * safety net in that state — this component never fakes a token.
+ * renders a real widget. Otherwise it renders nothing and never invents a
+ * token. The server rejects unconfigured production submissions; the absent
+ * widget therefore cannot create an unsecured production path.
  */
 export function TurnstileWidget({ siteKey, onVerify }: TurnstileWidgetProps) {
   const containerRef = useRef<HTMLDivElement>(null);
@@ -72,11 +71,7 @@ export function TurnstileWidget({ siteKey, onVerify }: TurnstileWidgetProps) {
   }, [siteKey, onVerify]);
 
   if (!siteKey) {
-    return (
-      <p className="text-muted-foreground text-xs" data-testid="turnstile-unconfigured">
-        Verification is not configured in this environment.
-      </p>
-    );
+    return null;
   }
 
   return <div ref={containerRef} id={`turnstile-${widgetId}`} />;

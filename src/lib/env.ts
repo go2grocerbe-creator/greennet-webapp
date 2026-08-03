@@ -11,7 +11,7 @@ const publicEnvSchema = z.object({
 });
 
 const serverEnvSchema = publicEnvSchema.extend({
-  SUPABASE_SERVICE_ROLE_KEY: z.string().min(1).optional(),
+  SUPABASE_SERVICE_ROLE_KEY: z.string().min(1),
   RESEND_API_KEY: z.string().min(1).optional(),
   EMAIL_FROM_ADDRESS: z.string().email().optional(),
   QUOTE_NOTIFICATION_EMAIL: z.string().email().optional(),

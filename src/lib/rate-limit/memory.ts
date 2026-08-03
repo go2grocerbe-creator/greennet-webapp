@@ -6,12 +6,8 @@ type Options = {
 };
 
 /**
- * Single-instance, in-process token-window limiter. Fine for local dev,
- * tests, and a single long-lived server — NOT safe across multiple
- * serverless invocations or horizontally-scaled instances, since each
- * process has its own Map. A Redis/Upstash-backed adapter implementing
- * the same RateLimiter interface is the documented future swap-in — see
- * docs/architecture.md "Rate limiting".
+ * Single-instance, in-process token-window limiter for unit tests and local
+ * isolated use. The production route uses the shared Supabase adapter.
  */
 export function createInMemoryRateLimiter({ windowMs, max }: Options): RateLimiter {
   const hits = new Map<string, { count: number; resetAt: number }>();
@@ -36,7 +32,7 @@ export function createInMemoryRateLimiter({ windowMs, max }: Options): RateLimit
   };
 }
 
-/** Default limiter for the public quotation form: 5 submissions / 10 minutes per identifier. */
+/** Local/test convenience limiter: 5 submissions / 10 minutes per identifier. */
 export const quoteRequestRateLimiter = createInMemoryRateLimiter({
   windowMs: 10 * 60 * 1000,
   max: 5,

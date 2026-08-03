@@ -1,0 +1,7 @@
+interface:
+  display_name: "GreenNet Release"
+  short_description: "Complete and validate the GreenNet website handover"
+  brand_color: "#0C5A56"
+  default_prompt: "Audit and complete this GreenNet website to a defensible handover-ready release."
+policy:
+  allow_implicit_invocation: true

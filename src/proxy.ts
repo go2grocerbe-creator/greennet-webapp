@@ -4,17 +4,11 @@ import { NextResponse, type NextRequest } from "next/server";
 import { getPublicEnv } from "@/lib/env";
 
 /**
- * Refreshes the Supabase auth session on every request and blocks
- * unauthenticated access to /admin. Role checks (owner vs. editor) happen
- * in the admin layout, backed by RLS as the independent enforcement layer
- * — see docs/security-model.md.
- *
- * Fail-closed: if session resolution throws for any reason (e.g. Supabase
- * env vars not configured in this environment), treat the request as
- * unauthenticated rather than letting the error crash the request — see
- * src/lib/auth/session.ts for the same pattern used by the admin layout.
+ * Refreshes the Supabase auth session on every admin request and blocks
+ * unauthenticated access. The admin layout performs the role check and RLS
+ * remains the independent data-enforcement layer.
  */
-export async function middleware(request: NextRequest) {
+export async function proxy(request: NextRequest) {
   const response = NextResponse.next({ request });
 
   let user = null;
@@ -43,10 +37,10 @@ export async function middleware(request: NextRequest) {
     const result = await supabase.auth.getUser();
     user = result.data.user;
   } catch (error) {
-    console.error("[middleware] failed to resolve session", error);
+    console.error("[proxy] failed to resolve session", error);
   }
 
-  if (request.nextUrl.pathname.startsWith("/admin") && !user) {
+  if (!user) {
     return NextResponse.redirect(new URL("/login", request.url));
   }
 

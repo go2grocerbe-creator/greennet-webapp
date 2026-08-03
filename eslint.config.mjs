@@ -12,6 +12,12 @@ const eslintConfig = defineConfig([
     "out/**",
     "build/**",
     "next-env.d.ts",
+    "artifacts/**",
+    "playwright-report/**",
+    "test-results/**",
+    ".agents/**",
+    ".claude/**",
+    ".codex/**",
     // Legacy static demo — preserved as-is, not linted/rewritten. See legacy-demo/README.md.
     "legacy-demo/**",
   ]),

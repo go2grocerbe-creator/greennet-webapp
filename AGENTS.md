@@ -31,3 +31,27 @@ Read `docs/project-brief.md`, then `docs/requirements-register.md`. The client d
 ## Out of scope (do not build)
 
 E-commerce, payments, shopping cart, customer accounts/portal, CRM, ERP, inventory management, multilingual content, marketing automation, AI chatbot, solar calculator, automated pricing, drag-and-drop page builder, mobile app, blog (unless a client confirms otherwise via a new decision-log entry).
+
+<!-- GRENNET-CODEX-KIT -->
+# GreenNet repository instructions
+
+## Mission
+
+Complete and maintain the existing GreenNet Energy website as a coherent, secure, accessible, responsive, and handover-ready product. Do not create a parallel prototype unless explicitly requested.
+
+## Required skill
+
+For GreenNet branding, content, pages, assets, forms, backend integration, release preparation, deployment, or handover work, use the `greennet-release` skill from `.agents/skills/greennet-release/SKILL.md`.
+
+## Working agreements
+
+- Inspect the repository and `git status` before editing.
+- Preserve valid uncommitted changes.
+- Use existing architecture and approved assets.
+- Do not invent business facts, claims, contacts, projects, specifications, certifications, warranties, partnerships, prices, or testimonials.
+- Hide unverifiable optional public content and record it for client approval.
+- Keep public product pricing absent unless explicitly approved.
+- Prefer a complete vertical release over broad unfinished redesign.
+- Run the repository's lint, type-check, tests, and production build after changes.
+- Update handover and approval documentation when release behaviour or configuration changes.
+- Report exact checks, failures, changed files, remaining blockers, and git status.

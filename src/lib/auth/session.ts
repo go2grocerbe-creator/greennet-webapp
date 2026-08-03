@@ -11,7 +11,7 @@ export type AdminProfile = {
 /**
  * Fail-closed: any error (including Supabase not being configured in
  * this environment yet) resolves to "no admin" rather than throwing, so
- * callers (middleware, admin layout) can treat it as "not authenticated"
+ * callers (request proxy, admin layout) can treat it as "not authenticated"
  * and redirect to /login instead of crashing the request. See
  * docs/security-model.md "neither layer relied on alone" — this is the
  * server-side session+role check, independent of RLS.

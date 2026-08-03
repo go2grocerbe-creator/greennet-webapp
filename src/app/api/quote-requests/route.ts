@@ -3,8 +3,8 @@ import { createHash } from "node:crypto";
 import { NextResponse, type NextRequest } from "next/server";
 
 import { getEmailProvider } from "@/lib/email";
-import { quoteRequestRateLimiter } from "@/lib/rate-limit/memory";
-import { createAnonServerClient } from "@/lib/supabase/anon-server-client";
+import { createSupabaseRateLimiter } from "@/lib/rate-limit/supabase";
+import { createAdminServerClient } from "@/lib/supabase/admin-server-client";
 import { verifyTurnstileToken } from "@/lib/turnstile/verify";
 import { submitQuoteRequest } from "@/lib/quote-requests/submit";
 
@@ -14,10 +14,16 @@ export const runtime = "nodejs";
  * Rate-limit identifier: a hashed IP, never the raw address — see
  * docs/security-model.md "no personal data logged" and ADR-010.
  */
-function hashedIdentifier(request: NextRequest): string {
+function clientIp(request: NextRequest): string | undefined {
   const forwardedFor = request.headers.get("x-forwarded-for");
-  const ip = forwardedFor?.split(",")[0]?.trim() || "unknown";
-  return createHash("sha256").update(ip).digest("hex").slice(0, 16);
+  return forwardedFor?.split(",")[0]?.trim() || request.headers.get("x-real-ip") || undefined;
+}
+
+function hashedIdentifier(ip: string | undefined): string {
+  return createHash("sha256")
+    .update(ip ?? "unknown")
+    .digest("hex")
+    .slice(0, 16);
 }
 
 export async function POST(request: NextRequest) {
@@ -28,7 +34,8 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ ok: false, error: "invalid_request" }, { status: 400 });
   }
 
-  const identifier = hashedIdentifier(request);
+  const ip = clientIp(request);
+  const identifier = hashedIdentifier(ip);
 
   // Wrapped so any setup failure (e.g. Supabase env vars not configured
   // in this environment) always returns our own generic JSON error
@@ -36,10 +43,11 @@ export async function POST(request: NextRequest) {
   // error page — see docs/security-model.md "no stack traces exposed".
   let result;
   try {
+    const supabase = createAdminServerClient();
     result = await submitQuoteRequest(body, identifier, {
-      verifyTurnstile: verifyTurnstileToken,
-      rateLimiter: quoteRequestRateLimiter,
-      supabase: createAnonServerClient(),
+      verifyTurnstile: (token) => verifyTurnstileToken(token, ip),
+      rateLimiter: createSupabaseRateLimiter(supabase, { max: 5, windowSeconds: 10 * 60 }),
+      supabase,
       emailProvider: getEmailProvider(),
     });
   } catch (error) {
@@ -60,7 +68,15 @@ export async function POST(request: NextRequest) {
         { status: 400 },
       );
     case "rate_limited":
-      return NextResponse.json({ ok: false, error: "rate_limited" }, { status: 429 });
+      return NextResponse.json(
+        { ok: false, error: "rate_limited" },
+        {
+          status: 429,
+          headers: result.retryAfterSeconds
+            ? { "Retry-After": String(result.retryAfterSeconds) }
+            : undefined,
+        },
+      );
     case "verification_failed":
       return NextResponse.json({ ok: false, error: "verification_failed" }, { status: 400 });
     case "server_error":

@@ -37,9 +37,9 @@ type QuoteRequestRow = {
 
 /**
  * Minimal structural subset of the Supabase client this pipeline needs —
- * lets tests inject a fake without a real Supabase project. The real
- * client (src/lib/supabase/anon-server-client.ts) satisfies this
- * structurally.
+ * lets tests inject a fake without a real Supabase project. The server-only
+ * service-role client satisfies this structurally; browser code never receives
+ * that credential or writes quotation rows directly.
  */
 export interface QuoteRequestsInsertClient {
   from(table: "quote_requests"): {
@@ -55,7 +55,7 @@ export interface QuoteRequestsInsertClient {
 }
 
 export type SubmitQuoteRequestDeps = {
-  verifyTurnstile: (token: string, identifier?: string) => Promise<TurnstileResult>;
+  verifyTurnstile: (token: string) => Promise<TurnstileResult>;
   rateLimiter: RateLimiter;
   supabase: QuoteRequestsInsertClient;
   emailProvider?: EmailProvider;
@@ -104,7 +104,7 @@ async function sendBestEffortEmails(
   const acknowledgement = buildQuoteAcknowledgementEmail(data, reference);
 
   const notificationTo = process.env.QUOTE_NOTIFICATION_EMAIL || siteConfig.contact.email;
-  const from = process.env.EMAIL_FROM_ADDRESS || `${siteConfig.legalName} <no-reply@example.com>`;
+  const from = process.env.EMAIL_FROM_ADDRESS || siteConfig.contact.email;
 
   const results = await Promise.allSettled([
     emailProvider.send({ ...notification, to: notificationTo, from }),
@@ -152,7 +152,7 @@ export async function submitQuoteRequest(
     return { status: "rate_limited", retryAfterSeconds: rateLimit.retryAfterSeconds };
   }
 
-  const turnstileResult = await deps.verifyTurnstile(turnstileToken, identifier);
+  const turnstileResult = await deps.verifyTurnstile(turnstileToken);
   if (!turnstileResult.success) {
     return { status: "verification_failed" };
   }

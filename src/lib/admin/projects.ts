@@ -62,6 +62,28 @@ export async function listProjects(
   }
 }
 
+/**
+ * Public project records are filtered in application code as well as by RLS.
+ * The extra gate prevents draft leakage when an authenticated editor visits
+ * the public site with a session that can read all project rows.
+ */
+export async function listProjectsForPublic(
+  ds: ProjectsDataSource | null,
+): Promise<DataResult<ProjectDetail[]>> {
+  if (!ds) return { status: "unavailable" };
+  try {
+    const { data, error } = await ds.list();
+    if (error || !data) return { status: "unavailable" };
+    return {
+      status: "ok",
+      data: data.filter((row) => row.status === "published").map(mapProjectDetail),
+    };
+  } catch (error) {
+    console.error("[admin] failed to list projects for public page", error);
+    return { status: "unavailable" };
+  }
+}
+
 export async function getProject(
   ds: ProjectsDataSource | null,
   id: string,

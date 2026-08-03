@@ -59,10 +59,9 @@ export async function listServices(
 }
 
 /**
- * Same underlying `ds.list()` call as `listServices` (RLS already scopes
- * it to published-only for an anonymous caller) — just mapped to the
- * fuller detail shape the public page needs. Not a duplicate query — see
- * docs/decision-log.md ADR-013.
+ * Uses the same ordered data-source query as the admin list, then applies an
+ * explicit publication gate before mapping. This protects public rendering
+ * even when an authenticated editor's RLS session can read draft rows.
  */
 export async function listServicesForPublic(
   ds: ServicesDataSource | null,
@@ -71,7 +70,10 @@ export async function listServicesForPublic(
   try {
     const { data, error } = await ds.list();
     if (error || !data) return { status: "unavailable" };
-    return { status: "ok", data: data.map(mapServiceDetail) };
+    return {
+      status: "ok",
+      data: data.filter((row) => row.status === "published").map(mapServiceDetail),
+    };
   } catch (error) {
     console.error("[admin] failed to list services for public page", error);
     return { status: "unavailable" };

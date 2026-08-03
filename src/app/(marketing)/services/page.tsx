@@ -1,6 +1,5 @@
 import type { Metadata } from "next";
 
-import { PublicDataState } from "@/components/marketing/public-data-state";
 import { SolarPageHero } from "@/components/marketing/solar-page-hero";
 import { SolutionCapabilityList } from "@/components/marketing/solution-capability-list";
 import { SolutionCta } from "@/components/marketing/solution-cta";
@@ -52,27 +51,17 @@ export default async function ServicesPage() {
         <SolutionLifecycle steps={SOLUTION_LIFECYCLE} />
         <SolutionSectorPathways sectors={SOLUTION_SECTORS} />
 
-        <section className="published-services" aria-labelledby="published-services-title">
-          <div className="solutions-section__intro">
-            <p>CMS catalogue</p>
-            <h2 id="published-services-title">Published service details.</h2>
-            <span>
-              This catalogue contains only service records GreenNet has explicitly published.
-            </span>
-          </div>
-
-          {result.status === "unavailable" ? (
-            <PublicDataState kind="services" status="unavailable" />
-          ) : result.data.length === 0 ? (
-            <div className="published-services__empty" role="status">
-              <p>Publication in progress</p>
-              <h3>Detailed service records are being prepared.</h3>
+        {result.status === "ok" && result.data.length > 0 && (
+          <section className="published-services" aria-labelledby="published-services-title">
+            <div className="solutions-section__intro">
+              <p>Published catalogue</p>
+              <h2 id="published-services-title">Approved service records.</h2>
               <span>
-                The solution overview above remains available while GreenNet prepares individual CMS
-                service entries for publication.
+                This catalogue contains only service records GreenNet has explicitly published.
+                Draft records never render on this route.
               </span>
             </div>
-          ) : (
+
             <ol className="service-ledger">
               {result.data.map((service, index) => (
                 <li key={service.id}>
@@ -89,8 +78,8 @@ export default async function ServicesPage() {
                 </li>
               ))}
             </ol>
-          )}
-        </section>
+          </section>
+        )}
       </Container>
 
       <Container className="solutions-cta-wrap">

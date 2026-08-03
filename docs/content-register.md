@@ -120,3 +120,11 @@ Added building the `/contact` flow (`docs/decision-log.md` ADR-010). All of the 
 | "Why choose us" claims                                          | Hold for client legal/factual review before publishing                                                           |
 | All photography (stock and flyer)                               | Do not publish as real project evidence; replace with confirmed real photography or clearly-labeled placeholders |
 | Logo                                                            | Request true vector source; current inline SVG is a recreation, not the official asset                           |
+
+## Client-handover editorial additions (2026-08-01)
+
+- `Powering Smarter Futures.` and the quality/performance/visibility/support/progress messaging system are approved by the repository's required handover brand reference (`.agents/skills/greennet-release/references/brand-system.md`).
+- `/about` uses that approved positioning plus the already confirmed Benin City location. It does not add company history, team size, years, certifications, service area, or performance claims.
+- `/products` uses category-level descriptions derived from the confirmed Solar Solutions direction. It names no brands, specifications, prices, warranty duration, availability commitment, or partner status.
+- `/projects` uses the already confirmed sector pathways as intended operating contexts and explicitly says they are not completed-project claims. Published CMS text may appear only after an admin sets it to published; all project photography remains withheld pending authenticity and rights confirmation.
+- The supplied flyer remains a factual/visual source only. Its photography is not rendered publicly and the flattened logo is not treated as an approved standalone logo asset.

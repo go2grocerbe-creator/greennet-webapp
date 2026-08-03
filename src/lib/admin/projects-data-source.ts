@@ -51,10 +51,8 @@ const SELECT_COLUMNS =
 /**
  * Reads and writes happen through the session-bound Supabase client —
  * RLS (`projects_editor_owner_all` / `projects_public_read_published`)
- * is what actually authorizes access, per docs/security-model.md. No
- * public projects page is built this milestone, but `list()` follows the
- * same shape as products/services so one can reuse it later without
- * changing this file — see docs/decision-log.md ADR-013.
+ * is the authorization backstop, per docs/security-model.md. Public callers
+ * additionally apply the application-level published-status gate.
  */
 export function createSupabaseProjectsDataSource(supabase: SupabaseClient): ProjectsDataSource {
   return {

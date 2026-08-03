@@ -5,7 +5,9 @@ export type NavItem = {
 
 export type SiteConfig = {
   name: string;
+  shortName: string;
   legalName: string;
+  tagline: string;
   description: string;
   /** Client-confirmed facts only — see docs/content-register.md "Company identity". */
   contact: {
@@ -18,15 +20,17 @@ export type SiteConfig = {
 
 /**
  * Only values classified CONFIRMED in docs/content-register.md live here.
- * Everything else (services copy, about copy, project content) is
- * ASSUMPTION-grade or MISSING and must not be hardcoded — see
- * docs/requirements-register.md §5. Do not add marketing copy to this
- * file; it belongs in Supabase-backed content once the CMS exists.
+ * Do not add unsupported company facts, claims, or commercial terms here.
+ * Editorial route copy must stay within the approved boundaries documented in
+ * docs/content-register.md and docs/requirements-register.md.
  */
 export const siteConfig: SiteConfig = {
   name: "GreenNet Energy",
+  shortName: "GreenNet",
   legalName: "GreenNet Energy Ltd",
-  description: "Solar energy company based in Benin City, Nigeria.",
+  tagline: "Powering Smarter Futures.",
+  description:
+    "GreenNet provides solar systems, installation, monitoring, and support for dependable power infrastructure.",
   contact: {
     phone: "+234 906 312 1247",
     email: "oduwaogbeiwi@gmail.com",
@@ -42,8 +46,5 @@ export const siteConfig: SiteConfig = {
   ],
 };
 
-/** Routes that exist today. About and Projects remain in the confirmed Phase 1
- * information architecture, but stay out of public navigation until built. */
-export const publicNav = siteConfig.nav.filter(
-  (item) => item.href !== "/about" && item.href !== "/projects",
-);
+/** Every confirmed Phase 1 public route is implemented and safe to expose. */
+export const publicNav = siteConfig.nav;

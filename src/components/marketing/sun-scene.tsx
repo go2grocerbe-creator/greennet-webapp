@@ -63,6 +63,9 @@ export function SunScene() {
       </svg>
 
       <div className={styles.battery} data-solar-battery>
+        <span className={styles.batteryLabel} aria-hidden="true">
+          Energy reserved
+        </span>
         <span className={styles.batteryCap} />
         <span className={styles.batteryBody}>
           <i />

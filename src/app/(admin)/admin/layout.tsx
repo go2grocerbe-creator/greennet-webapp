@@ -4,7 +4,7 @@ import { AdminShell } from "@/components/admin/admin-shell";
 import { getAuthenticatedAdmin } from "@/lib/auth/session";
 
 /**
- * Auth gate. Middleware (src/middleware.ts) already blocks unauthenticated
+ * Auth gate. The request proxy (src/proxy.ts) already blocks unauthenticated
  * requests to /admin — this is the defense-in-depth layer per
  * docs/security-model.md ("neither layer is relied on alone"), and it's
  * also where the role check against `profiles` happens (middleware only

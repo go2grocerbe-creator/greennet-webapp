@@ -6,23 +6,8 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import { SunScene } from "@/components/marketing/sun-scene";
 import {
   clamp,
-  getBatteryEntry,
-  getBatteryPresence,
-  getBatteryFocus,
-  getConversionFlow,
-  getFinalCtaActivation,
-  getHandoffFlow,
-  getHomeLight,
-  getHomeFocus,
-  getHouseContact,
-  getPanelPresence,
-  getPanelFocus,
-  getSolarAltitude,
-  getSolarBatteryState,
   getSolarChapterOpacity,
-  getSolarCurrentState,
-  getSolarEnvironmentPhase,
-  getSolarTextPhase,
+  getSolarStoryState,
   getStoryDistance,
   solarChapterWindows,
   solarPhases,
@@ -101,8 +86,9 @@ export function SolarExperience({ children }: { children: React.ReactNode }) {
       const rect = root.getBoundingClientRect();
       const distance = getStoryDistance(root.offsetHeight, window.innerHeight);
       const progress = clamp(-rect.top / distance);
+      const storyState = getSolarStoryState(progress);
       const daylight = clamp(progress / 0.82);
-      const solarAltitude = getSolarAltitude(progress);
+      const solarAltitude = storyState.solarAltitude;
       const dawnWarmth = clamp((progress - 0.015) / 0.11) * (1 - clamp((progress - 0.2) / 0.16));
       const duskWarmth = clamp((progress - 0.5) / 0.17) * (1 - clamp((progress - 0.8) / 0.14));
       const shadowStrength =
@@ -110,19 +96,13 @@ export function SolarExperience({ children }: { children: React.ReactNode }) {
       const panelLight = clamp(solarAltitude * 1.18) * (1 - clamp((progress - 0.72) / 0.24) * 0.72);
       const baseX = 7 + daylight * 86;
       const baseY = 80 - Math.sin(Math.PI * daylight) * 68;
-      const houseContact = getHouseContact(progress);
-      const sunX = baseX * (1 - houseContact) + 50 * houseContact;
-      // The contact point is just above the centered home's roof. It keeps
-      // the sun as narrator, then lets the lit house own the final action.
-      const sunY = baseY * (1 - houseContact) + 70 * houseContact;
-      const nextPhase = getSolarEnvironmentPhase(progress);
-      const nextVisiblePhase = getSolarTextPhase(progress);
-      const finalCtaActivation = getFinalCtaActivation(progress);
-      const nextSettled = finalCtaActivation >= 0.95;
-      const panelPresence = getPanelPresence(progress);
-      const batteryEntry = getBatteryEntry(progress);
-      const batteryPresence = getBatteryPresence(progress);
-      const homeLight = getHomeLight(progress);
+      const sunX = baseX * (1 - storyState.sunMorph) + 50 * storyState.sunMorph;
+      // The settled sun reaches the home before yielding focus to the house
+      // quotation link, keeping the final action separate from the night copy.
+      const sunY = baseY * (1 - storyState.houseContact) + 76 * storyState.houseContact;
+      const nextPhase = storyState.environmentPhase;
+      const nextVisiblePhase = storyState.textPhase;
+      const nextSettled = storyState.houseCta >= 0.95;
 
       root.style.setProperty("--solar-progress", progress.toFixed(4));
       for (const window of solarChapterWindows) {
@@ -139,16 +119,16 @@ export function SolarExperience({ children }: { children: React.ReactNode }) {
       root.style.setProperty("--shadow-strength", shadowStrength.toFixed(4));
       root.style.setProperty("--shadow-softness", `${(0.6 + solarAltitude * 1.3).toFixed(3)}rem`);
       root.style.setProperty("--panel-light", panelLight.toFixed(4));
-      root.style.setProperty("--panel-presence", panelPresence.toFixed(4));
+      root.style.setProperty("--panel-presence", storyState.panelPresence.toFixed(4));
       root.style.setProperty("--terrain-lift", `${((1 - solarAltitude) * 1.8).toFixed(3)}vh`);
       root.style.setProperty("--atmosphere-shift", `${((progress - 0.5) * 2.4).toFixed(3)}vw`);
-      root.style.setProperty("--battery-presence", batteryPresence.toFixed(4));
-      root.style.setProperty("--battery-entry", batteryEntry.toFixed(4));
-      root.style.setProperty("--charge-low", clamp((progress - 0.44) / 0.08).toFixed(4));
-      root.style.setProperty("--charge-mid", clamp((progress - 0.47) / 0.08).toFixed(4));
-      root.style.setProperty("--charge-high", clamp((progress - 0.5) / 0.056).toFixed(4));
+      root.style.setProperty("--battery-entry", storyState.batteryEntry.toFixed(4));
+      root.style.setProperty("--battery-presence", storyState.batteryPresence.toFixed(4));
+      root.style.setProperty("--charge-low", clamp((progress - 0.4) / 0.08).toFixed(4));
+      root.style.setProperty("--charge-mid", clamp((progress - 0.43) / 0.08).toFixed(4));
+      root.style.setProperty("--charge-high", clamp((progress - 0.46) / 0.056).toFixed(4));
       root.style.setProperty("--stored-glow", clamp((progress - 0.52) / 0.2).toFixed(4));
-      root.style.setProperty("--home-light", homeLight.toFixed(4));
+      root.style.setProperty("--home-light", storyState.homeLight.toFixed(4));
       root.style.setProperty("--pre-dawn", clamp(1 - progress / 0.12).toFixed(4));
       root.style.setProperty(
         "--daylight",
@@ -159,19 +139,18 @@ export function SolarExperience({ children }: { children: React.ReactNode }) {
         (clamp((progress - 0.38) / 0.16) * (1 - clamp((progress - 0.69) / 0.13))).toFixed(4),
       );
       root.style.setProperty("--night", clamp((progress - 0.69) / 0.25).toFixed(4));
-      root.style.setProperty("--sun-morph", houseContact.toFixed(4));
-      root.style.setProperty("--cta-reveal", finalCtaActivation.toFixed(4));
+      root.style.setProperty("--house-contact", storyState.houseContact.toFixed(4));
+      root.style.setProperty("--cta-reveal", storyState.houseCta.toFixed(4));
       root.style.setProperty("--shadow-reach", `${((0.5 - daylight) * 56).toFixed(2)}vw`);
       root.style.setProperty("--camera-tilt", `${((progress - 0.5) * 7).toFixed(2)}deg`);
       // Storytelling emphasis — ranges documented in src/lib/solar/solar-phase.ts.
-      root.style.setProperty("--panel-focus", getPanelFocus(progress).toFixed(4));
-      root.style.setProperty("--conversion-flow", getConversionFlow(progress).toFixed(4));
-      root.style.setProperty("--battery-focus", getBatteryFocus(progress).toFixed(4));
-      root.style.setProperty("--handoff-flow", getHandoffFlow(progress).toFixed(4));
-      root.style.setProperty("--home-focus", getHomeFocus(progress).toFixed(4));
-      root.style.setProperty("--house-contact", houseContact.toFixed(4));
-      root.dataset.currentState = getSolarCurrentState(progress);
-      root.dataset.batteryState = getSolarBatteryState(progress);
+      root.style.setProperty("--panel-focus", storyState.panelFocus.toFixed(4));
+      root.style.setProperty("--conversion-flow", storyState.conversionFlow.toFixed(4));
+      root.style.setProperty("--battery-focus", storyState.batteryFocus.toFixed(4));
+      root.style.setProperty("--handoff-flow", storyState.handoffFlow.toFixed(4));
+      root.style.setProperty("--home-focus", storyState.homeFocus.toFixed(4));
+      root.dataset.currentState = storyState.currentState;
+      root.dataset.batteryState = storyState.batteryState;
 
       // `data-text-phase` is written synchronously here, but the matching
       // `aria-current="step"` marker is React-rendered and lands on the next
@@ -286,10 +265,10 @@ export function SolarExperience({ children }: { children: React.ReactNode }) {
     const index = phases.findIndex((item) => item.id === phase);
     if (event.key === "ArrowLeft" || event.key === "ArrowUp") {
       event.preventDefault();
-      selectPhase(phases[Math.max(0, index - 1)]);
+      selectPhase(phases[Math.max(0, index - 1)], "keyboard");
     } else if (event.key === "ArrowRight" || event.key === "ArrowDown") {
       event.preventDefault();
-      selectPhase(phases[Math.min(phases.length - 1, index + 1)]);
+      selectPhase(phases[Math.min(phases.length - 1, index + 1)], "keyboard");
     } else if (event.key === "Home") {
       event.preventDefault();
       selectPhase(phases[0], "keyboard");
@@ -340,6 +319,8 @@ export function SolarExperience({ children }: { children: React.ReactNode }) {
           ref={sunButtonRef}
           type="button"
           className={styles.sunHandle}
+          tabIndex={sunSettled ? -1 : undefined}
+          aria-hidden={sunSettled ? "true" : undefined}
           aria-expanded={navOpen}
           aria-controls="solar-phase-navigation"
           aria-label={
@@ -347,18 +328,12 @@ export function SolarExperience({ children }: { children: React.ReactNode }) {
               ? "Night. The sun has reached the house."
               : `${currentLabel}. Open solar day navigation. Use arrow keys to move through time.`
           }
-          aria-hidden={sunSettled ? "true" : undefined}
-          tabIndex={sunSettled ? -1 : undefined}
           onClick={() => {
             if (movedDuringDrag.current) {
               movedDuringDrag.current = false;
               return;
             }
-            if (sunSettled) {
-              scrollToProgress(1);
-              return;
-            }
-            if (phase === "night") {
+            if (sunSettled || phase === "night") {
               scrollToProgress(1);
               return;
             }

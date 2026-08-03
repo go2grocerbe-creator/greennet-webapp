@@ -4,6 +4,25 @@ Format loosely follows [Keep a Changelog](https://keepachangelog.com/). Dates ar
 
 ## Unreleased — `migration/nextjs-supabase`
 
+### Added — Client handover release
+
+- Completed `/about` and `/projects`, exposed the full confirmed Phase 1 navigation, and made
+  Products/Projects useful without inventing brands, specifications, prices, case studies, or images.
+- Added category-level product guidance, project capability pathways, approved positioning,
+  handover brand tokens/type, complete metadata, generated social sharing image, manifest,
+  structured data, and security headers.
+- Added explicit application-level published-only filtering for Services, Products, and Projects in
+  addition to RLS, preventing editor sessions from rendering drafts on public routes.
+- Hardened quotation intake with production-fail-closed Turnstile and a server-only Supabase insert;
+  anonymous PostgREST inserts are removed by migration `20260801000001`.
+- Added media-rights publication triggers, editor lead-update constraints, narrower site-settings
+  policy, and trigger-based audit logging in migration `20260801000001`.
+- Added `HANDOVER.md`, `CLIENT_APPROVAL_CHECKLIST.md`, `RELEASE_CHECKLIST.md`, and a complete
+  production `README.md`/`.env.example` contract.
+- Added cross-route responsive Playwright coverage and Turnstile/publication-filter unit tests.
+- Made formatting checks portable across Windows/CI worktrees and excluded generated Playwright
+  output from ESLint.
+
 ### Added — Production Solar Solutions frontend
 
 - Rebuilt `/services` around four client-confirmed editorial pillars, seven typed detailed

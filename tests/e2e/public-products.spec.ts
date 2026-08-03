@@ -9,10 +9,16 @@ test.describe("Public Products page", () => {
     await expect(page).toHaveTitle(/products/i);
   });
 
-  test("shows a friendly message instead of a crash when data is unavailable", async ({ page }) => {
+  test("keeps the factual category guide complete when the CMS is unavailable", async ({
+    page,
+  }) => {
     await page.goto("/products");
 
-    await expect(page.getByText(/catalogue is between connections/i)).toBeVisible();
+    await expect(
+      page.getByRole("heading", { name: /compatibility before catalogue volume/i }),
+    ).toBeVisible();
+    await expect(page.locator(".solution-pillar-ledger > li")).toHaveCount(5);
+    await expect(page.getByText(/data unavailable/i)).toHaveCount(0);
   });
 
   test("nav link to Products points at /products", async ({ page }) => {

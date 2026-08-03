@@ -6,3 +6,5 @@ test-results
 .agents
 .claude
 .codex
+AGENTS.md
+AGENTS.md.backup-*

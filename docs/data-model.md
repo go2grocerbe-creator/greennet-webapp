@@ -7,16 +7,17 @@ All tables live in Supabase Postgres. Every table below carries RLS policies def
 
 ## Entity summary
 
-| Entity           | Purpose                                                    |
-| ---------------- | ---------------------------------------------------------- |
-| `profiles`       | Extends `auth.users` with role and display info            |
-| `services`       | Solar Solutions page content                               |
-| `products`       | Products page content                                      |
-| `projects`       | Projects page content, including `featured` flag           |
-| `quote_requests` | Leads submitted via the Contact / Request a Quotation form |
-| `media`          | Metadata for Supabase Storage uploads (photos, documents)  |
-| `site_settings`  | Singleton-style key/value store for global site config     |
-| `audit_log`      | Append-only record of administrative actions               |
+| Entity                      | Purpose                                                    |
+| --------------------------- | ---------------------------------------------------------- |
+| `profiles`                  | Extends `auth.users` with role and display info            |
+| `services`                  | Solar Solutions page content                               |
+| `products`                  | Products page content                                      |
+| `projects`                  | Projects page content, including `featured` flag           |
+| `quote_requests`            | Leads submitted via the Contact / Request a Quotation form |
+| `quote_request_rate_limits` | Shared server-side abuse-control windows                   |
+| `media`                     | Metadata for Supabase Storage uploads (photos, documents)  |
+| `site_settings`             | Singleton-style key/value store for global site config     |
+| `audit_log`                 | Append-only record of administrative actions               |
 
 ## `profiles`
 
@@ -59,7 +60,7 @@ Extends Supabase's built-in `auth.users`; one row per authenticated admin/editor
 | `created_by`, `updated_by`, `created_at`, `updated_at` | as above                        |                                                                                                             |
 | `summary`                                              | text, nullable                  | "Short description" — added in migration `20260722000001` (docs/decision-log.md ADR-013)                    |
 | `sort_order`                                           | integer, default 0              | "Display order" — added in migration `20260722000001`                                                       |
-| `image_url`                                            | text, nullable                  | Optional product image, staff-supplied URL — added in migration `20260722000001`                            |
+| `image_url`                                            | text, nullable                  | Legacy draft-only review reference; migration `20260801000001` blocks it on published records               |
 
 No `price` field in Phase 1 core schema — pricing display is an unconfirmed, distinct question (see requirements register §5) and automated pricing is explicitly out of scope. If simple static price display is later confirmed, add a nullable `display_price` field rather than building pricing logic.
 
@@ -80,7 +81,7 @@ No `price` field in Phase 1 core schema — pricing display is an unconfirmed, d
 | `summary`                                              | text, nullable                                  | "Short description" (distinct from `equipment_summary`) — added in migration `20260722000001`                                                                                 |
 | `sort_order`                                           | integer, default 0                              | "Display order" — added in migration `20260722000001`                                                                                                                         |
 | `completion_date`                                      | date, nullable                                  | Added in migration `20260722000001`                                                                                                                                           |
-| `cover_image_url`                                      | text, nullable                                  | Optional cover image, staff-supplied URL — added in migration `20260722000001`                                                                                                |
+| `cover_image_url`                                      | text, nullable                                  | Legacy draft-only review reference; migration `20260801000001` blocks it on published records                                                                                 |
 
 ## `project_media` (join table)
 
@@ -126,6 +127,18 @@ Separate join table rather than an array column, so each image's provenance/righ
 | `created_at`               | timestamptz                                                              |                                                                                                                                                               |
 
 **Exact field list is still an ASSUMPTION** pending the MISSING answer to "what information is required before GreenNet can prepare a useful quotation" (requirements register §5) — this is the working backbone implemented in the Contact/Quotation milestone (see `docs/decision-log.md` ADR-010), not a client-confirmed final list. No honeypot value is persisted — it's checked and discarded before any database write, see `docs/security-model.md`.
+
+## `quote_request_rate_limits`
+
+| Column              | Type        | Notes                                                       |
+| ------------------- | ----------- | ----------------------------------------------------------- |
+| `identifier_hash`   | text, PK    | Truncated SHA-256 of the request IP; raw IP is never stored |
+| `window_started_at` | timestamptz | Start of the current fixed request window                   |
+| `request_count`     | integer     | Atomic count within the current window                      |
+| `updated_at`        | timestamptz | Supports expiry cleanup                                     |
+
+RLS is enabled with no anonymous/authenticated policies. Only the server-held service role can call
+the fixed-window RPC; browser and ordinary admin sessions have no table access.
 
 ## `site_settings`
 
